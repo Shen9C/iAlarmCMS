@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3>告警趋势</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3>告警类型分布</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="typeChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// 加载图表数据和渲染逻辑
+</script>
+{% endblock %}

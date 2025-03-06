@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>告警详情</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">告警管理系统</a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="{{ url_for('alarm_view.index') }}">返回列表</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>告警详情 #{{ alarm.alarm_number }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>告警类型：</strong>{{ alarm.alarm_type }}</p>
+                        <p><strong>告警时间：</strong>{{ alarm.alarm_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                        <p><strong>处理状态：</strong>
+                            <span class="badge {% if alarm.is_processed %}bg-success{% else %}bg-warning{% endif %}">
+                                {{ '已处理' if alarm.is_processed else '未处理' }}
+                            </span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        {% if alarm.alarm_image %}
+                        <img src="{{ url_for('static', filename=alarm.alarm_image) }}" class="img-fluid">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}告警列表{% endblock %}
+
+{% block content %}
+<div class="card h-100">
+    <div class="card-header">
+        <h5 class="mb-0 d-flex justify-content-between align-items-center">
+            <span>告警列表</span>
+            <a href="{{ url_for('alarm_view.export_alarms') }}" class="btn btn-success btn-sm">
+                <i class="bi bi-download"></i> 导出
+            </a>
+        </h5>
+        
+        <!-- 筛选表单 -->
+        <div class="mt-3">
+            <form class="row g-3" method="get">
+                <div class="col-md-3">
+                    <select name="alarm_type" class="form-select">
+                        <option value="">所有类型</option>
+                        {% for type in alarm_types %}
+                        <option value="{{ type[0] }}" {% if request.args.get('alarm_type') == type[0] %}selected{% endif %}>
+                            {{ type[0] }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="is_processed" class="form-select">
+                        <option value="">处理状态</option>
+                        <option value="1" {% if request.args.get('is_processed') == '1' %}selected{% endif %}>已处理</option>
+                        <option value="0" {% if request.args.get('is_processed') == '0' %}selected{% endif %}>未处理</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="start_date" class="form-control" value="{{ request.args.get('start_date', '') }}">
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="end_date" class="form-control" value="{{ request.args.get('end_date', '') }}">
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">筛选</button>
+                    <!-- 清除筛选按钮 -->
+                    <a href="{{ url_for('alarm_view.index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> 清除
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- 增加间距 -->
+        <div class="my-4"></div>
+
+        <!-- 表格区域 -->
+        <div class="table-container">
+            <table class="table table-hover mb-0 resizable-table">
+                <thead>
+                    <tr>
+                        <th class="resizable text-center">告警编号</th>
+                        <th class="resizable text-center" style="min-width: 100px;">处理状态</th>
+                        <th class="resizable text-center">告警类型</th>
+                        <th class="resizable text-center" style="min-width: 120px;">设备名称</th>
+                        <th class="resizable text-center" style="min-width: 120px;">设备IP</th>
+                        <th class="resizable text-center" style="min-width: 180px;">告警时间</th>
+                        <th class="resizable text-center" style="min-width: 120px;">告警图片</th>
+                        <th class="resizable text-center" style="min-width: 120px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                    {% for alarm in alarms %}
+                    <tr>
+                        <td class="text-center">
+                            <a href="{{ url_for('alarm_view.alarm_detail', alarm_id=alarm.id) }}">
+                                {{ alarm.alarm_number }}
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge {% if alarm.is_processed %}bg-success{% else %}bg-warning{% endif %}">
+                                {{ '已处理' if alarm.is_processed else '未处理' }}
+                            </span>
+                        </td>
+                        <td class="text-center">{{ alarm.alarm_type }}</td>
+                        <td class="text-center">{{ alarm.device_name }}</td>
+                        <td class="text-center">{{ alarm.device_ip }}</td>
+                        <td class="text-center">{{ alarm.alarm_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td class="text-center">
+                            {% if alarm.alarm_image %}
+                            <img src="{{ url_for('static', filename=alarm.alarm_image) }}" width="100" class="img-thumbnail">
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if not alarm.is_processed %}
+                            <form action="{{ url_for('alarm_view.process_alarm', alarm_id=alarm.id) }}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-primary">标记为已处理</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页区域 -->
+        <div class="d-flex justify-content-between align-items-center p-3 border-top bg-white">
+            <div class="d-flex align-items-center">
+                <form method="get" class="d-flex align-items-center">
+                    <label class="me-2">每页显示：</label>
+                    <select name="page_size" class="form-select form-select-sm" style="width: 100px;" onchange="this.form.submit()">
+                        <option value="10" {% if page_size == 10 %}selected{% endif %}>10条/页</option>
+                        <option value="20" {% if page_size == 20 %}selected{% endif %}>20条/页</option>
+                        <option value="50" {% if page_size == 50 %}selected{% endif %}>50条/页</option>
+                        <option value="100" {% if page_size == 100 %}selected{% endif %}>100条/页</option>
+                    </select>
+                    {% for key, value in request.args.items() %}
+                        {% if key not in ['page_size', 'page'] %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endif %}
+                    {% endfor %}
+                </form>
+                <span class="ms-3">共 {{ pagination.total }} 条记录</span>
+            </div>
+            
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0">
+                    {% if pagination.has_prev %}
+                    <li class="page-item">
+                        {% set args = request.args.copy() %}
+                        {% set _ = args.pop('page', None) %}
+                        <a class="page-link" href="{{ url_for('alarm_view.index', page=pagination.prev_num, **args) }}">上一页</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in pagination.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+                        {% if page_num %}
+                            <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                                {% set args = request.args.copy() %}
+                                {% set _ = args.pop('page', None) %}
+                                <a class="page-link" href="{{ url_for('alarm_view.index', page=page_num, **args) }}">{{ page_num }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if pagination.has_next %}
+                    <li class="page-item">
+                        {% set args = request.args.copy() %}
+                        {% set _ = args.pop('page', None) %}
+                        <a class="page-link" href="{{ url_for('alarm_view.index', page=pagination.next_num, **args) }}">下一页</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        height: calc(100vh - 2rem);
+        display: flex;
+        flex-direction: column;
+    }
+    .table-container {
+        height: calc(100vh - 250px);
+        overflow-y: auto;
+    }
+    .card-header, .card-footer {
+        background-color: white;
+    }
+    thead tr {
+        position: sticky;
+        top: 0;
+        background-color: white;
+        z-index: 1;
+    }
+    .table {
+        margin-bottom: 0;
+    }
+    
+    .resizable {
+        position: relative;
+        user-select: none;
+    }
+    
+    .resizable::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        height: 100%;
+        width: 8px;
+        background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1));
+        cursor: col-resize;
+    }
+    
+    .resizable:hover::after {
+        background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.2));
+    }
+    
+    .resizing .resizable::after {
+        background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.3));
+    }
+    
+    .resizing {
+        cursor: col-resize;
+        user-select: none;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const table = document.querySelector('.resizable-table');
+    const headers = table.querySelectorAll('th.resizable');
+    let resizingHeader = null;
+    let startX, startWidth;
+
+    headers.forEach(header => {
+        const resizer = header.querySelector('.resizer') || header;
+        
+        resizer.addEventListener('mousedown', function(e) {
+            if (e.target === header && e.offsetX < header.offsetWidth - 5) return;
+            
+            resizingHeader = header;
+            startX = e.pageX;
+            startWidth = header.offsetWidth;
+            
+            document.body.classList.add('resizing');
+            
+            e.preventDefault();
+        });
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (!resizingHeader) return;
+        
+        const width = startWidth + (e.pageX - startX);
+        if (width > 50) {
+            resizingHeader.style.width = width + 'px';
+        }
+    });
+
+    document.addEventListener('mouseup', function() {
+        if (!resizingHeader) return;
+        
+        document.body.classList.remove('resizing');
+        resizingHeader = null;
+    });
+});
+</script>
+{% endblock %}

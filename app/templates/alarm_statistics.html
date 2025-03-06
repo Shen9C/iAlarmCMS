@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}告警统计{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="row g-4">
+        <!-- 总体统计卡片组 -->
+        <div class="col-12">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body text-center">
+                            <h3 class="card-title text-primary">总告警数</h3>
+                            <h2 class="display-4">{{ stats.total_alarms }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-success">
+                        <div class="card-body text-center">
+                            <h3 class="card-title text-success">已处理</h3>
+                            <h2 class="display-4">{{ stats.processed_alarms }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-warning">
+                        <div class="card-body text-center">
+                            <h3 class="card-title text-warning">未处理</h3>
+                            <h2 class="display-4">{{ stats.unprocessed_alarms }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 告警类型统计 -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">告警类型分布</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for stat in stats.type_stats %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ stat.alarm_type }}</span>
+                            <div>
+                                <span class="badge bg-primary rounded-pill">{{ stat.count }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设备告警统计 -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">设备告警TOP10</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for stat in stats.device_stats %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ stat.device_name }}</span>
+                            <div>
+                                <span class="badge bg-primary rounded-pill">{{ stat.count }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7天趋势图 -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">最近7天告警趋势</h5>
+                </div>
+                <div class="card-body">
+                    <div id="chartData" data-stats='{{ stats.daily_stats | tojson | safe }}' style="display: none;"></div>
+                    <canvas id="trendChart" style="height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chartDataElement = document.getElementById('chartData');
+    const dailyStats = JSON.parse(chartDataElement.dataset.stats);
+    
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dailyStats.map(stat => stat.date),
+            datasets: [{
+                label: '告警数量',
+                data: dailyStats.map(stat => stat.count),
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                tension: 0.1,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}系统设置{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="card">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#basic" role="tab">
+                        <i class="bi bi-gear"></i> 基本设置
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#alarm" role="tab">
+                        <i class="bi bi-bell"></i> 告警设置
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#email" role="tab">
+                        <i class="bi bi-envelope"></i> 邮件设置
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content">
+                <!-- 基本设置标签页 -->
+                <div class="tab-pane fade show active" id="basic" role="tabpanel">
+                    <form action="{{ url_for('settings.update_basic_settings') }}" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">系统名称（中文）</label>
+                            <input type="text" class="form-control" name="system_name_zh" value="{{ settings.system_name_zh }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">系统名称（英文）</label>
+                            <input type="text" class="form-control" name="system_name_en" value="{{ settings.system_name_en }}">
+                        </div>
+                        <button type="submit" class="btn btn-primary">保存设置</button>
+                    </form>
+                </div>
+
+                <!-- 告警设置标签页 -->
+                <div class="tab-pane fade" id="alarm" role="tabpanel">
+                    <form action="{{ url_for('settings.update_alarm_settings') }}" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">告警保留天数</label>
+                            <input type="number" class="form-control" name="retention_days" value="{{ settings.retention_days or 30 }}" min="1">
+                            <div class="form-text">设置告警数据保留的天数，超过期限的告警将被自动清理</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">告警刷新间隔（秒）</label>
+                            <input type="number" class="form-control" name="refresh_interval" value="{{ settings.refresh_interval or 30 }}" min="5">
+                            <div class="form-text">设置告警列表自动刷新的时间间隔</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">保存设置</button>
+                    </form>
+                </div>
+
+                <!-- 邮件设置标签页 -->
+                <div class="tab-pane fade" id="email" role="tabpanel">
+                    <form action="{{ url_for('settings.update_email_settings') }}" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">SMTP 服务器</label>
+                            <input type="text" class="form-control" name="smtp_server" value="{{ settings.smtp_server or '' }}" placeholder="例如：smtp.163.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">SMTP 端口</label>
+                            <input type="number" class="form-control" name="smtp_port" value="{{ settings.smtp_port or 587 }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">发件人邮箱</label>
+                            <input type="email" class="form-control" name="sender_email" value="{{ settings.sender_email or '' }}" placeholder="例如：your-email@163.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">邮箱密码/授权码</label>
+                            <input type="password" class="form-control" name="email_password" placeholder="如不修改密码请留空">
+                            <div class="form-text">如果不修改密码，请留空</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="enable_email" id="enable_email" {% if settings.enable_email %}checked{% endif %}>
+                                <label class="form-check-label" for="enable_email">启用邮件通知</label>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">保存设置</button>
+                            <button type="button" class="btn btn-secondary" onclick="testEmailSettings()">测试邮件发送</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function testEmailSettings() {
+    if (!confirm('确定要发送测试邮件吗？')) {
+        return;
+    }
+    fetch("{{ url_for('settings.test_email') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+    })
+    .catch(error => {
+        alert('测试邮件发送失败');
+    });
+}
+
+// 保持上次选择的标签页
+document.addEventListener('DOMContentLoaded', function() {
+    const hash = window.location.hash;
+    if (hash) {
+        const tab = new bootstrap.Tab(document.querySelector(`a[href="${hash}"]`));
+        tab.show();
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}
