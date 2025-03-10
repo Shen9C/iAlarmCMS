@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_user, logout_user, login_required, current_user
-from datetime import datetime  # 添加这行
+from datetime import datetime
 import logging
 
 # 设置日志
@@ -10,39 +10,19 @@ logger = logging.getLogger(__name__)
 from werkzeug.security import check_password_hash, generate_password_hash
 from app.models.user import User
 from app import db
-import re  # 添加 re 模块的导入
+import re
 
-# 修改 Blueprint 的名称和 url_prefix
-bp = Blueprint('auth', __name__, url_prefix='/auth')
+bp = Blueprint('auth', __name__)
 
-def validate_password(password):
-    """验证密码复杂度"""
-    if len(password) < 8:
-        return False, '密码长度必须至少8位'
-    
-    if not re.search(r'[A-Z]', password):
-        return False, '密码必须包含大写字母'
-    
-    if not re.search(r'[a-z]', password):
-        return False, '密码必须包含小写字母'
-    
-    if not re.search(r'\d', password):
-        return False, '密码必须包含数字'
-    
-    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        return False, '密码必须包含特殊字符'
-    
-    return True, '密码符合要求'
-
-# 在 login 函数中使用 urlparse
+# 保留一个登录路由
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
-    # 如果用户已登录，检查请求来源
     if current_user.is_authenticated:
-        next_page = request.args.get('next')
-        if next_page:
-            return redirect(next_page)
-        return redirect(url_for('alarm_view.index'))
+        if current_user.is_token_expired():
+            new_token = current_user.generate_token()
+            db.session.commit()
+            return redirect(url_for('alarm_view.index', user_token=new_token))
+        return redirect(url_for('alarm_view.index', user_token=current_user.current_token))
 
     if request.method == 'POST':
         username = request.form.get('username')
@@ -53,17 +33,19 @@ def login():
             flash('用户名或密码错误', 'danger')
             return render_template('auth/login.html')
         
-        # 更新登录信息，添加空值检查
+        token = user.generate_token()
+        user.current_token = token
         user.last_login_time = datetime.utcnow()
-        user.login_count = (user.login_count or 0) + 1  # 如果为 None 则设为 0
+        user.login_count = (user.login_count or 0) + 1
         user.last_login_ip = request.remote_addr
+        user.token_timestamp = datetime.utcnow()
         db.session.commit()
         
         login_user(user, remember=True)
         next_page = request.args.get('next')
         if next_page:
             return redirect(next_page)
-        return redirect(url_for('alarm_view.index'))
+        return redirect(url_for('alarm_view.index', user_token=token))
     
     return render_template('auth/login.html')
 
@@ -96,18 +78,33 @@ def change_password():
     return render_template('auth/change_password.html')
 
 # 修改登出路由
-@bp.route('/logout')  # 只使用 GET 方法，移除 methods 参数
+@bp.route('/logout')
 @login_required
 def logout():
-    logger.debug(f"[DEBUG] 进入登出路由")
-    logger.debug(f"[DEBUG] 请求方法: {request.method}")
-    logger.debug(f"[DEBUG] 请求路径: {request.path}")
-    
+    token = request.args.get('user_token')
+    if not token or current_user.current_token != token:
+        flash('无效的会话', 'error')
+        return redirect(url_for('auth.login'))
+        
     try:
+        current_user.current_token = None
+        db.session.commit()
         logout_user()
-        logger.debug("[DEBUG] 用户已登出")
         flash('您已成功退出系统', 'info')
         return redirect(url_for('auth.login'))
     except Exception as e:
         logger.error(f"[ERROR] 登出过程发生错误: {str(e)}")
         raise
+
+@bp.before_request
+def check_token():
+    """每次请求前检查令牌"""
+    if current_user.is_authenticated and current_user.is_token_expired():
+        # 刷新令牌
+        new_token = current_user.generate_token()
+        db.session.commit()
+        # 重定向到当前页面，带上新令牌
+        return redirect(request.url.replace(
+            f'user_token={request.args.get("user_token")}',
+            f'user_token={new_token}'
+        ))

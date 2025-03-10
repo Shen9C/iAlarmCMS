@@ -1,0 +1,5 @@
+<form id="searchForm" method="GET" action="{{ url_for('alarm_view.index') }}">
+    <!-- 添加隐藏的 user_token 字段 -->
+    <input type="hidden" name="user_token" value="{{ request.args.get('user_token') }}">
+    <!-- ... 其他表单字段 ... -->
+</form>

@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from app import db
 from app.models.alarm import Alarm
 import io, csv
+from flask import jsonify
+import re
 
 # 创建蓝图实例 - 确保在任何路由之前定义
 # 修改蓝图名称
@@ -17,6 +19,7 @@ bp = Blueprint('alarm_view', __name__)
 def index():
     page = request.args.get('page', 1, type=int)
     page_size = request.args.get('page_size', 10, type=int)
+    user_token = request.args.get('user_token')
     
     # 构建查询
     query = Alarm.query
@@ -45,52 +48,83 @@ def index():
                          alarms=pagination.items,
                          pagination=pagination,
                          page_size=page_size,
+                         user_token=user_token,
                          alarm_types=db.session.query(Alarm.alarm_type).distinct().all())
 
-# 导出功能也需要更新
+@bp.route('/mark_as_handled', methods=['POST'])
+@login_required
+def mark_as_handled():
+    try:
+        data = request.get_json()
+        alarm_ids = data.get('ids', [])
+        user_token = request.args.get('user_token')
+        
+        alarms = Alarm.query.filter(Alarm.id.in_(alarm_ids)).all()
+        for alarm in alarms:
+            alarm.status = 'handled'
+            alarm.handled_by = current_user.username
+            alarm.handled_time = datetime.now()
+        
+        db.session.commit()
+        return jsonify({'success': True, 'user_token': user_token})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
 @bp.route('/export')
-def export_alarms():
-    alarms = Alarm.query.all()
-    
-    output = io.StringIO()
-    writer = csv.writer(output)
-    writer.writerow(['告警编号', '处理状态', '告警类型', '设备名称', 'IP地址', '告警时间'])
-    
-    for alarm in alarms:
-        writer.writerow([
-            alarm.alarm_number,
-            '已处理' if alarm.is_processed else '未处理',
-            alarm.alarm_type,
-            alarm.device_name or '',
-            alarm.device_ip or '',
-            alarm.alarm_time.strftime('%Y-%m-%d %H:%M:%S')
-        ])
-    
-    output.seek(0)
-    return Response(
-        output,
-        mimetype='text/csv',
-        headers={'Content-Disposition': 'attachment; filename=alarms.csv'}
-    )
+@login_required
+def export():
+    try:
+        # 获取筛选条件
+        alarm_type = request.args.get('alarm_type')
+        is_processed = request.args.get('is_processed')
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        user_token = request.args.get('user_token')
+        
+        # 构建查询
+        query = Alarm.query
+        
+        if alarm_type:
+            query = query.filter(Alarm.alarm_type == alarm_type)
+        if is_processed:
+            query = query.filter(Alarm.is_processed == (is_processed == '1'))
+        if start_date:
+            query = query.filter(Alarm.alarm_time >= datetime.strptime(start_date, '%Y-%m-%d'))
+        if end_date:
+            query = query.filter(Alarm.alarm_time < datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1))
+        
+        alarms = query.all()
+        
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(['告警编号', '处理状态', '告警类型', '设备名称', 'IP地址', '告警时间'])
+        
+        for alarm in alarms:
+            writer.writerow([
+                alarm.alarm_number,
+                '已处理' if alarm.is_processed else '未处理',
+                alarm.alarm_type,
+                alarm.device_name or '',
+                alarm.device_ip or '',
+                alarm.alarm_time.strftime('%Y-%m-%d %H:%M:%S')
+            ])
+        
+        output.seek(0)
+        return Response(
+            output,
+            mimetype='text/csv',
+            headers={
+                'Content-Disposition': f'attachment; filename=alarms_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv',
+                'X-User-Token': user_token
+            }
+        )
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-
-def create_alarm(alarm_data):
-    alarm = Alarm(
-        alarm_number=generate_alarm_number(),
-        alarm_type=alarm_data['type'],
-        device_name=alarm_data.get('device_name'),
-        device_ip=alarm_data.get('device_ip'),
-        alarm_time=datetime.now(),
-        alarm_image=save_alarm_image(alarm_data.get('image'))
-    )
-    db.session.add(alarm)
-    db.session.commit()
-    return alarm
-
-
-# 统计页面
 @bp.route('/statistics')
+@login_required
 def statistics():
+    user_token = request.args.get('user_token')
     try:
         # 基础查询
         base_query = Alarm.query
@@ -180,7 +214,7 @@ def statistics():
         # 打印最终的统计数据
         print("Debug - Final stats:", stats['daily_stats'])
         
-        return render_template('alarm_statistics.html', stats=stats)
+        return render_template('alarm_statistics.html', stats=stats, user_token=user_token)
 
     except Exception as e:
         print(f"Error in statistics: {str(e)}")
@@ -203,10 +237,18 @@ def alarm_detail(alarm_id):
 
 @bp.route('/process/<int:alarm_id>', methods=['POST'])
 def process_alarm(alarm_id):
+    user_token = request.args.get('user_token')
     alarm = Alarm.query.get_or_404(alarm_id)
     alarm.is_processed = True
     db.session.commit()
-    return redirect(url_for('alarm_view.index'))
+    
+    # 获取所有当前的 URL 参数
+    args = request.args.copy()
+    # 确保包含 user_token
+    args['user_token'] = user_token
+    
+    # 重定向回原页面，保留所有查询参数
+    return redirect(url_for('alarm_view.index', **args))
 
 def root():
     return redirect(url_for('alarm_view.index'))
@@ -245,3 +287,175 @@ def add_user():
     
     flash('用户添加成功')
     return redirect(url_for('alarm_view.user_management'))
+
+
+# 删除或注释掉旧的 mark_as_handled 路由
+# @bp.route('/mark_as_handled', methods=['POST'])
+# @login_required
+# def mark_as_handled():
+#     try:
+#         data = request.get_json()
+#         alarm_ids = data.get('ids', [])
+#         
+#         alarms = Alarm.query.filter(Alarm.id.in_(alarm_ids)).all()
+#         for alarm in alarms:
+#             alarm.status = 'handled'
+#             alarm.handled_by = current_user.username
+#             alarm.handled_time = datetime.now()
+#         
+#         db.session.commit()
+#         return jsonify({'success': True})
+#     except Exception as e:
+#         return jsonify({'success': False, 'message': str(e)})
+
+@bp.route('/batch_handle', methods=['POST'])
+@login_required
+def batch_handle_alarms():
+    try:
+        data = request.get_json()
+        alarm_ids = data.get('ids', [])
+        user_token = request.args.get('user_token')
+        
+        alarms = Alarm.query.filter(Alarm.id.in_(alarm_ids)).all()
+        for alarm in alarms:
+            alarm.status = 'handled'
+            alarm.handled_by = current_user.username
+            alarm.handled_time = datetime.now()
+        
+        db.session.commit()
+        return jsonify({'success': True, 'user_token': user_token})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
+# 删除或注释掉旧的 export 路由
+# @bp.route('/export')
+# @login_required
+# def export():
+#     ...
+
+# 修改为新的导出路由
+@bp.route('/export_alarms')
+@login_required
+def export_alarms():
+    try:
+        # 获取筛选条件
+        alarm_type = request.args.get('alarm_type')
+        is_processed = request.args.get('is_processed')
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        user_token = request.args.get('user_token')
+        
+        # 构建查询
+        query = Alarm.query
+        
+        if alarm_type:
+            query = query.filter(Alarm.alarm_type == alarm_type)
+        if is_processed:
+            query = query.filter(Alarm.is_processed == (is_processed == '1'))
+        if start_date:
+            query = query.filter(Alarm.alarm_time >= datetime.strptime(start_date, '%Y-%m-%d'))
+        if end_date:
+            query = query.filter(Alarm.alarm_time < datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1))
+        
+        alarms = query.all()
+        
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(['告警编号', '处理状态', '告警类型', '设备名称', 'IP地址', '告警时间'])
+        
+        for alarm in alarms:
+            writer.writerow([
+                alarm.alarm_number,
+                '已处理' if alarm.is_processed else '未处理',
+                alarm.alarm_type,
+                alarm.device_name or '',
+                alarm.device_ip or '',
+                alarm.alarm_time.strftime('%Y-%m-%d %H:%M:%S')
+            ])
+        
+        output.seek(0)
+        return Response(
+            output,
+            mimetype='text/csv',
+            headers={
+                'Content-Disposition': f'attachment; filename=alarms_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv',
+                'X-User-Token': user_token
+            }
+        )
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    return send_file(
+        excel_file,
+        as_attachment=True,
+        download_name=f'alarms_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    )
+
+
+def check_password_strength(password):
+    """检查密码复杂度"""
+    if len(password) < 8:
+        return False, "密码长度至少为8位"
+    
+    if not re.search(r"[A-Z]", password):
+        return False, "密码必须包含大写字母"
+    
+    if not re.search(r"[a-z]", password):
+        return False, "密码必须包含小写字母"
+    
+    if not re.search(r"\d", password):
+        return False, "密码必须包含数字"
+    
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        return False, "密码必须包含特殊字符"
+    
+    return True, "密码符合要求"
+
+@bp.route('/change_password', methods=['POST'])
+@login_required
+def change_password():
+    try:
+        user_token = request.args.get('user_token')
+        data = request.get_json()
+        old_password = data.get('old_password')
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
+        
+        # 检查确认密码
+        if new_password != confirm_password:
+            return jsonify({
+                'success': False,
+                'message': '两次输入的新密码不一致',
+                'user_token': user_token
+            })
+        
+        if not current_user.check_password(old_password):
+            return jsonify({
+                'success': False, 
+                'message': '原密码不正确',
+                'user_token': user_token
+            })
+        
+        # 检查新密码复杂度
+        is_valid, message = check_password_strength(new_password)
+        if not is_valid:
+            return jsonify({
+                'success': False,
+                'message': message,
+                'user_token': user_token
+            })
+        
+        current_user.set_password(new_password)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True, 
+            'message': '密码修改成功',
+            'user_token': user_token,
+            'redirect_url': url_for('alarm_view.index', user_token=user_token)
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False, 
+            'message': str(e),
+            'user_token': user_token
+        })

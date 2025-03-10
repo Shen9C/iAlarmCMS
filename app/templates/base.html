@@ -61,8 +61,19 @@
             </a>
             <div class="navbar-nav ms-auto">
                 {% if current_user.is_authenticated %}
-                    <a class="nav-link" href="{{ url_for('auth.change_password') }}">修改密码</a>
-                    <a class="nav-link" href="{{ url_for('auth.logout') }}">退出</a>
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> {{ current_user.username }}
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                            <i class="bi bi-key"></i> 修改密码
+                        </a>
+                        <a class="dropdown-item" href="{{ url_for('auth.logout', user_token=request.args.get('user_token')) }}">
+                            <i class="bi bi-box-arrow-right"></i> 退出登录
+                        </a>
+                    </div>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -71,20 +82,18 @@
     <!-- 左侧导航栏 -->
     <div class="sidebar py-3">
         <div class="list-group">
-            <a href="{{ url_for('alarm_view.index') }}" class="list-group-item list-group-item-action {% if request.endpoint == 'alarm_view.index' %}active{% endif %}">
+            <a href="{{ url_for('alarm_view.index', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint == 'alarm_view.index' %}active{% endif %}">
                 <i class="bi bi-bell"></i> 告警管理
             </a>
-            <a href="{{ url_for('settings.index') }}" class="list-group-item list-group-item-action {% if request.endpoint.startswith('settings.') %}active{% endif %}">
+            <a href="{{ url_for('settings.index', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint.startswith('settings.') %}active{% endif %}">
                 <i class="bi bi-gear"></i> 系统设置
             </a>
-            <a href="{{ url_for('alarm_view.statistics') }}" class="list-group-item list-group-item-action {% if request.endpoint == 'alarm_view.statistics' %}active{% endif %}">
-                <i class="bi bi-graph-up"></i> 统计分析
-            </a>
-            {% if current_user.is_authenticated and current_user.role == 'admin' %}
-            <a href="{{ url_for('alarm_view.user_management') }}" class="list-group-item list-group-item-action {% if request.endpoint == 'alarm_view.user_management' %}active{% endif %}">
+            <a href="{{ url_for('users.index', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint.startswith('users.') %}active{% endif %}">
                 <i class="bi bi-people"></i> 用户管理
             </a>
-            {% endif %}
+            <a href="{{ url_for('alarm_view.statistics', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint == 'alarm_view.statistics' %}active{% endif %}">
+                <i class="bi bi-graph-up"></i> 统计分析
+            </a>
         </div>
     </div>
 
@@ -108,3 +117,6 @@
     {% block extra_js %}{% endblock %}
 </body>
 </html>
+
+<!-- 在 base.html 底部添加修改密码模态框 -->
+{% include 'change_password.html' %}
