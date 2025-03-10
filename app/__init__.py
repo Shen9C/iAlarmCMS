@@ -1,6 +1,6 @@
 from flask import Flask, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
 from config import Config  # 添加配置类的导入
 
@@ -22,9 +22,10 @@ def create_app(config_class=Config):
     login_manager.login_message = '请先登录以访问此页面'
     login_manager.login_message_category = 'info'
     
-    # 修改蓝图注册顺序和路径
+    # 确保 auth 蓝图最先注册
     from app.routes import auth_routes
-    app.register_blueprint(auth_routes.bp)
+    print(f"[DEBUG] 注册 auth 蓝图: prefix={auth_routes.bp.url_prefix}")
+    app.register_blueprint(auth_routes.bp, url_prefix='/auth')
     
     from app.views import alarms
     app.register_blueprint(alarms.bp, url_prefix='/alarms')
@@ -38,7 +39,9 @@ def create_app(config_class=Config):
     
     @app.route('/')
     def index():
-        return redirect(url_for('alarm_view.index'))
+        if current_user.is_authenticated:
+            return redirect(url_for('alarm_view.index'))
+        return redirect(url_for('auth.login'))
 
     @app.context_processor
     def inject_settings():

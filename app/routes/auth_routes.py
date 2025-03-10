@@ -1,11 +1,19 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_user, logout_user, login_required, current_user
-from urllib.parse import urlparse  # 使用 Python 标准库
-from app.models.user import User
-from app import db  # 添加这行导入
-import re
+from datetime import datetime  # 添加这行
+import logging
 
-bp = Blueprint('auth', __name__)
+# 设置日志
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+from werkzeug.security import check_password_hash, generate_password_hash
+from app.models.user import User
+from app import db
+import re  # 添加 re 模块的导入
+
+# 修改 Blueprint 的名称和 url_prefix
+bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 def validate_password(password):
     """验证密码复杂度"""
@@ -29,44 +37,42 @@ def validate_password(password):
 # 在 login 函数中使用 urlparse
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
+    # 如果用户已登录，检查请求来源
     if current_user.is_authenticated:
+        next_page = request.args.get('next')
+        if next_page:
+            return redirect(next_page)
         return redirect(url_for('alarm_view.index'))
 
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
         
-        print(f"Debug - 尝试登录: username={username}")  # 调试输出
-        
         user = User.query.filter_by(username=username).first()
-        if user is None:
-            print("Debug - 用户不存在")  # 调试输出
-            flash('用户名或密码错误')
-            return render_template('auth/login.html')
-            
-        if not user.check_password(password):
-            print("Debug - 密码错误")  # 调试输出
-            flash('用户名或密码错误')
+        if user is None or not user.check_password(password):
+            flash('用户名或密码错误', 'danger')
             return render_template('auth/login.html')
         
-        print("Debug - 登录成功")  # 调试输出
+        # 更新登录信息，添加空值检查
+        user.last_login_time = datetime.utcnow()
+        user.login_count = (user.login_count or 0) + 1  # 如果为 None 则设为 0
+        user.last_login_ip = request.remote_addr
+        db.session.commit()
+        
         login_user(user, remember=True)
         next_page = request.args.get('next')
         if next_page:
             return redirect(next_page)
         return redirect(url_for('alarm_view.index'))
-
+    
     return render_template('auth/login.html')
-
-@bp.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('auth.login'))
 
 @bp.route('/change_password', methods=['GET', 'POST'])
 @login_required
 def change_password():
+    # 进入修改密码页面时清除之前的消息
+    session['_flashes'] = []
+    
     if request.method == 'POST':
         old_password = request.form['old_password']
         new_password = request.form['new_password']
@@ -84,7 +90,24 @@ def change_password():
             else:
                 current_user.set_password(new_password)
                 db.session.commit()
-                flash('密码修改成功', 'success')
-                return redirect(url_for('alarms.index'))
-            
+                flash('密码修改成功', 'success')  # 添加消息类型
+                return redirect(url_for('alarm_view.index'))
+
     return render_template('auth/change_password.html')
+
+# 修改登出路由
+@bp.route('/logout')  # 只使用 GET 方法，移除 methods 参数
+@login_required
+def logout():
+    logger.debug(f"[DEBUG] 进入登出路由")
+    logger.debug(f"[DEBUG] 请求方法: {request.method}")
+    logger.debug(f"[DEBUG] 请求路径: {request.path}")
+    
+    try:
+        logout_user()
+        logger.debug("[DEBUG] 用户已登出")
+        flash('您已成功退出系统', 'info')
+        return redirect(url_for('auth.login'))
+    except Exception as e:
+        logger.error(f"[ERROR] 登出过程发生错误: {str(e)}")
+        raise

@@ -4,6 +4,7 @@ from flask_login import UserMixin
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String
 from typing import Optional
+from datetime import datetime
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
@@ -17,6 +18,10 @@ class User(UserMixin, db.Model):
     role: Mapped[str] = mapped_column(String(20), nullable=False, default=ROLE_USER)
     is_admin: Mapped[bool] = mapped_column(nullable=False, default=False)
     is_active: Mapped[bool] = mapped_column(nullable=False, default=True)
+    # 添加新字段
+    last_login_time = db.Column(db.DateTime, default=datetime.utcnow)
+    login_count = db.Column(db.Integer, default=0)
+    last_login_ip = db.Column(db.String(40))
     
     def set_password(self, password: str) -> None:
         self.password_hash = generate_password_hash(password)
