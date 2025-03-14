@@ -27,7 +27,7 @@
                         {% endif %}
                         {% endwith %}
                         
-                        <form method="POST" action="{{ url_for('auth.login') }}">
+                        <form method="POST" action="{{ url_for('web_api.login') }}" id="loginForm">
                             <div class="mb-3">
                                 <label for="username" class="form-label">用户名</label>
                                 <input type="text" class="form-control" id="username" name="username" required>
@@ -47,3 +47,36 @@
     </div>
 </body>
 </html>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value
+    };
+    
+    fetch('{{ url_for("web_api.login") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // 修改为正确的路由名称
+            window.location.href = "{{ url_for('alarm_view.index') }}?user_token=" + data.data.user_token;
+        } else {
+            alert(data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('登录失败，请重试');
+    });
+});
+</script>

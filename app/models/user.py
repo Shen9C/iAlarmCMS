@@ -8,7 +8,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     password_hash = db.Column(db.String(128))
-    role = db.Column(db.String(20), default='user')
+    role = db.Column(db.String(20), default='user')  # 添加角色字段
     is_active = db.Column(db.Boolean, default=True)
     last_login_time = db.Column(db.DateTime)
     login_count = db.Column(db.Integer, default=0)
