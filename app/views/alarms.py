@@ -60,14 +60,14 @@ def index():
     )
     alarms = pagination.items
     
-    # 添加调试打印
-    for alarm in alarms:
-        print(f"告警ID: {alarm.id}")
-        print(f"摄像头IP: {alarm.camera_ip}")
-        print(f"设备名称: {alarm.device_name}")
-        print(f"告警类型: {alarm.alarm_type}")
-        print("原始数据:", vars(alarm))
-        print("-" * 50)
+    # # 添加调试打印
+    # for alarm in alarms:
+    #     print(f"告警ID: {alarm.id}")
+    #     print(f"摄像头IP: {alarm.camera_ip}")
+    #     print(f"设备名称: {alarm.device_name}")
+    #     print(f"告警类型: {alarm.alarm_type}")
+    #     print("原始数据:", vars(alarm))
+    #     print("-" * 50)
     
     return render_template('alarm_list.html',
                          alarms=alarms,
@@ -156,13 +156,59 @@ def statistics():
         # 基础查询
         base_query = Alarm.query
         
-        # 总体统计 - 添加 .scalar() 确保返回具体数值
+        # 总体统计
         total = base_query.count()
-        processed = base_query.filter(Alarm.is_processed == True).count()  # 告警清除数量
-        unprocessed = base_query.filter(Alarm.is_processed == False).count()  # 告警产生数量
-        confirmed = base_query.filter(Alarm.is_confirmed == True).count()  # 已确认数量
-        unconfirmed = base_query.filter(Alarm.is_confirmed == False).count()  # 未确认数量
+        processed = base_query.filter(Alarm.is_processed == True).count()
+        unprocessed = base_query.filter(Alarm.is_processed == False).count()
+        confirmed = base_query.filter(Alarm.is_confirmed == True).count()
+        unconfirmed = base_query.filter(Alarm.is_confirmed == False).count()
 
+        # 按类型统计
+        type_stats = []
+        alarm_types = db.session.query(Alarm.alarm_type.distinct()).filter(Alarm.alarm_type.isnot(None)).all()
+        for type_tuple in alarm_types:
+            alarm_type = type_tuple[0]
+            if alarm_type:
+                count = base_query.filter(Alarm.alarm_type == alarm_type).count()
+                type_stats.append({'type': alarm_type, 'count': count})
+        
+        # 按设备统计
+        device_stats = []
+        devices = db.session.query(Alarm.device_name.distinct()).filter(Alarm.device_name.isnot(None)).all()
+        for device_tuple in devices:
+            device_name = device_tuple[0]
+            if device_name:
+                count = base_query.filter(Alarm.device_name == device_name).count()
+                device_stats.append({'device': device_name, 'count': count})
+        
+        # 按日期统计
+        daily_stats = []
+        # 获取最近30天的数据
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=30)
+        
+        current_date = start_date
+        while current_date <= end_date:
+            next_date = current_date + timedelta(days=1)
+            count = base_query.filter(
+                Alarm.alarm_time >= current_date,
+                Alarm.alarm_time < next_date
+            ).count()
+            
+            daily_stats.append({
+                'date': current_date.strftime('%Y-%m-%d'),
+                'count': count
+            })
+            current_date = next_date
+        
+        # 格式化为前端需要的格式
+        formatted_daily_stats = {
+            'dates': [item['date'] for item in daily_stats],
+            'counts': [item['count'] for item in daily_stats]
+        }
+        
+        user_token = request.args.get('user_token')
+        
         stats = {
             'total_alarms': total,
             'processed_alarms': processed,
@@ -173,9 +219,6 @@ def statistics():
             'device_stats': device_stats,
             'daily_stats': formatted_daily_stats
         }
-
-        # 打印最终的统计数据
-        print("Debug - Final stats:", stats['daily_stats'])
         
         return render_template('alarm_statistics.html', stats=stats, user_token=user_token)
 
@@ -319,30 +362,67 @@ def change_password():
             'user_token': user_token
         })
 
-@bp.route('/detail/<int:alarm_id>')
-@web_auth_required  # 添加认证装饰器
-def alarm_detail(alarm_id):
-    alarm = Alarm.query.get_or_404(alarm_id)
+# 修改 alarm_detail 路由
+@bp.route('/detail/<string:alarm_number>')
+@web_auth_required
+def alarm_detail(alarm_number):
+    alarm = Alarm.query.filter_by(alarm_number=alarm_number).first_or_404()
     return render_template('alarm_detail.html', alarm=alarm, user_token=request.args.get('user_token'))
 
-@bp.route('/process/<int:alarm_id>', methods=['POST'])
+# 修改 show_confirm_type 路由
+@bp.route('/confirm_type/<string:alarm_number>', methods=['GET', 'POST'])
 @web_auth_required
-def process_alarm(alarm_id):
+def show_confirm_type(alarm_number):
     try:
         user_token = request.args.get('user_token')
-        alarm = Alarm.query.get_or_404(alarm_id)
+        alarm = Alarm.query.filter_by(alarm_number=alarm_number).first_or_404()
         
-        # 修改确认状态和时间
+        # 处理POST请求（确认告警）
+        if request.method == 'POST':
+            confirm_type = request.form.get('confirm_type')
+            
+            if not confirm_type:
+                flash('缺少确认类型', 'error')
+                return render_template('confirm_type.html', alarm=alarm, user_token=user_token)
+            
+            alarm.is_confirmed = True
+            alarm.confirm_type = confirm_type
+            alarm.confirmed_time = datetime.now()
+            db.session.commit()
+            flash('告警确认成功', 'success')
+            return redirect(url_for('alarm_view.index', user_token=user_token))
+        
+        # 处理GET请求（显示确认页面）
+        return render_template('confirm_type.html', alarm=alarm, user_token=user_token)
+    except Exception as e:
+        print(f"Error in confirm_type: {str(e)}")
+        db.session.rollback()
+        flash('操作失败', 'error')
+        return redirect(url_for('alarm_view.index', user_token=user_token))
+
+# 修改 process_alarm 路由
+@bp.route('/process/<string:alarm_number>', methods=['POST'])
+@web_auth_required
+def process_alarm(alarm_number):
+    try:
+        user_token = request.args.get('user_token')
+        confirm_type = request.form.get('confirm_type')
+        
+        alarm = Alarm.query.filter_by(alarm_number=alarm_number).first_or_404()
         alarm.is_confirmed = True
         alarm.confirmed_time = datetime.now()
+        alarm.confirm_type = confirm_type
         db.session.commit()
         
-        # 获取所有当前的 URL 参数
-        args = request.args.copy()
-        args['user_token'] = user_token
-        
-        return redirect(url_for('alarm_view.index', **args))
+        return jsonify({
+            'success': True,
+            'message': '告警已确认',
+            'redirect_url': url_for('alarm_view.index', user_token=user_token)
+        })
     except Exception as e:
         print(f"Error processing alarm: {str(e)}")
-        flash('处理告警时发生错误')
-        return redirect(url_for('alarm_view.index', user_token=user_token))
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+

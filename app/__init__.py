@@ -30,7 +30,14 @@ def create_app():
     from app.routes import auth_routes
     app.register_blueprint(auth_routes.bp)
     
+    # 修改前:
+    # from app.views import alarm_view
+    # 修改后:
     from app.views import alarms
+    
+    # 修改前:
+    # app.register_blueprint(alarm_view.bp, url_prefix='/alarms')
+    # 修改后:
     app.register_blueprint(alarms.bp, url_prefix='/alarms')
     
     from app.routes import settings_routes
@@ -104,7 +111,7 @@ def create_app():
             return {}
         return dict(settings=settings)
 
-    return app  # 添加这行，返回 app 实例
+    return app
 
 @login_manager.user_loader
 def load_user(id):

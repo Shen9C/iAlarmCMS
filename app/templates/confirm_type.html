@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h5>告警确认</h5>
+        </div>
+        <div class="card-body">
+            <h6>告警信息</h6>
+            <p>告警编号：{{ alarm.alarm_number }}</p>
+            <p>告警类型：{{ alarm.alarm_type }}</p>
+            <p>设备名称：{{ alarm.device_name }}</p>
+            <p>告警时间：{{ alarm.alarm_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            
+            <!-- 修改表单的 action 属性 -->
+            <form method="POST" action="{{ url_for('alarm_view.show_confirm_type', alarm_number=alarm.alarm_number, user_token=user_token) }}">
+                <!-- 表单内容 -->
+                <div class="mb-3">
+                    <label for="confirmType" class="form-label">确认类型</label>
+                    <select class="form-select" id="confirmType" name="confirm_type">
+                        <option value="故障">故障</option>
+                        <option value="误报">误报</option>
+                    </div>
+                    <button type="submit" class="btn btn-primary">确认</button>
+                </form>
+                <a href="{{ url_for('alarm_view.index', user_token=user_token) }}" class="btn btn-secondary">取消</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

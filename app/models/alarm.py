@@ -17,7 +17,7 @@ class Alarm(db.Model):
     is_confirmed = db.Column(db.Boolean, default=False)
     confirmed_time = db.Column(db.DateTime)
     status = db.Column(db.String(20), default='待确认')
-    processed_time = db.Column(db.DateTime, nullable=True)  # 添加确认时间字段
+    confirm_type = db.Column(db.String(20))  # 添加确认类型字段：'fault'(故障) 或 'false_alarm'(误报)
     
     def __repr__(self) -> str:
         return f'<Alarm {self.alarm_number}>'

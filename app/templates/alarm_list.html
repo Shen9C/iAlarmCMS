@@ -89,7 +89,7 @@
                     {% for alarm in alarms %}
                     <tr>
                         <td class="text-center">
-                            <a href="{{ url_for('alarm_view.alarm_detail', alarm_id=alarm.id) }}">
+                            <a href="{{ url_for('alarm_view.alarm_detail', alarm_number=alarm.alarm_number, user_token=request.args.get('user_token')) }}">
                                 {{ alarm.alarm_number }}
                             </a>
                         </td>
@@ -121,13 +121,16 @@
                                 -
                             {% endif %}
                         </td>
+                        <!-- 在表格中的按钮部分 -->
                         <td class="text-center">
                             {% if not alarm.is_confirmed %}
-                            <form action="{{ url_for('alarm_view.process_alarm', alarm_id=alarm.id, user_token=request.args.get('user_token')) }}" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-sm btn-primary">确认</button>
-                            </form>
+                            <button type="button" 
+                                    class="btn btn-sm btn-primary confirm-alarm-btn" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#alarmConfirmModal" 
+                                    data-alarm-number="{{ alarm.alarm_number }}">确认</button>
                             {% else %}
-                            <span class="badge bg-secondary">已确认</span>
+                            <span class="badge bg-secondary">已确认 ({{ alarm.confirm_type or '故障' }})</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -193,6 +196,7 @@
     </div>
 </div>
 
+<!-- 基础样式 -->
 <style>
     .card {
         height: calc(100vh - 2rem);
@@ -216,11 +220,11 @@
         margin-bottom: 0;
     }
     
+    /* 可调整列宽相关样式 */
     .resizable {
         position: relative;
         user-select: none;
     }
-    
     .resizable::after {
         content: '';
         position: absolute;
@@ -231,96 +235,128 @@
         background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1));
         cursor: col-resize;
     }
-    
     .resizable:hover::after {
         background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.2));
     }
-    
     .resizing .resizable::after {
         background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.3));
     }
-    
     .resizing {
         cursor: col-resize;
         user-select: none;
     }
+
+    /* 模态框样式 */
+    .modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.5) !important; /* 保持原有背景色 */
+        z-index: 1040 !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        pointer-events: none !important; /* 恢复原有设置 */
+    }
+    
+    .modal {
+        z-index: 1050 !important;
+        pointer-events: auto !important;
+    }
+    
+    .modal-dialog {
+        position: relative;
+        z-index: 1055 !important;
+        margin: 1.75rem auto;
+        max-width: 450px !important;
+    }
+    
+    .modal-content {
+        position: relative;
+        z-index: 1060 !important;
+        border-radius: 0.5rem;
+        pointer-events: auto !important;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2) !important;
+        background-color: white !important;
+    }
+    
+    /* 确保模态框内部元素背景色正确 */
+    #alarmConfirmModal .modal-header,
+    #alarmConfirmModal .modal-body,
+    #alarmConfirmModal .modal-footer {
+        background-color: white !important;
+    }
 </style>
 
+<!-- 修改模态框结构 -->
+<div class="modal fade" id="alarmConfirmModal" tabindex="-1" aria-labelledby="alarmConfirmModalLabel" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="alarmConfirmModalLabel">确认告警</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+            </div>
+            <!-- 修改模态框中的表单 -->
+            <div class="modal-body">
+                <form id="confirmForm" method="POST" action="{{ url_for('alarm_view.show_confirm_type', alarm_number='', user_token=user_token) }}">
+                    <input type="hidden" name="alarm_number" id="alarmNumberInput">
+                    <input type="hidden" name="user_token" value="{{ user_token }}">
+                    <div class="mb-3">
+                        <label for="confirmType" class="form-label">确认类型</label>
+                        <select class="form-select" id="confirmType" name="confirm_type">
+                            <option value="故障">故障</option>
+                            <option value="误报">误报</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitConfirmForm()">确认</button>
+            </div>
+            
+            <script>
+            function submitConfirmForm() {
+                const form = document.getElementById('confirmForm');
+                const alarmNumber = document.getElementById('alarmNumberInput').value;
+                // 修改为直接使用字符串替换，不需要替换占位符
+                form.action = "{{ url_for('alarm_view.show_confirm_type', alarm_number='PLACEHOLDER', user_token=user_token) }}".replace('PLACEHOLDER', alarmNumber);
+                form.submit();
+            }
+            
+            document.addEventListener('DOMContentLoaded', function() {
+                const modalElement = document.getElementById('alarmConfirmModal');
+                const alarmNumberInput = document.getElementById('alarmNumberInput');
+            
+                if (modalElement) {
+                    modalElement.addEventListener('show.bs.modal', function(event) {
+                        const button = event.relatedTarget;
+                        if (button) {
+                            const alarmNumber = button.getAttribute('data-alarm-number');
+                            alarmNumberInput.value = alarmNumber;
+                        }
+                    });
+                }
+            });
+            </script>
+        </div>
+    </div>
+</div>
+
+<!-- Move scripts inside content block -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const table = document.querySelector('.resizable-table');
-    const headers = table.querySelectorAll('th.resizable');
-    let resizingHeader = null;
-    let startX, startWidth;
+    const modalElement = document.getElementById('alarmConfirmModal');
+    const alarmNumberInput = document.getElementById('alarmNumberInput');
 
-    headers.forEach(header => {
-        const resizer = header.querySelector('.resizer') || header;
-        
-        resizer.addEventListener('mousedown', function(e) {
-            if (e.target === header && e.offsetX < header.offsetWidth - 5) return;
-            
-            resizingHeader = header;
-            startX = e.pageX;
-            startWidth = header.offsetWidth;
-            
-            document.body.classList.add('resizing');
-            
-            e.preventDefault();
+    if (modalElement) {
+        modalElement.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            if (button) {
+                const alarmNumber = button.getAttribute('data-alarm-number');
+                alarmNumberInput.value = alarmNumber;
+            }
         });
-    });
-
-    document.addEventListener('mousemove', function(e) {
-        if (!resizingHeader) return;
-        
-        const width = startWidth + (e.pageX - startX);
-        if (width > 50) {
-            resizingHeader.style.width = width + 'px';
-        }
-    });
-
-    document.addEventListener('mouseup', function() {
-        if (!resizingHeader) return;
-        
-        document.body.classList.remove('resizing');
-        resizingHeader = null;
-    });
+    }
 });
 </script>
 {% endblock %}
-
-<!-- JavaScript 部分 -->
-<!-- 修改 JavaScript 函数中的 URL -->
-<script>
-function markAsHandled() {
-    const selectedIds = getSelectedAlarmIds();
-    if (selectedIds.length === 0) {
-        alert('请至少选择一条告警');
-        return;
-    }
-    
-    fetch(`{{ url_for('alarm_view.batch_handle_alarms') }}?user_token={{ user_token }}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ids: selectedIds})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.href = `{{ url_for('alarm_view.index') }}?user_token={{ user_token }}`;
-        } else {
-            alert(data.message || '操作失败');
-        }
-    });
-}
-</script>
-
-// 分页链接处理
-document.querySelectorAll('.pagination .page-link').forEach(link => {
-    const url = new URL(link.href);
-    url.searchParams.set('user_token', '{{ user_token }}');
-    link.href = url.toString();
-});
-</script>
-
