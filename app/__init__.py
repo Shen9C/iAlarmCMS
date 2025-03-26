@@ -30,14 +30,8 @@ def create_app():
     from app.routes import auth_routes
     app.register_blueprint(auth_routes.bp)
     
-    # 修改前:
-    # from app.views import alarm_view
-    # 修改后:
+    # 注册告警相关路由
     from app.views import alarms
-    
-    # 修改前:
-    # app.register_blueprint(alarm_view.bp, url_prefix='/alarms')
-    # 修改后:
     app.register_blueprint(alarms.bp, url_prefix='/alarms')
     
     from app.routes import settings_routes
@@ -99,7 +93,7 @@ def create_app():
     @app.route('/')
     def index():
         if current_user.is_authenticated and current_user.current_token:
-            # 修改为正确的路由名称
+            # 修改路由名称，使用 alarms.index 替代 alarm_view.index
             return redirect(url_for('alarm_view.index', user_token=current_user.current_token))
         return redirect(url_for('web_api.login'))
 
