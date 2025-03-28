@@ -1,10 +1,12 @@
-from app import create_app, db
-from app.models.user import User
+from app import create_app
+from app.models.users import User
+from app import db
+import sys
+import getpass
 
 app = create_app()
 
 def list_users():
-    """列出所有用户"""
     with app.app_context():
         users = User.query.all()
         print("\n当前系统用户列表：")
@@ -50,6 +52,13 @@ if __name__ == '__main__':
         print("添加用户：python user_manager.py add <username> <password>")
         sys.exit(1)
     
+    # 现有的命令行处理代码
+    
+    # 添加列出用户的选项
+    if len(sys.argv) > 1 and sys.argv[1] == 'list':
+        list_users()
+        sys.exit(0)
+        
     command = sys.argv[1]
     
     if command == 'list':

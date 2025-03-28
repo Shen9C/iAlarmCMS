@@ -1,7 +1,7 @@
 import pytest
 from app import create_app, db
-from app.models.user import User
-from app.models.alarm import Alarm
+from app.models.users import User
+from app.models.alarms import Alarm
 
 @pytest.fixture
 def app():

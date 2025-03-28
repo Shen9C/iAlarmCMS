@@ -1,6 +1,6 @@
 import pytest
 from flask import session
-from app.models.user import User
+from app.models.users import User
 
 def test_login(client):
     response = client.post('/login', data={

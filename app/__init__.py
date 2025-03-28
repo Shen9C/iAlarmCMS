@@ -2,7 +2,7 @@ from flask import Flask, redirect, url_for, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user, logout_user
 from flask_migrate import Migrate
-from app.config import Config, load_machine_config
+from config import Config, load_machine_config  # 修改导入路径，使用根目录的config.py
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -31,11 +31,14 @@ def create_app():
     app.register_blueprint(auth_routes.bp)
     
     # 注册告警相关路由
-    from app.views import alarms
-    app.register_blueprint(alarms.bp, url_prefix='/alarms')
+    from app.views import alarms_view  # 修改这里，从alarms改为alarms_view
+    app.register_blueprint(alarms_view.bp, url_prefix='/alarms')
     
-    from app.routes import settings_routes
-    app.register_blueprint(settings_routes.bp, url_prefix='/system/settings')
+    # 添加导入
+    from app.routes.settings_routes import bp as settings_bp
+    
+    # 在注册其他Blueprint的地方添加
+    app.register_blueprint(settings_bp)
     
     from app.routes import user_routes
     app.register_blueprint(user_routes.bp, url_prefix='/users', name='users')
@@ -47,6 +50,14 @@ def create_app():
     # 注册机机接口蓝图
     from .views import machine_api
     app.register_blueprint(machine_api.bp)
+    
+    # 注册边缘设备管理蓝图
+    from app.views import edge_devices
+    app.register_blueprint(edge_devices.bp)
+    
+    # 注册任务管理蓝图
+    from app.views import tasks
+    app.register_blueprint(tasks.bp)
     
     @app.before_request
     def check_auth():
@@ -97,18 +108,16 @@ def create_app():
             return redirect(url_for('alarm_view.index', user_token=current_user.current_token))
         return redirect(url_for('web_api.login'))
 
+    # 修改上下文处理器
     @app.context_processor
     def inject_settings():
-        from app.models.settings import Settings  # 移动到函数内部导入
-        settings = Settings.query.first()
-        if settings is None:  # 如果没有设置，返回空字典
-            return {}
-        return dict(settings=settings)
+        from app.models.settings import SystemConfig
+        return {'system_config': SystemConfig.get_instance()}
 
     return app
 
 @login_manager.user_loader
 def load_user(id):
-    from app.models.user import User
+    from app.models.users import User
     return User.query.get(int(id))
     

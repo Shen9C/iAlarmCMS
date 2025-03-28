@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.models.alarm import Alarm
+from app.models.alarms import Alarm
 from app.utils.machine_auth import machine_auth_required
 from datetime import datetime
 from app import db

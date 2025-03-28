@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template
-from app.models.user import User
+from app.models.users import User
 from app import db
 from flask_login import login_user, logout_user, current_user
 from datetime import datetime

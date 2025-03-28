@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, jsonify
 from flask_login import login_required
-from app.models.alarm import Alarm
+from app.models.alarms import Alarm
 from sqlalchemy import func
 from datetime import datetime, timedelta
 

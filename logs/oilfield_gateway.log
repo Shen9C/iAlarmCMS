@@ -1,0 +1,449 @@
+2025-03-28 15:44:26,712 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 15:44:26,714 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 15:44:26,717 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 15:44:26,725 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 15:44:26,729 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 15:45:46,970 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 15:45:46,972 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 15:45:46,976 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 15:45:46,990 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-03-28 15:45:46,991 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 15:45:46,992 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 15:45:47,546 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 15:45:47,548 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 15:45:47,552 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 15:45:47,560 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 15:45:47,563 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 15:47:18,855 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\run.py', reloading
+2025-03-28 15:47:18,932 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 15:47:19,409 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 15:47:19,411 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 15:47:19,414 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 15:47:19,420 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 15:47:19,422 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 15:47:34,128 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 15:47:34,129 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 15:47:34,131 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 15:47:34] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 15:47:39,887 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 15:47:39,889 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 15:47:39,890 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 15:47:39] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 15:49:55,028 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\app\\__init__.py', reloading
+2025-03-28 15:49:55,130 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 15:50:39,083 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 15:50:39,084 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 15:50:39,088 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 15:50:39,104 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-03-28 15:50:39,104 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 15:50:39,105 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 15:50:39,704 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 15:50:39,707 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 15:50:39,710 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 15:50:39,717 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 15:50:39,723 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 15:50:43,665 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 15:50:43,667 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 15:50:43,667 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 15:50:43] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 15:51:29,949 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\app\\views\\alarms_view.py', reloading
+2025-03-28 15:51:30,044 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 15:51:30,707 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 15:51:30,709 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 15:51:30,713 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 15:51:30,720 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 15:51:30,723 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 15:55:10,477 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\app\\__init__.py', reloading
+2025-03-28 15:55:10,578 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 15:55:11,135 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 15:55:11,138 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 15:55:11,143 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 15:55:11,154 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 15:55:11,158 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 15:56:40,475 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\app\\models\\users.py', reloading
+2025-03-28 15:56:40,551 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 15:56:41,060 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 15:56:41,063 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 15:56:41,070 - __main__ - ERROR - Çå³ı»á»°Ê±³ö´í: (sqlite3.OperationalError) no such column: users.role
+[SQL: SELECT users.id AS users_id, users.username AS users_username, users.password_hash AS users_password_hash, users.is_admin AS users_is_admin, users.role AS users_role, users.current_token AS users_current_token, users.token_expiration AS users_token_expiration 
+FROM users]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-28 15:56:41,082 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 15:56:41,087 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 15:59:28,763 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\scripts\\init_db.py', reloading
+2025-03-28 15:59:28,936 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 15:59:29,864 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 15:59:29,867 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 15:59:29,874 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 15:59:29,888 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 15:59:29,893 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 16:00:02,094 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\scripts\\init_db.py', reloading
+2025-03-28 16:00:02,203 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 16:00:02,836 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 16:00:02,838 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 16:00:02,842 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 16:00:02,850 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 16:00:02,853 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 16:01:23,253 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\scripts\\init_db.py', reloading
+2025-03-28 16:01:23,353 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 16:01:23,940 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 16:01:23,943 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 16:01:23,946 - __main__ - ERROR - Çå³ı»á»°Ê±³ö´í: property 'is_active' of 'User' object has no setter
+2025-03-28 16:01:23,953 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 16:01:23,956 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 16:01:28,000 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\scripts\\init_db.py', reloading
+2025-03-28 16:01:28,122 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 16:01:28,745 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 16:01:28,747 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 16:01:28,752 - __main__ - ERROR - Çå³ı»á»°Ê±³ö´í: property 'is_active' of 'User' object has no setter
+2025-03-28 16:01:28,760 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 16:01:28,764 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 16:01:34,804 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\scripts\\init_db.py', reloading
+2025-03-28 16:01:34,885 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 16:01:35,496 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 16:01:35,499 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 16:01:35,503 - __main__ - ERROR - Çå³ı»á»°Ê±³ö´í: property 'is_active' of 'User' object has no setter
+2025-03-28 16:01:35,513 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 16:01:35,516 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:27:37,965 - __main__ - INFO - ÒÑÉ¾³ı¾ÉµÄÊı¾İ¿âÎÄ¼ş
+2025-03-28 17:27:37,979 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 17:27:37,982 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:27:37,996 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-03-28 17:27:37,996 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 17:27:37,997 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:27:38,479 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 17:27:38,481 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 17:27:38,485 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:27:38,493 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:27:38,496 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:27:41,799 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:27:41,802 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 17:27:41,803 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:27:41] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 17:27:45,286 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:27:45,287 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 17:27:45,288 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:27:45] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 17:27:52,395 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:27:52,398 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 17:27:52,398 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:27:52] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 17:28:48,706 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:28:48,708 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 17:28:48,708 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:28:48] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 17:30:43,260 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\scripts\\init_db.py', reloading
+2025-03-28 17:30:43,335 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:30:43,824 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 17:30:43,826 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 17:30:43,830 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:30:43,835 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:30:43,838 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:30:53,887 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\scripts\\init_db.py', reloading
+2025-03-28 17:30:53,986 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:30:54,532 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 17:30:54,533 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 17:30:54,539 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:30:54,545 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:30:54,548 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:30:55,563 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\scripts\\init_db.py', reloading
+2025-03-28 17:30:55,692 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:30:56,299 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 17:30:56,301 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 17:30:56,306 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:30:56,313 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:30:56,315 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:31:12,182 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:31:12,186 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 17:31:12,187 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:31:12] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 17:31:21,188 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:31:21,190 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 17:31:21,191 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:31:21] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 17:32:08,711 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\scripts\\init_db.py', reloading
+2025-03-28 17:32:08,818 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:32:09,366 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 17:32:09,368 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 17:32:09,372 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:32:09,381 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:32:09,384 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:32:10,401 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\scripts\\init_db.py', reloading
+2025-03-28 17:32:10,501 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:32:11,018 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 17:32:11,020 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 17:32:11,024 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:32:11,030 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:32:11,032 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:32:39,699 - __main__ - INFO - ÒÑÉ¾³ı¾ÉµÄÊı¾İ¿âÎÄ¼ş
+2025-03-28 17:32:39,719 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 17:32:39,724 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:32:39,739 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-03-28 17:32:39,739 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 17:32:39,740 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:32:40,271 - __main__ - ERROR - É¾³ıÊı¾İ¿âÎÄ¼şÊ§°Ü: [WinError 32] ÁíÒ»¸ö³ÌĞòÕıÔÚÊ¹ÓÃ´ËÎÄ¼ş£¬½ø³ÌÎŞ·¨·ÃÎÊ¡£: 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\instance\\app.db'
+2025-03-28 17:32:40,273 - __main__ - INFO - Êı¾İ¿â³õÊ¼»¯Íê³É
+2025-03-28 17:32:40,277 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:32:40,283 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:32:40,286 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:32:48,015 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:32:48,017 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 17:32:48,017 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:32:48] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 17:34:55,847 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\run.py', reloading
+2025-03-28 17:34:56,001 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:34:56,695 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 0
+2025-03-28 17:34:56,696 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:34:56,706 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:34:56,709 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:35:00,738 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\run.py', reloading
+2025-03-28 17:35:00,839 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:35:01,470 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 0
+2025-03-28 17:35:01,472 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:35:01,479 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:35:01,482 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:35:06,091 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:35:06,094 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 17:35:06,095 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:35:06] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 17:35:15,826 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:35:15,828 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 17:35:15,828 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:35:15] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 17:35:18,084 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/alarms/?user_token=b80bfb77-c10c-437e-827b-b6fd03e41a0d - ×´Ì¬Âë: 302
+2025-03-28 17:35:18,084 - __main__ - WARNING - ÖØ¶¨Ïò: http://127.0.0.1:5000/alarms/?user_token=b80bfb77-c10c-437e-827b-b6fd03e41a0d -> /api/v1/web/login
+2025-03-28 17:35:18,085 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:35:18] "[32mGET /alarms/?user_token=b80bfb77-c10c-437e-827b-b6fd03e41a0d HTTP/1.1[0m" 302 -
+2025-03-28 17:35:18,095 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:35:18,106 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 200
+2025-03-28 17:35:18,106 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:35:18] "GET /api/v1/web/login HTTP/1.1" 200 -
+2025-03-28 17:35:18,836 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/alarms/statistics?user_token=b80bfb77-c10c-437e-827b-b6fd03e41a0d - ×´Ì¬Âë: 302
+2025-03-28 17:35:18,837 - __main__ - WARNING - ÖØ¶¨Ïò: http://127.0.0.1:5000/alarms/statistics?user_token=b80bfb77-c10c-437e-827b-b6fd03e41a0d -> /api/v1/web/login
+2025-03-28 17:35:18,838 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:35:18] "[32mGET /alarms/statistics?user_token=b80bfb77-c10c-437e-827b-b6fd03e41a0d HTTP/1.1[0m" 302 -
+2025-03-28 17:35:20,346 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:35:20,348 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 17:35:20,348 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:35:20] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 17:36:45,000 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\run.py', reloading
+2025-03-28 17:36:45,157 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:36:45,865 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 0
+2025-03-28 17:36:45,867 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:36:45,877 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:36:45,880 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:36:48,434 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:36:48,437 - __main__ - DEBUG - µÇÂ¼³¢ÊÔ: ÓÃ»§Ãû=¹ÜÀíÔ±, ÃÜÂë³¤¶È=9
+2025-03-28 17:36:48,437 - __main__ - DEBUG - ÇëÇóÄÚÈİÀàĞÍ: application/json
+2025-03-28 17:36:48,437 - __main__ - DEBUG - ÇëÇóÊı¾İ: JSON={'username': '¹ÜÀíÔ±', 'password': 'Admin@123'}, ±íµ¥={}
+2025-03-28 17:36:48,439 - __main__ - WARNING - ÓÃ»§ ¹ÜÀíÔ± ²»´æÔÚ
+2025-03-28 17:36:48,439 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 17:36:48,440 - __main__ - ERROR - µÇÂ¼Ê§°ÜÏêÇé: {'error': 'ÓÃ»§Ãû»òÃÜÂë´íÎó', 'success': False}
+2025-03-28 17:36:48,440 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:36:48] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 17:36:52,363 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:36:52,363 - __main__ - DEBUG - µÇÂ¼³¢ÊÔ: ÓÃ»§Ãû=¹ÜÀíÔ±, ÃÜÂë³¤¶È=9
+2025-03-28 17:36:52,364 - __main__ - DEBUG - ÇëÇóÄÚÈİÀàĞÍ: application/json
+2025-03-28 17:36:52,364 - __main__ - DEBUG - ÇëÇóÊı¾İ: JSON={'username': '¹ÜÀíÔ±', 'password': 'Admin@123'}, ±íµ¥={}
+2025-03-28 17:36:52,365 - __main__ - WARNING - ÓÃ»§ ¹ÜÀíÔ± ²»´æÔÚ
+2025-03-28 17:36:52,366 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 17:36:52,367 - __main__ - ERROR - µÇÂ¼Ê§°ÜÏêÇé: {'error': 'ÓÃ»§Ãû»òÃÜÂë´íÎó', 'success': False}
+2025-03-28 17:36:52,368 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:36:52] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 17:38:06,259 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\config.py', reloading
+2025-03-28 17:38:06,334 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:38:06,797 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 0
+2025-03-28 17:38:06,798 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:38:06,806 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:38:06,810 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:38:06,831 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\config.py', reloading
+2025-03-28 17:38:06,939 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:38:07,613 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 0
+2025-03-28 17:38:07,615 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:38:07,623 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:38:07,625 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:42:27,361 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 1
+2025-03-28 17:42:27,362 - __main__ - INFO - ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«: admin, ÊÇ·ñ¹ÜÀíÔ±: True, ÃÜÂë¹şÏ£: scrypt:32768:8:...
+2025-03-28 17:42:27,363 - __main__ - ERROR - Çå³ı»á»°Ê±³ö´í: property 'is_active' of 'User' object has no setter
+2025-03-28 17:42:27,383 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-03-28 17:42:27,383 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 17:42:27,384 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:42:27,997 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 1
+2025-03-28 17:42:27,998 - __main__ - INFO - ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«: admin, ÊÇ·ñ¹ÜÀíÔ±: True, ÃÜÂë¹şÏ£: scrypt:32768:8:...
+2025-03-28 17:42:28,000 - __main__ - ERROR - Çå³ı»á»°Ê±³ö´í: property 'is_active' of 'User' object has no setter
+2025-03-28 17:42:28,007 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:42:28,010 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:42:34,069 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:42:34,071 - __main__ - DEBUG - µÇÂ¼³¢ÊÔ: ÓÃ»§Ãû=¹ÜÀíÔ±, ÃÜÂë³¤¶È=9
+2025-03-28 17:42:34,071 - __main__ - DEBUG - ÇëÇóÄÚÈİÀàĞÍ: application/json
+2025-03-28 17:42:34,071 - __main__ - DEBUG - ÇëÇóÊı¾İ: JSON={'username': '¹ÜÀíÔ±', 'password': 'Admin@123'}, ±íµ¥={}
+2025-03-28 17:42:34,074 - __main__ - DEBUG - ÕÒµ½ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«=admin, ÊÇ·ñ¹ÜÀíÔ±=True
+2025-03-28 17:42:34,074 - __main__ - DEBUG - ÃÜÂë¹şÏ£Öµ: scrypt:32768:8:...
+2025-03-28 17:42:34,191 - __main__ - DEBUG - ÃÜÂëÑéÖ¤½á¹û: Ê§°Ü
+2025-03-28 17:42:34,192 - __main__ - ERROR - ÃÜÂëÑéÖ¤Ê§°Ü: ÊäÈëÃÜÂë='Admin@123', ÓÃ»§=¹ÜÀíÔ±
+2025-03-28 17:42:34,308 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 17:42:34,309 - __main__ - ERROR - µÇÂ¼Ê§°ÜÏêÇé: {'error': 'ÓÃ»§Ãû»òÃÜÂë´íÎó', 'success': False}
+2025-03-28 17:42:34,310 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:42:34] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 17:42:53,809 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:42:53,810 - __main__ - DEBUG - µÇÂ¼³¢ÊÔ: ÓÃ»§Ãû=¹ÜÀíÔ±, ÃÜÂë³¤¶È=8
+2025-03-28 17:42:53,810 - __main__ - DEBUG - ÇëÇóÄÚÈİÀàĞÍ: application/json
+2025-03-28 17:42:53,810 - __main__ - DEBUG - ÇëÇóÊı¾İ: JSON={'username': '¹ÜÀíÔ±', 'password': 'admin123'}, ±íµ¥={}
+2025-03-28 17:42:53,811 - __main__ - DEBUG - ÕÒµ½ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«=admin, ÊÇ·ñ¹ÜÀíÔ±=True
+2025-03-28 17:42:53,812 - __main__ - DEBUG - ÃÜÂë¹şÏ£Öµ: scrypt:32768:8:...
+2025-03-28 17:42:53,921 - __main__ - DEBUG - ÃÜÂëÑéÖ¤½á¹û: ³É¹¦
+2025-03-28 17:42:54,031 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 500
+2025-03-28 17:42:54,032 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:42:54] "[35m[1mPOST /api/v1/web/login HTTP/1.1[0m" 500 -
+2025-03-28 17:43:09,155 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:43:09,155 - __main__ - DEBUG - µÇÂ¼³¢ÊÔ: ÓÃ»§Ãû=¹ÜÀíÔ±, ÃÜÂë³¤¶È=8
+2025-03-28 17:43:09,156 - __main__ - DEBUG - ÇëÇóÄÚÈİÀàĞÍ: application/json
+2025-03-28 17:43:09,156 - __main__ - DEBUG - ÇëÇóÊı¾İ: JSON={'username': '¹ÜÀíÔ±', 'password': 'admin123'}, ±íµ¥={}
+2025-03-28 17:43:09,157 - __main__ - DEBUG - ÕÒµ½ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«=admin, ÊÇ·ñ¹ÜÀíÔ±=True
+2025-03-28 17:43:09,157 - __main__ - DEBUG - ÃÜÂë¹şÏ£Öµ: scrypt:32768:8:...
+2025-03-28 17:43:09,254 - __main__ - DEBUG - ÃÜÂëÑéÖ¤½á¹û: ³É¹¦
+2025-03-28 17:43:09,348 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 500
+2025-03-28 17:43:09,349 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:43:09] "[35m[1mPOST /api/v1/web/login HTTP/1.1[0m" 500 -
+2025-03-28 17:51:17,672 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\scripts\\init_db.py', reloading
+2025-03-28 17:51:17,783 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:51:18,487 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 1
+2025-03-28 17:51:18,487 - __main__ - INFO - ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«: admin, ÊÇ·ñ¹ÜÀíÔ±: True, ÃÜÂë¹şÏ£: scrypt:32768:8:...
+2025-03-28 17:51:18,489 - __main__ - ERROR - Çå³ı»á»°Ê±³ö´í: property 'is_active' of 'User' object has no setter
+2025-03-28 17:51:18,496 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:51:18,500 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:51:25,543 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\app\\models\\users.py', reloading
+2025-03-28 17:51:25,629 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:54:05,513 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 1
+2025-03-28 17:54:05,513 - __main__ - INFO - ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«: admin, ÊÇ·ñ¹ÜÀíÔ±: True, ÃÜÂë¹şÏ£: scrypt:32768:8:...
+2025-03-28 17:54:05,519 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:54:05,535 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-03-28 17:54:05,535 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 17:54:05,536 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:54:06,143 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 1
+2025-03-28 17:54:06,144 - __main__ - INFO - ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«: admin, ÊÇ·ñ¹ÜÀíÔ±: True, ÃÜÂë¹şÏ£: scrypt:32768:8:...
+2025-03-28 17:54:06,145 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:54:06,154 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:54:06,158 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:54:45,954 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:54:45,955 - __main__ - DEBUG - µÇÂ¼³¢ÊÔ: ÓÃ»§Ãû=¹ÜÀíÔ±, ÃÜÂë³¤¶È=8
+2025-03-28 17:54:45,955 - __main__ - DEBUG - ÇëÇóÄÚÈİÀàĞÍ: application/json
+2025-03-28 17:54:45,956 - __main__ - DEBUG - ÇëÇóÊı¾İ: JSON={'username': '¹ÜÀíÔ±', 'password': 'admin123'}, ±íµ¥={}
+2025-03-28 17:54:45,957 - __main__ - DEBUG - ÕÒµ½ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«=admin, ÊÇ·ñ¹ÜÀíÔ±=True
+2025-03-28 17:54:45,957 - __main__ - DEBUG - ÃÜÂë¹şÏ£Öµ: scrypt:32768:8:...
+2025-03-28 17:54:46,047 - __main__ - DEBUG - ÃÜÂëÑéÖ¤½á¹û: ³É¹¦
+2025-03-28 17:54:46,138 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 200
+2025-03-28 17:54:46,138 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:54:46] "POST /api/v1/web/login HTTP/1.1" 200 -
+2025-03-28 17:54:46,161 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:54:46] "[35m[1mGET /alarms/?user_token=790b0933-a858-4498-a34e-84070cef4f54 HTTP/1.1[0m" 500 -
+2025-03-28 17:54:46,256 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:54:46] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-28 17:54:46,256 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:54:46] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-28 17:54:46,264 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:54:46] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-28 17:55:51,608 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\run.py', reloading
+2025-03-28 17:55:51,724 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:55:52,398 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 1
+2025-03-28 17:55:52,399 - __main__ - INFO - ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«: admin, ÊÇ·ñ¹ÜÀíÔ±: True, ÃÜÂë¹şÏ£: scrypt:32768:8:...
+2025-03-28 17:55:52,406 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:55:52,414 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:55:52,433 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:55:53,471 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\run.py', reloading
+2025-03-28 17:55:53,562 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:55:54,118 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 1
+2025-03-28 17:55:54,119 - __main__ - INFO - ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«: admin, ÊÇ·ñ¹ÜÀíÔ±: True, ÃÜÂë¹şÏ£: scrypt:32768:8:...
+2025-03-28 17:55:54,120 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:55:54,129 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:55:54,131 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:56:14,231 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\app\\models\\users.py', reloading
+2025-03-28 17:56:14,376 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:56:14,979 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 1
+2025-03-28 17:56:14,980 - __main__ - INFO - ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«: admin, ÊÇ·ñ¹ÜÀíÔ±: True, ÃÜÂë¹şÏ£: scrypt:32768:8:...
+2025-03-28 17:56:14,982 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:56:14,989 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:56:14,992 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:56:17,014 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\app\\models\\users.py', reloading
+2025-03-28 17:56:17,103 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 17:56:17,593 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 1
+2025-03-28 17:56:17,594 - __main__ - INFO - ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«: admin, ÊÇ·ñ¹ÜÀíÔ±: True, ÃÜÂë¹şÏ£: scrypt:32768:8:...
+2025-03-28 17:56:17,595 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 17:56:17,602 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 17:56:17,605 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 17:56:21,069 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:56:21,070 - __main__ - DEBUG - µÇÂ¼³¢ÊÔ: ÓÃ»§Ãû=¹ÜÀíÔ±, ÃÜÂë³¤¶È=8
+2025-03-28 17:56:21,071 - __main__ - DEBUG - ÇëÇóÄÚÈİÀàĞÍ: application/json
+2025-03-28 17:56:21,073 - __main__ - DEBUG - ÕÒµ½ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«=admin, ÊÇ·ñ¹ÜÀíÔ±=True
+2025-03-28 17:56:21,073 - __main__ - DEBUG - ÃÜÂë¹şÏ£Öµ: scrypt:32768:8:...
+2025-03-28 17:56:21,178 - __main__ - DEBUG - ÃÜÂëÑéÖ¤½á¹û: ³É¹¦
+2025-03-28 17:56:21,286 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 200
+2025-03-28 17:56:21,287 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:21] "POST /api/v1/web/login HTTP/1.1" 200 -
+2025-03-28 17:56:21,303 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/alarms/?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 - ²ÎÊı: {'user_token': 'd8651a47-7a3c-41b6-8c45-c3a814571ed6'}
+2025-03-28 17:56:21,346 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/alarms/?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 - ×´Ì¬Âë: 200
+2025-03-28 17:56:21,346 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:21] "GET /alarms/?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 HTTP/1.1" 200 -
+2025-03-28 17:56:21,381 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/static/css/style.css - ²ÎÊı: {}
+2025-03-28 17:56:21,435 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/static/css/style.css - ×´Ì¬Âë: 304
+2025-03-28 17:56:21,436 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:21] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-28 17:56:24,796 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/edge_devices/device_list?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 - ²ÎÊı: {'user_token': 'd8651a47-7a3c-41b6-8c45-c3a814571ed6'}
+2025-03-28 17:56:24,800 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/edge_devices/device_list?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 - ×´Ì¬Âë: 200
+2025-03-28 17:56:24,801 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:24] "GET /edge_devices/device_list?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 HTTP/1.1" 200 -
+2025-03-28 17:56:24,844 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/static/css/style.css - ²ÎÊı: {}
+2025-03-28 17:56:24,845 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/static/css/style.css - ×´Ì¬Âë: 304
+2025-03-28 17:56:24,846 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:24] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-28 17:56:25,552 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/tasks/task_list?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 - ²ÎÊı: {'user_token': 'd8651a47-7a3c-41b6-8c45-c3a814571ed6'}
+2025-03-28 17:56:25,557 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/tasks/task_list?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 - ×´Ì¬Âë: 200
+2025-03-28 17:56:25,558 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:25] "GET /tasks/task_list?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 HTTP/1.1" 200 -
+2025-03-28 17:56:25,619 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/static/css/style.css - ²ÎÊı: {}
+2025-03-28 17:56:25,620 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/static/css/style.css - ×´Ì¬Âë: 304
+2025-03-28 17:56:25,621 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:25] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-28 17:56:26,219 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/users/?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 - ²ÎÊı: {'user_token': 'd8651a47-7a3c-41b6-8c45-c3a814571ed6'}
+2025-03-28 17:56:26,224 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/users/?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 - ×´Ì¬Âë: 200
+2025-03-28 17:56:26,225 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:26] "GET /users/?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 HTTP/1.1" 200 -
+2025-03-28 17:56:26,278 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/static/css/style.css - ²ÎÊı: {}
+2025-03-28 17:56:26,279 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/static/css/style.css - ×´Ì¬Âë: 304
+2025-03-28 17:56:26,279 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:26] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-28 17:56:33,316 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/alarms/statistics?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 - ²ÎÊı: {'user_token': 'd8651a47-7a3c-41b6-8c45-c3a814571ed6'}
+2025-03-28 17:56:33,358 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/alarms/statistics?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 - ×´Ì¬Âë: 200
+2025-03-28 17:56:33,359 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:33] "GET /alarms/statistics?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 HTTP/1.1" 200 -
+2025-03-28 17:56:33,407 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/static/css/style.css - ²ÎÊı: {}
+2025-03-28 17:56:33,409 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/static/css/style.css - ×´Ì¬Âë: 304
+2025-03-28 17:56:33,409 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:33] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-28 17:56:34,620 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 - ²ÎÊı: {'user_token': 'd8651a47-7a3c-41b6-8c45-c3a814571ed6'}
+2025-03-28 17:56:34,630 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 - ×´Ì¬Âë: 200
+2025-03-28 17:56:34,631 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:34] "GET /?user_token=d8651a47-7a3c-41b6-8c45-c3a814571ed6 HTTP/1.1" 200 -
+2025-03-28 17:56:34,664 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/static/css/style.css - ²ÎÊı: {}
+2025-03-28 17:56:34,665 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/static/css/style.css - ×´Ì¬Âë: 304
+2025-03-28 17:56:34,666 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:34] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-28 17:56:38,436 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/update_basic_settings - ×´Ì¬Âë: 302
+2025-03-28 17:56:38,437 - __main__ - WARNING - ÖØ¶¨Ïò: http://127.0.0.1:5000/update_basic_settings -> /login
+2025-03-28 17:56:38,438 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:38] "[32mPOST /update_basic_settings HTTP/1.1[0m" 302 -
+2025-03-28 17:56:38,444 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/login - ×´Ì¬Âë: 302
+2025-03-28 17:56:38,444 - __main__ - WARNING - ÖØ¶¨Ïò: http://127.0.0.1:5000/login -> /api/v1/web/login
+2025-03-28 17:56:38,445 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:38] "[32mGET /login HTTP/1.1[0m" 302 -
+2025-03-28 17:56:38,460 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:56:38,466 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 200
+2025-03-28 17:56:38,466 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:38] "GET /api/v1/web/login HTTP/1.1" 200 -
+2025-03-28 17:56:39,682 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:56:39,682 - __main__ - DEBUG - µÇÂ¼³¢ÊÔ: ÓÃ»§Ãû=¹ÜÀíÔ±, ÃÜÂë³¤¶È=9
+2025-03-28 17:56:39,682 - __main__ - DEBUG - ÇëÇóÄÚÈİÀàĞÍ: application/json
+2025-03-28 17:56:39,683 - __main__ - DEBUG - ÕÒµ½ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«=admin, ÊÇ·ñ¹ÜÀíÔ±=True
+2025-03-28 17:56:39,684 - __main__ - DEBUG - ÃÜÂë¹şÏ£Öµ: scrypt:32768:8:...
+2025-03-28 17:56:39,811 - __main__ - DEBUG - ÃÜÂëÑéÖ¤½á¹û: Ê§°Ü
+2025-03-28 17:56:39,811 - __main__ - ERROR - ÃÜÂëÑéÖ¤Ê§°Ü: ÊäÈëÃÜÂë='Admin@123', ÓÃ»§=¹ÜÀíÔ±
+2025-03-28 17:56:39,931 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 17:56:39,932 - __main__ - ERROR - µÇÂ¼Ê§°ÜÏêÇé: {'error': 'ÓÃ»§Ãû»òÃÜÂë´íÎó', 'success': False}
+2025-03-28 17:56:39,933 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:39] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 17:56:47,180 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:56:47,181 - __main__ - DEBUG - µÇÂ¼³¢ÊÔ: ÓÃ»§Ãû=¹ÜÀíÔ±, ÃÜÂë³¤¶È=12
+2025-03-28 17:56:47,182 - __main__ - DEBUG - ÇëÇóÄÚÈİÀàĞÍ: application/json
+2025-03-28 17:56:47,183 - __main__ - DEBUG - ÕÒµ½ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«=admin, ÊÇ·ñ¹ÜÀíÔ±=True
+2025-03-28 17:56:47,183 - __main__ - DEBUG - ÃÜÂë¹şÏ£Öµ: scrypt:32768:8:...
+2025-03-28 17:56:47,317 - __main__ - DEBUG - ÃÜÂëÑéÖ¤½á¹û: Ê§°Ü
+2025-03-28 17:56:47,317 - __main__ - ERROR - ÃÜÂëÑéÖ¤Ê§°Ü: ÊäÈëÃÜÂë='DEBUG - ÇëÇóÊı¾İ', ÓÃ»§=¹ÜÀíÔ±
+2025-03-28 17:56:47,451 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 401
+2025-03-28 17:56:47,453 - __main__ - ERROR - µÇÂ¼Ê§°ÜÏêÇé: {'error': 'ÓÃ»§Ãû»òÃÜÂë´íÎó', 'success': False}
+2025-03-28 17:56:47,454 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:47] "[31m[1mPOST /api/v1/web/login HTTP/1.1[0m" 401 -
+2025-03-28 17:56:55,187 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 17:56:55,187 - __main__ - DEBUG - µÇÂ¼³¢ÊÔ: ÓÃ»§Ãû=¹ÜÀíÔ±, ÃÜÂë³¤¶È=8
+2025-03-28 17:56:55,188 - __main__ - DEBUG - ÇëÇóÄÚÈİÀàĞÍ: application/json
+2025-03-28 17:56:55,190 - __main__ - DEBUG - ÕÒµ½ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«=admin, ÊÇ·ñ¹ÜÀíÔ±=True
+2025-03-28 17:56:55,191 - __main__ - DEBUG - ÃÜÂë¹şÏ£Öµ: scrypt:32768:8:...
+2025-03-28 17:56:55,372 - __main__ - DEBUG - ÃÜÂëÑéÖ¤½á¹û: ³É¹¦
+2025-03-28 17:56:55,567 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 200
+2025-03-28 17:56:55,569 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:55] "POST /api/v1/web/login HTTP/1.1" 200 -
+2025-03-28 17:56:55,591 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/alarms/?user_token=82612b7a-fdb8-4d10-bac3-114391fd389c - ²ÎÊı: {'user_token': '82612b7a-fdb8-4d10-bac3-114391fd389c'}
+2025-03-28 17:56:55,597 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/alarms/?user_token=82612b7a-fdb8-4d10-bac3-114391fd389c - ×´Ì¬Âë: 200
+2025-03-28 17:56:55,598 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:55] "GET /alarms/?user_token=82612b7a-fdb8-4d10-bac3-114391fd389c HTTP/1.1" 200 -
+2025-03-28 17:56:55,641 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/static/css/style.css - ²ÎÊı: {}
+2025-03-28 17:56:55,642 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/static/css/style.css - ×´Ì¬Âë: 304
+2025-03-28 17:56:55,644 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 17:56:55] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-28 18:06:37,589 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\app\\views\\alarm_view.py', reloading
+2025-03-28 18:06:37,667 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 18:06:38,462 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 1
+2025-03-28 18:06:38,462 - __main__ - INFO - ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«: admin, ÊÇ·ñ¹ÜÀíÔ±: True, ÃÜÂë¹şÏ£: scrypt:32768:8:...
+2025-03-28 18:06:38,470 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 18:06:38,479 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 18:06:38,486 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 18:07:39,784 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\app\\views\\alarms_view.py', reloading
+2025-03-28 18:07:39,879 - werkzeug - INFO -  * Restarting with stat

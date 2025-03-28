@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 from werkzeug.security import check_password_hash, generate_password_hash
-from app.models.user import User
+from app.models.users import User
 from app import db
 import re
 

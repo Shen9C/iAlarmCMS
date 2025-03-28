@@ -1,22 +1,26 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required
-from app.models.settings import Settings
+from app.models.settings import SystemConfig, KeyValueSetting
 from app import db
+
+from flask import Blueprint, jsonify
+from app.models.settings import KeyValueSetting
 
 bp = Blueprint('settings', __name__)
 
 @bp.route('/')
 @login_required
 def index():
-    settings = Settings.query.first()
-    if not settings:
-        settings = Settings(
-            system_name_zh='智能告警综合管理系统',
-            system_name_en='Intelligent Alarm Comprehensive Management System'
-        )
-        db.session.add(settings)
-        db.session.commit()
+    settings = SystemConfig.get_instance()
     return render_template('settings/index.html', settings=settings)
+
+@bp.route('/api/settings', methods=['POST'])
+@login_required
+def update_settings():
+    data = request.json
+    for key, value in data.items():
+        KeyValueSetting.set_setting(key, value)
+    return jsonify({"status": "success"})
 
 @bp.route('/settings/update', methods=['POST'])
 @login_required
@@ -92,3 +96,9 @@ def update_basic_settings():
     
     flash('基本设置已更新')
     return redirect(url_for('settings.index'))
+
+
+@bp.route('/api/config/<key>')
+def get_config(key):
+    value = KeyValueSetting.get_setting(key)
+    return jsonify({"key": key, "value": value})

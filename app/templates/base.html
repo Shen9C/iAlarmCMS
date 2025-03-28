@@ -52,9 +52,10 @@
     <!-- 顶部导航栏 -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
+            <!-- 修改使用settings的地方 -->
             <a class="navbar-brand" href="#">
-                {% if settings and settings.system_name_zh %}
-                    {{ settings.system_name_zh }}
+                {% if system_config and system_config.system_name_zh %}
+                    {{ system_config.system_name_zh }}
                 {% else %}
                     智能告警综合管理系统
                 {% endif %}
@@ -85,14 +86,24 @@
             <a href="{{ url_for('alarm_view.index', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint == 'alarm_view.index' %}active{% endif %}">
                 <i class="bi bi-bell"></i> 告警管理
             </a>
-            <a href="{{ url_for('settings.index', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint.startswith('settings.') %}active{% endif %}">
-                <i class="bi bi-gear"></i> 系统设置
+            <!-- 添加边缘设备管理链接 -->
+            <a href="{{ url_for('edge_devices.device_list', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint and request.endpoint.startswith('edge_devices') %}active{% endif %}">
+                <i class="bi bi-hdd-network"></i> 边缘设备
             </a>
-            <a href="{{ url_for('users.index', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint.startswith('users.') %}active{% endif %}">
+            <!-- 添加作业任务管理链接 -->
+            <a href="{{ url_for('tasks.task_list', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint and request.endpoint.startswith('tasks') %}active{% endif %}">
+                <i class="bi bi-list-task"></i> 作业任务
+            </a>
+            <!-- 使用正确的用户管理端点名称 -->
+            <a href="{{ url_for('users.index', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint and request.endpoint.startswith('users') %}active{% endif %}">
                 <i class="bi bi-people"></i> 用户管理
             </a>
             <a href="{{ url_for('alarm_view.statistics', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint == 'alarm_view.statistics' %}active{% endif %}">
                 <i class="bi bi-graph-up"></i> 统计分析
+            </a>
+            <!-- 系统设置移到最后 -->
+            <a href="{{ url_for('settings.index', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint.startswith('settings.') %}active{% endif %}">
+                <i class="bi bi-gear"></i> 系统设置
             </a>
         </div>
     </div>

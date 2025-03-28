@@ -1,5 +1,5 @@
 import pytest
-from app.models.alarm import Alarm
+from app.models.alarms import Alarm
 from app import db
 from datetime import datetime
 

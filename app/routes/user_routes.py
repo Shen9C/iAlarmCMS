@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify  # 添加 jsonify
 from flask_login import login_required, current_user
-from app.models.user import User
+from app.models.users import User
 from app import db
 
 bp = Blueprint('users', __name__)
@@ -13,7 +13,8 @@ def index():
         return redirect(url_for('alarm_view.index', user_token=request.args.get('user_token')))
     
     users = User.query.all()
-    return render_template('users/user_list.html', users=users)
+    # 修改模板路径为正确的路径
+    return render_template('users/index.html', users=users)
 
 @bp.route('/create', methods=['GET', 'POST'])
 @login_required
