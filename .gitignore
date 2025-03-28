@@ -38,3 +38,9 @@ ENV/
 # OS
 .DS_Store
 Thumbs.db
+
+# 日志文件
+*.log
+logs/
+log/
+*.log.*

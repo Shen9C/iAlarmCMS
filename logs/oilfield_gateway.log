@@ -447,3 +447,68 @@ FROM users]
 2025-03-28 18:06:38,486 - werkzeug - INFO -  * Debugger PIN: 137-698-916
 2025-03-28 18:07:39,784 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\app\\views\\alarms_view.py', reloading
 2025-03-28 18:07:39,879 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 18:12:37,495 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 1
+2025-03-28 18:12:37,496 - __main__ - INFO - ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«: admin, ÊÇ·ñ¹ÜÀíÔ±: True, ÃÜÂë¹şÏ£: scrypt:32768:8:...
+2025-03-28 18:12:37,497 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 18:12:37,518 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-03-28 18:12:37,518 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 18:12:37,519 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 18:12:38,047 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 1
+2025-03-28 18:12:38,047 - __main__ - INFO - ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«: admin, ÊÇ·ñ¹ÜÀíÔ±: True, ÃÜÂë¹şÏ£: scrypt:32768:8:...
+2025-03-28 18:12:38,049 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 18:12:38,056 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 18:12:38,061 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 18:12:42,914 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 18:12:42,927 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 200
+2025-03-28 18:12:42,928 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:42] "GET /api/v1/web/login HTTP/1.1" 200 -
+2025-03-28 18:12:44,426 - __main__ - DEBUG - ÇëÇó: POST http://127.0.0.1:5000/api/v1/web/login - ²ÎÊı: {}
+2025-03-28 18:12:44,427 - __main__ - DEBUG - µÇÂ¼³¢ÊÔ: ÓÃ»§Ãû=¹ÜÀíÔ±, ÃÜÂë³¤¶È=8
+2025-03-28 18:12:44,427 - __main__ - DEBUG - ÇëÇóÄÚÈİÀàĞÍ: application/json
+2025-03-28 18:12:44,430 - __main__ - DEBUG - ÕÒµ½ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«=admin, ÊÇ·ñ¹ÜÀíÔ±=True
+2025-03-28 18:12:44,430 - __main__ - DEBUG - ÃÜÂë¹şÏ£Öµ: scrypt:32768:8:...
+2025-03-28 18:12:44,561 - __main__ - DEBUG - ÃÜÂëÑéÖ¤½á¹û: ³É¹¦
+2025-03-28 18:12:44,700 - __main__ - DEBUG - ÏìÓ¦: POST http://127.0.0.1:5000/api/v1/web/login - ×´Ì¬Âë: 200
+2025-03-28 18:12:44,701 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:44] "POST /api/v1/web/login HTTP/1.1" 200 -
+2025-03-28 18:12:44,716 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/alarms/?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 - ²ÎÊı: {'user_token': '35eff26e-1d76-4f10-839b-807ae99b3f48'}
+2025-03-28 18:12:44,769 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/alarms/?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 - ×´Ì¬Âë: 200
+2025-03-28 18:12:44,770 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:44] "GET /alarms/?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 HTTP/1.1" 200 -
+2025-03-28 18:12:44,802 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/static/css/style.css - ²ÎÊı: {}
+2025-03-28 18:12:44,900 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/static/css/style.css - ×´Ì¬Âë: 304
+2025-03-28 18:12:44,901 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:44] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-28 18:12:51,605 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/edge_devices/device_list?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 - ²ÎÊı: {'user_token': '35eff26e-1d76-4f10-839b-807ae99b3f48'}
+2025-03-28 18:12:51,609 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/edge_devices/device_list?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 - ×´Ì¬Âë: 200
+2025-03-28 18:12:51,610 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:51] "GET /edge_devices/device_list?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 HTTP/1.1" 200 -
+2025-03-28 18:12:51,630 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/static/css/style.css - ²ÎÊı: {}
+2025-03-28 18:12:51,631 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/static/css/style.css - ×´Ì¬Âë: 304
+2025-03-28 18:12:51,632 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:51] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-28 18:12:52,514 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/tasks/task_list?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 - ²ÎÊı: {'user_token': '35eff26e-1d76-4f10-839b-807ae99b3f48'}
+2025-03-28 18:12:52,517 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/tasks/task_list?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 - ×´Ì¬Âë: 200
+2025-03-28 18:12:52,518 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:52] "GET /tasks/task_list?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 HTTP/1.1" 200 -
+2025-03-28 18:12:52,538 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/static/css/style.css - ²ÎÊı: {}
+2025-03-28 18:12:52,539 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/static/css/style.css - ×´Ì¬Âë: 304
+2025-03-28 18:12:52,539 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:52] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-28 18:12:53,126 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/users/?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 - ²ÎÊı: {'user_token': '35eff26e-1d76-4f10-839b-807ae99b3f48'}
+2025-03-28 18:12:53,133 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/users/?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 - ×´Ì¬Âë: 200
+2025-03-28 18:12:53,134 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:53] "GET /users/?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 HTTP/1.1" 200 -
+2025-03-28 18:12:53,164 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/static/css/style.css - ²ÎÊı: {}
+2025-03-28 18:12:53,164 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/static/css/style.css - ×´Ì¬Âë: 304
+2025-03-28 18:12:53,165 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:53] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-28 18:12:54,582 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/alarms/statistics?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 - ²ÎÊı: {'user_token': '35eff26e-1d76-4f10-839b-807ae99b3f48'}
+2025-03-28 18:12:54,626 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/alarms/statistics?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 - ×´Ì¬Âë: 200
+2025-03-28 18:12:54,627 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:54] "GET /alarms/statistics?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 HTTP/1.1" 200 -
+2025-03-28 18:12:54,650 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/static/css/style.css - ²ÎÊı: {}
+2025-03-28 18:12:54,651 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/static/css/style.css - ×´Ì¬Âë: 304
+2025-03-28 18:12:54,652 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:54] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-28 18:12:55,481 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 - ²ÎÊı: {'user_token': '35eff26e-1d76-4f10-839b-807ae99b3f48'}
+2025-03-28 18:12:55,491 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 - ×´Ì¬Âë: 200
+2025-03-28 18:12:55,492 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:55] "GET /?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 HTTP/1.1" 200 -
+2025-03-28 18:12:55,518 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/static/css/style.css - ²ÎÊı: {}
+2025-03-28 18:12:55,519 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/static/css/style.css - ×´Ì¬Âë: 304
+2025-03-28 18:12:55,520 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:55] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-28 18:12:57,250 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/alarms/?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 - ²ÎÊı: {'user_token': '35eff26e-1d76-4f10-839b-807ae99b3f48'}
+2025-03-28 18:12:57,254 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/alarms/?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 - ×´Ì¬Âë: 200
+2025-03-28 18:12:57,255 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:57] "GET /alarms/?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 HTTP/1.1" 200 -
+2025-03-28 18:12:57,294 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/static/css/style.css - ²ÎÊı: {}
+2025-03-28 18:12:57,296 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/static/css/style.css - ×´Ì¬Âë: 304
+2025-03-28 18:12:57,296 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:57] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
