@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+
+{% block title %}边缘设备管理{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">边缘设备管理</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-primary btn-sm" id="addDeviceBtn">
+                            <i class="fas fa-plus"></i> 添加设备
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-striped" id="deviceTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>设备名称</th>
+                                <th>IP地址</th>
+                                <th>访问密钥(AK)</th>
+                                <th>密钥(SK)</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for device in devices %}
+                            <tr>
+                                <td>{{ device.id }}</td>
+                                <td>{{ device.name }}</td>
+                                <td>{{ device.ip_address }}</td>
+                                <td>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control form-control-sm" value="{{ device.access_key }}" readonly>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary btn-sm copy-btn" data-clipboard-text="{{ device.access_key }}" type="button">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control form-control-sm secret-key" value="{{ device.secret_key }}" readonly>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary btn-sm toggle-password" type="button">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-sm copy-btn" data-clipboard-text="{{ device.secret_key }}" type="button">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ device.created_at }}</td>
+                                <td>
+                                    <button class="btn btn-info btn-sm edit-device" data-id="{{ device.id }}" data-name="{{ device.name }}" data-ip="{{ device.ip_address }}">
+                                        <i class="fas fa-edit"></i> 编辑
+                                    </button>
+                                    <button class="btn btn-warning btn-sm regenerate-keys" data-id="{{ device.id }}">
+                                        <i class="fas fa-key"></i> 重新生成密钥
+                                    </button>
+                                    <button class="btn btn-danger btn-sm delete-device" data-id="{{ device.id }}" data-name="{{ device.name }}">
+                                        <i class="fas fa-trash"></i> 删除
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 添加设备模态框 -->
+<div class="modal fade" id="addDeviceModal" tabindex="-1" role="dialog" aria-labelledby="addDeviceModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addDeviceModalLabel">添加边缘设备</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addDeviceForm">
+                    <div class="form-group">
+                        <label for="deviceName">设备名称</label>
+                        <input type="text" class="form-control" id="deviceName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="deviceIp">IP地址</label>
+                        <input type="text" class="form-control" id="deviceIp" required pattern="^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$">
+                        <small class="form-text text-muted">请输入有效的IPv4地址，例如：192.168.1.1</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="saveDeviceBtn">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 编辑设备模态框 -->
+<div class="modal fade" id="editDeviceModal" tabindex="-1" role="dialog" aria-labelledby="editDeviceModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editDeviceModalLabel">编辑边缘设备</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editDeviceForm">
+                    <input type="hidden" id="editDeviceId">
+                    <div class="form-group">
+                        <label for="editDeviceName">设备名称</label>
+                        <input type="text" class="form-control" id="editDeviceName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDeviceIp">IP地址</label>
+                        <input type="text" class="form-control" id="editDeviceIp" required pattern="^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$">
+                        <small class="form-text text-muted">请输入有效的IPv4地址，例如：192.168.1.1</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="updateDeviceBtn">更新</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 确认删除模态框 -->
+<div class="modal fade" id="deleteDeviceModal" tabindex="-1" role="dialog" aria-labelledby="deleteDeviceModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteDeviceModalLabel">确认删除</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>您确定要删除设备 <span id="deleteDeviceName" class="font-weight-bold"></span> 吗？此操作不可逆。</p>
+                <input type="hidden" id="deleteDeviceId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">确认删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 确认重新生成密钥模态框 -->
+<div class="modal fade" id="regenerateKeysModal" tabindex="-1" role="dialog" aria-labelledby="regenerateKeysModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="regenerateKeysModalLabel">确认重新生成密钥</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>您确定要为此设备重新生成访问密钥(AK)和密钥(SK)吗？</p>
+                <p class="text-danger">注意：重新生成后，使用旧密钥的设备将无法连接，需要更新配置。</p>
+                <input type="hidden" id="regenerateDeviceId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-warning" id="confirmRegenerateBtn">确认重新生成</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
+<!-- JavaScript代码部分 -->
+<script>
+$(document).ready(function() {
+// 添加设备
+$('#saveDeviceBtn').click(function() {
+var name = $('#deviceName').val();
+var ip = $('#deviceIp').val();
+
+if (!name || !ip) {
+toastr.error('请填写所有必填字段');
+return;
+}
+
+// 验证IP地址格式
+var ipPattern = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+if (!ipPattern.test(ip)) {
+toastr.error('请输入有效的IPv4地址');
+return;
+}
+
+$.ajax({
+url: '/api/edge_devices',  // 确保这个路径与您的API路由匹配
+type: 'POST',
+contentType: 'application/json',
+data: JSON.stringify({
+name: name,
+ip_address: ip
+}),
+success: function(response) {
+if (response.code === 200) {
+toastr.success('设备添加成功');
+$('#addDeviceModal').modal('hide');
+// 刷新页面
+location.reload();
+} else {
+toastr.error(response.message || '添加失败');
+}
+},
+error: function(xhr) {
+var errorMsg = '添加失败';
+if (xhr.responseJSON && xhr.responseJSON.message) {
+errorMsg = xhr.responseJSON.message;
+}
+toastr.error(errorMsg);
+}
+});
+});
+
+// 编辑设备
+$('.edit-device').click(function() {
+var id = $(this).data('id');
+var name = $(this).data('name');
+var ip = $(this).data('ip');
+
+$('#editDeviceId').val(id);
+$('#editDeviceName').val(name);
+$('#editDeviceIp').val(ip);
+
+$('#editDeviceModal').modal('show');
+});
+
+$('#updateDeviceBtn').click(function() {
+var id = $('#editDeviceId').val();
+var name = $('#editDeviceName').val();
+var ip = $('#editDeviceIp').val();
+
+if (!name || !ip) {
+toastr.error('请填写所有必填字段');
+return;
+}
+
+// 验证IP地址格式
+var ipPattern = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+if (!ipPattern.test(ip)) {
+toastr.error('请输入有效的IPv4地址');
+return;
+}
+
+$.ajax({
+url: '/api/edge_devices/' + id,  // 确保这个路径与您的API路由匹配
+type: 'PUT',
+contentType: 'application/json',
+data: JSON.stringify({
+name: name,
+ip_address: ip
+}),
+success: function(response) {
+if (response.code === 200) {
+toastr.success('设备更新成功');
+$('#editDeviceModal').modal('hide');
+// 刷新页面
+location.reload();
+} else {
+toastr.error(response.message || '更新失败');
+}
+},
+error: function(xhr) {
+var errorMsg = '更新失败';
+if (xhr.responseJSON && xhr.responseJSON.message) {
+errorMsg = xhr.responseJSON.message;
+}
+toastr.error(errorMsg);
+}
+});
+});
+
+// 删除设备
+$('.delete-device').click(function() {
+var id = $(this).data('id');
+var name = $(this).data('name');
+
+$('#deleteDeviceId').val(id);
+$('#deleteDeviceName').text(name);
+
+$('#deleteDeviceModal').modal('show');
+});
+
+$('#confirmDeleteBtn').click(function() {
+var id = $('#deleteDeviceId').val();
+
+$.ajax({
+url: '/api/edge_devices/' + id,  // 确保这个路径与您的API路由匹配
+type: 'DELETE',
+success: function(response) {
+if (response.code === 200) {
+toastr.success('设备删除成功');
+$('#deleteDeviceModal').modal('hide');
+// 刷新页面
+location.reload();
+} else {
+toastr.error(response.message || '删除失败');
+}
+},
+error: function(xhr) {
+var errorMsg = '删除失败';
+if (xhr.responseJSON && xhr.responseJSON.message) {
+errorMsg = xhr.responseJSON.message;
+}
+toastr.error(errorMsg);
+}
+});
+});
+
+// 重新生成密钥
+$('.regenerate-keys').click(function() {
+var id = $(this).data('id');
+$('#regenerateDeviceId').val(id);
+$('#regenerateKeysModal').modal('show');
+});
+
+$('#confirmRegenerateBtn').click(function() {
+var id = $('#regenerateDeviceId').val();
+
+$.ajax({
+url: '/api/edge_devices/' + id + '/regenerate_keys',  // 确保这个路径与您的API路由匹配
+type: 'POST',
+success: function(response) {
+if (response.code === 200) {
+toastr.success('密钥重新生成成功');
+$('#regenerateKeysModal').modal('hide');
+// 刷新页面
+location.reload();
+} else {
+toastr.error(response.message || '操作失败');
+}
+},
+error: function(xhr) {
+var errorMsg = '操作失败';
+if (xhr.responseJSON && xhr.responseJSON.message) {
+errorMsg = xhr.responseJSON.message;
+}
+toastr.error(errorMsg);
+}
+});
+});
+});
+</script>
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}用户管理{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3>用户管理</h3>
+        <a href="{{ url_for('users.create', user_token=request.args.get('user_token')) }}" class="btn btn-primary">
+            <i class="bi bi-person-plus"></i> 新建用户
+        </a>
+    </div>
+    <div class="card-body">
+        <!-- 搜索栏 -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" id="searchInput" class="form-control" placeholder="搜索用户名...">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                            <i class="bi bi-search"></i> 搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="float-right">
+                    <select id="roleFilter" class="form-control">
+                        <option value="">所有角色</option>
+                        <option value="admin">管理员</option>
+                        <option value="user">普通用户</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 用户列表表格 -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>角色</th>
+                        <th>创建时间</th>
+                        <th>最后登录</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td><span class="badge badge-{{ 'primary' if user.role == 'admin' else 'secondary' }}">{{ user.role }}</span></td>
+                        <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else '从未登录' }}</td>
+                        <td>
+                            <span class="badge badge-{{ 'success' if user.is_active else 'danger' }}">
+                                {{ '活跃' if user.is_active else '禁用' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{{ url_for('users.edit', id=user.id, user_token=request.args.get('user_token')) }}" 
+                                   class="btn btn-sm btn-primary" title="编辑">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button class="btn btn-sm btn-danger delete-user-btn" 
+                                        data-id="{{ user.id }}" 
+                                        data-name="{{ user.username }}"
+                                        title="删除">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页控件 -->
+        <nav aria-label="Page navigation" class="mt-3">
+            <ul class="pagination justify-content-center">
+                {{ pagination.links | safe }}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- 确认删除模态框 -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">确认删除</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除用户 <strong><span id="deleteUserName"></span></strong> 吗？</p>
+                <p class="text-danger"><small>此操作不可撤销！</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="bi bi-trash"></i> 确认删除
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // 搜索功能
+    $('#searchBtn').click(function() {
+        performSearch();
+    });
+
+    $('#searchInput').keypress(function(e) {
+        if(e.which == 13) {
+            performSearch();
+        }
+    });
+
+    // 角色筛选
+    $('#roleFilter').change(function() {
+        performSearch();
+    });
+
+    function performSearch() {
+        var searchTerm = $('#searchInput').val();
+        var roleFilter = $('#roleFilter').val();
+        var currentUrl = new URL(window.location.href);
+        
+        currentUrl.searchParams.set('search', searchTerm);
+        currentUrl.searchParams.set('role', roleFilter);
+        currentUrl.searchParams.set('page', '1');
+        
+        window.location.href = currentUrl.toString();
+    }
+
+    // 删除用户功能
+    $('.delete-user-btn').click(function() {
+        var userId = $(this).data('id');
+        var userName = $(this).data('name');
+        
+        $('#deleteUserName').text(userName);
+        $('#deleteUserModal').modal('show');
+        
+        $('#confirmDeleteBtn').off('click').on('click', function() {
+            $.ajax({
+                url: '/api/users/' + userId,
+                type: 'DELETE',
+                headers: {
+                    'X-User-Token': getUrlParameter('user_token')
+                },
+                success: function(response) {
+                    $('#deleteUserModal').modal('hide');
+                    toastr.success('用户删除成功');
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                },
+                error: function(xhr) {
+                    $('#deleteUserModal').modal('hide');
+                    toastr.error(xhr.responseJSON?.message || '删除失败');
+                }
+            });
+        });
+    });
+
+    function getUrlParameter(name) {
+        var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+        return results ? decodeURIComponent(results[1]) : null;
+    }
+});
+</script>
+{% endblock %}
+
+{% endblock %}

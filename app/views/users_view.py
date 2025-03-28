@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify  # 添加 jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app.models.users import User
 from app import db
@@ -13,8 +13,8 @@ def index():
         return redirect(url_for('alarm_view.index', user_token=request.args.get('user_token')))
     
     users = User.query.all()
-    # 修改模板路径为正确的路径
-    return render_template('users/index.html', users=users)
+    # 修改模板路径为新的命名规范
+    return render_template('users/users_index.html', users=users)
 
 @bp.route('/create', methods=['GET', 'POST'])
 @login_required
@@ -38,7 +38,8 @@ def create():
             flash('用户创建成功')
             return redirect(url_for('users.index', user_token=request.args.get('user_token')))
             
-    return render_template('users/create.html')
+    # 修改模板路径为新的命名规范
+    return render_template('users/users_create.html')
 
 @bp.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -67,25 +68,5 @@ def edit(id):
             flash('用户信息更新成功')
             return redirect(url_for('users.index', user_token=request.args.get('user_token')))
             
-    return render_template('users/edit.html', user=user)
-
-@bp.route('/delete/<int:id>', methods=['POST'])
-@login_required
-def delete_user(id):
-    if current_user.role != 'admin':
-        return jsonify({'error': '权限不足'}), 403
-    
-    user = User.query.get_or_404(id)
-    if user.username == 'admin':
-        return jsonify({'error': '不能删除管理员账号'}), 403
-    
-    if user.id == current_user.id:
-        return jsonify({'error': '不能删除当前登录用户'}), 403
-        
-    try:
-        db.session.delete(user)
-        db.session.commit()
-        return jsonify({'message': '删除成功'}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': '删除用户失败，请稍后重试'}), 500
+    # 修改模板路径为新的命名规范
+    return render_template('users/users_edit.html', user=user)

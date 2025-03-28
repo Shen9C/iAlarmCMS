@@ -12,7 +12,7 @@ from app.utils.web_auth import web_auth_required
 bp = Blueprint('alarm_view', __name__)
 
 @bp.route('/')
-@web_auth_required
+@login_required
 def index():
     page = request.args.get('page', 1, type=int)
     page_size = request.args.get('page_size', 15, type=int)
@@ -387,7 +387,7 @@ def show_confirm_type(alarm_number):
             
             if not confirm_type:
                 flash('缺少确认类型', 'error')
-                return render_template('confirm_type.html', alarm=alarm, user_token=user_token)
+                return render_template('alarms/alarms_confirm_type.html', alarm=alarm, user_token=user_token)
             
             alarm.is_confirmed = True
             alarm.confirm_type = confirm_type
@@ -413,7 +413,7 @@ def show_confirm_type(alarm_number):
             return redirect(url_for('alarm_view.index', user_token=user_token))
         
         # 处理GET请求（显示确认页面）
-        return render_template('confirm_type.html', alarm=alarm, user_token=user_token)
+        return render_template('alarms/alarms_confirm_type.html', alarm=alarm, user_token=user_token)
     except Exception as e:
         print(f"Error in confirm_type: {str(e)}")
         db.session.rollback()

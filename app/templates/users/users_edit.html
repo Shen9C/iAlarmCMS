@@ -7,7 +7,8 @@
     <h2>编辑用户</h2>
     <div class="card">
         <div class="card-body">
-            <form method="POST">
+            <!-- 不需要修改，因为它使用传统的表单提交 -->
+            <form method="POST" action="{{ url_for('users.edit', id=user.id, user_token=request.args.get('user_token')) }}">
                 <div class="mb-3">
                     <label for="username" class="form-label">用户名</label>
                     <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>

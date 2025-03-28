@@ -512,3 +512,25 @@ FROM users]
 2025-03-28 18:12:57,294 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/static/css/style.css - ²ÎÊı: {}
 2025-03-28 18:12:57,296 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/static/css/style.css - ×´Ì¬Âë: 304
 2025-03-28 18:12:57,296 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:12:57] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-28 18:16:02,773 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/edge_devices/device_list?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 - ²ÎÊı: {'user_token': '35eff26e-1d76-4f10-839b-807ae99b3f48'}
+2025-03-28 18:16:02,774 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/edge_devices/device_list?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 - ×´Ì¬Âë: 200
+2025-03-28 18:16:02,776 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:16:02] "GET /edge_devices/device_list?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 HTTP/1.1" 200 -
+2025-03-28 18:16:02,811 - __main__ - DEBUG - ÇëÇó: GET http://127.0.0.1:5000/static/css/style.css - ²ÎÊı: {}
+2025-03-28 18:16:02,811 - __main__ - DEBUG - ÏìÓ¦: GET http://127.0.0.1:5000/static/css/style.css - ×´Ì¬Âë: 304
+2025-03-28 18:16:02,812 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 18:16:02] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-28 18:21:44,342 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\app\\models\\edge_devices.py', reloading
+2025-03-28 18:21:44,439 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 18:21:45,018 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 1
+2025-03-28 18:21:45,018 - __main__ - INFO - ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«: admin, ÊÇ·ñ¹ÜÀíÔ±: True, ÃÜÂë¹şÏ£: scrypt:32768:8:...
+2025-03-28 18:21:45,023 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 18:21:45,029 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 18:21:45,031 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 18:21:52,072 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\app\\routes\\edge_devices.py', reloading
+2025-03-28 18:21:52,158 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 18:21:52,782 - __main__ - INFO - Êı¾İ¿âÖĞµÄÓÃ»§ÊıÁ¿: 1
+2025-03-28 18:21:52,782 - __main__ - INFO - ÓÃ»§: ¹ÜÀíÔ±, ½ÇÉ«: admin, ÊÇ·ñ¹ÜÀíÔ±: True, ÃÜÂë¹şÏ£: scrypt:32768:8:...
+2025-03-28 18:21:52,784 - __main__ - INFO - ÒÑÇå³ıËùÓĞÓÃ»§µÄµÇÂ¼×´Ì¬
+2025-03-28 18:21:52,791 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 18:21:52,794 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 18:21:59,832 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_½»¸¶ÏîÄ¿\\320_oilfield_gateway\\app\\__init__.py', reloading
+2025-03-28 18:21:59,917 - werkzeug - INFO -  * Restarting with stat
