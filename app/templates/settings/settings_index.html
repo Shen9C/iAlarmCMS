@@ -28,14 +28,14 @@
             <div class="tab-content">
                 <!-- 基本设置标签页 -->
                 <div class="tab-pane fade show active" id="basic" role="tabpanel">
-                    <form action="{{ url_for('settings.update_basic_settings') }}" method="POST">
+                    <form id="basic-settings-form">
                         <div class="mb-3">
                             <label class="form-label">系统名称（中文）</label>
-                            <input type="text" class="form-control" name="system_name_zh" value="{{ settings.system_name_zh }}">
+                            <input type="text" class="form-control" name="system_name_zh" value="{{ system_config.system_name_zh }}">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">系统名称（英文）</label>
-                            <input type="text" class="form-control" name="system_name_en" value="{{ settings.system_name_en }}">
+                            <input type="text" class="form-control" name="system_name_en" value="{{ system_config.system_name_en }}">
                         </div>
                         <button type="submit" class="btn btn-primary">保存设置</button>
                     </form>
@@ -43,7 +43,7 @@
 
                 <!-- 告警设置标签页 -->
                 <div class="tab-pane fade" id="alarm" role="tabpanel">
-                    <form action="{{ url_for('settings.update_alarm_settings') }}" method="POST">
+                    <form id="alarm-settings-form">
                         <div class="mb-3">
                             <label class="form-label">告警保留天数</label>
                             <input type="number" class="form-control" name="retention_days" value="{{ settings.retention_days or 30 }}" min="1">
@@ -60,7 +60,7 @@
 
                 <!-- 邮件设置标签页 -->
                 <div class="tab-pane fade" id="email" role="tabpanel">
-                    <form action="{{ url_for('settings.update_email_settings') }}" method="POST">
+                    <form id="email-settings-form">
                         <div class="mb-3">
                             <label class="form-label">SMTP 服务器</label>
                             <input type="text" class="form-control" name="smtp_server" value="{{ settings.smtp_server or '' }}" placeholder="例如：smtp.163.com">
@@ -95,33 +95,117 @@
     </div>
 </div>
 
-{% block extra_js %}
+{% block scripts %}
 <script>
-function testEmailSettings() {
-    if (!confirm('确定要发送测试邮件吗？')) {
-        return;
-    }
-    fetch("{{ url_for('settings.test_email') }}", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);
-    })
-    .catch(error => {
-        alert('测试邮件发送失败');
-    });
-}
-
-// 保持上次选择的标签页
 document.addEventListener('DOMContentLoaded', function() {
-    const hash = window.location.hash;
-    if (hash) {
-        const tab = new bootstrap.Tab(document.querySelector(`a[href="${hash}"]`));
-        tab.show();
+    // 处理基本设置表单提交
+    document.getElementById('basic-settings-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            system_name_zh: this.querySelector('[name="system_name_zh"]').value,
+            system_name_en: this.querySelector('[name="system_name_en"]').value
+        };
+        
+        fetch(`/api/settings/basic?user_token={{ request.args.get('user_token') }}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.code === 200) {
+                alert('基本设置更新成功');
+            } else {
+                alert('设置更新失败：' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('设置更新失败：' + error);
+        });
+    });
+
+    // 处理告警设置表单提交
+    document.getElementById('alarm-settings-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            retention_days: parseInt(this.querySelector('[name="retention_days"]').value),
+            refresh_interval: parseInt(this.querySelector('[name="refresh_interval"]').value)
+        };
+        
+        fetch(`/api/settings/alarm?user_token={{ request.args.get('user_token') }}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.code === 200) {
+                alert('告警设置更新成功');
+            } else {
+                alert('设置更新失败：' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('设置更新失败：' + error);
+        });
+    });
+
+    // 处理邮件设置表单提交
+    document.getElementById('email-settings-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            smtp_server: this.querySelector('[name="smtp_server"]').value,
+            smtp_port: parseInt(this.querySelector('[name="smtp_port"]').value),
+            sender_email: this.querySelector('[name="sender_email"]').value,
+            email_password: this.querySelector('[name="email_password"]').value,
+            enable_email: this.querySelector('[name="enable_email"]').checked
+        };
+        
+        fetch(`/api/settings/email?user_token={{ request.args.get('user_token') }}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.code === 200) {
+                alert('邮件设置更新成功');
+            } else {
+                alert('设置更新失败：' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('设置更新失败：' + error);
+        });
+    });
+
+    // 测试邮件发送功能保持不变
+    function testEmailSettings() {
+        if (!confirm('确定要发送测试邮件吗？')) {
+            return;
+        }
+        fetch("{{ url_for('settings_api.test_email', user_token=request.args.get('user_token')) }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            alert('测试邮件发送失败');
+        });
     }
 });
 </script>

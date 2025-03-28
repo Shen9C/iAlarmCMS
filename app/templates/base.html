@@ -70,7 +70,7 @@
                         <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
                             <i class="bi bi-key"></i> 修改密码
                         </a>
-                        <a class="dropdown-item" href="{{ url_for('auth.logout', user_token=request.args.get('user_token')) }}">
+                        <a class="dropdown-item" href="{{ url_for('web_auth.web_logout', user_token=request.args.get('user_token')) }}">
                             <i class="bi bi-box-arrow-right"></i> 退出登录
                         </a>
                     </div>
@@ -83,22 +83,22 @@
     <!-- 左侧导航栏 -->
     <div class="sidebar py-3">
         <div class="list-group">
-            <a href="{{ url_for('alarm_view.index', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint == 'alarm_view.index' %}active{% endif %}">
+            <a href="{{ url_for('alarms_view.index', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint == 'alarms_view.index' %}active{% endif %}">
                 <i class="bi bi-bell"></i> 告警管理
             </a>
-            <!-- 添加边缘设备管理链接 -->
-            <a href="{{ url_for('edge_devices.device_list', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint and request.endpoint.startswith('edge_devices') %}active{% endif %}">
+            <!-- 修改边缘设备管理链接，使用不需要device_id参数的端点 -->
+            <a href="{{ url_for('edge_devices.index', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint and request.endpoint.startswith('edge_devices') %}active{% endif %}">
                 <i class="bi bi-hdd-network"></i> 边缘设备
             </a>
-            <!-- 添加作业任务管理链接 -->
-            <a href="{{ url_for('tasks.task_list', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint and request.endpoint.startswith('tasks') %}active{% endif %}">
+            <!-- 修改作业任务管理链接，使用正确的端点名称 -->
+            <a href="{{ url_for('tasks_api.get_tasks', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint and request.endpoint.startswith('tasks') %}active{% endif %}">
                 <i class="bi bi-list-task"></i> 作业任务
             </a>
             <!-- 使用正确的用户管理端点名称 -->
             <a href="{{ url_for('users.index', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint and request.endpoint.startswith('users') %}active{% endif %}">
                 <i class="bi bi-people"></i> 用户管理
             </a>
-            <a href="{{ url_for('alarm_view.statistics', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint == 'alarm_view.statistics' %}active{% endif %}">
+            <a href="{{ url_for('alarms_view.statistics', user_token=request.args.get('user_token')) }}" class="list-group-item list-group-item-action {% if request.endpoint == 'alarms_view.statistics' %}active{% endif %}">
                 <i class="bi bi-graph-up"></i> 统计分析
             </a>
             <!-- 系统设置移到最后 -->
@@ -156,12 +156,126 @@
             });
         });
     </script>
-    <!-- 在 </body> 标签前添加 -->
-    <!-- 找到并删除这一行
-    <script src="{{ url_for('static', filename='js/alarms.js') }}"></script> -->
+    
+    <!-- 修改密码模态框 -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changePasswordModalLabel">修改密码</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="changePasswordForm">
+                        <div class="mb-3">
+                            <label for="oldPassword" class="form-label">当前密码</label>
+                            <input type="password" class="form-control" id="oldPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">新密码</label>
+                            <input type="password" class="form-control" id="newPassword" required>
+                            <div class="form-text">密码长度至少8位，包含字母和数字</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">确认新密码</label>
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                        </div>
+                    </form>
+                    <div id="passwordChangeMessage" class="alert" style="display: none;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="changePasswordBtn">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        if (changePasswordBtn) {
+            const messageDiv = document.getElementById('passwordChangeMessage');
+            
+            changePasswordBtn.addEventListener('click', function() {
+                const oldPassword = document.getElementById('oldPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                // 清除之前的消息
+                messageDiv.style.display = 'none';
+                messageDiv.className = 'alert';
+                
+                // 验证新密码
+                if (newPassword.length < 8) {
+                    messageDiv.className = 'alert alert-danger';
+                    messageDiv.textContent = '新密码长度至少为8位';
+                    messageDiv.style.display = 'block';
+                    return;
+                }
+                
+                if (!/[a-zA-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+                    messageDiv.className = 'alert alert-danger';
+                    messageDiv.textContent = '新密码必须包含字母和数字';
+                    messageDiv.style.display = 'block';
+                    return;
+                }
+                
+                // 验证两次输入的密码是否一致
+                if (newPassword !== confirmPassword) {
+                    messageDiv.className = 'alert alert-danger';
+                    messageDiv.textContent = '两次输入的新密码不一致';
+                    messageDiv.style.display = 'block';
+                    return;
+                }
+                
+                // 获取用户Token
+                const userToken = new URLSearchParams(window.location.search).get('user_token');
+                
+                // 发送修改密码请求
+                fetch('/api/web_auth/change_password?user_token=' + userToken, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        old_password: oldPassword,
+                        new_password: newPassword
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        messageDiv.className = 'alert alert-success';
+                        messageDiv.textContent = '密码修改成功';
+                        
+                        // 清空表单
+                        document.getElementById('oldPassword').value = '';
+                        document.getElementById('newPassword').value = '';
+                        document.getElementById('confirmPassword').value = '';
+                        
+                        // 3秒后关闭模态框
+                        setTimeout(() => {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                            modal.hide();
+                        }, 3000);
+                    } else {
+                        messageDiv.className = 'alert alert-danger';
+                        messageDiv.textContent = data.message || '密码修改失败';
+                    }
+                    messageDiv.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    messageDiv.className = 'alert alert-danger';
+                    messageDiv.textContent = '服务器错误，请稍后再试';
+                    messageDiv.style.display = 'block';
+                });
+            });
+        }
+    });
+    </script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>
-
-<!-- 在 base.html 底部添加修改密码模态框 -->
-{% include 'change_password.html' %}

@@ -7,14 +7,14 @@
     <div class="card-header">
         <h5 class="mb-0 d-flex justify-content-between align-items-center">
             <span>告警列表</span>
-            <a href="{{ url_for('alarm_view.export_alarms', user_token=request.args.get('user_token')) }}" class="btn btn-success btn-sm">
+            <a href="{{ url_for('alarms_view.export_alarms', user_token=request.args.get('user_token')) }}" class="btn btn-success btn-sm">
                 <i class="bi bi-download"></i> 导出
             </a>
         </h5>
         
         <!-- 筛选表单 -->
         <div class="mt-3">
-            <form class="row g-3" method="get" action="{{ url_for('alarm_view.index') }}">
+            <form class="row g-3" method="get" action="{{ url_for('alarms_view.index') }}">
                 <input type="hidden" name="user_token" value="{{ request.args.get('user_token') }}">
                 <!-- 告警类型选择 -->
                 <div class="col-md-2">
@@ -58,7 +58,7 @@
                 <!-- 按钮区域 -->
                 <div class="col-md-2 d-flex gap-2">
                     <button type="submit" class="btn btn-primary">筛选</button>
-                    <a href="{{ url_for('alarm_view.index', user_token=request.args.get('user_token')) }}" class="btn btn-outline-secondary">
+                    <a href="{{ url_for('alarms_view.index', user_token=request.args.get('user_token')) }}" class="btn btn-outline-secondary">
                         <i class="bi bi-x-circle"></i> 清除
                     </a>
                 </div>
@@ -89,7 +89,7 @@
                     {% for alarm in alarms %}
                     <tr>
                         <td class="text-center">
-                            <a href="{{ url_for('alarm_view.alarm_detail', alarm_number=alarm.alarm_number, user_token=request.args.get('user_token')) }}">
+                            <a href="{{ url_for('alarms_view.alarm_detail', alarm_number=alarm.alarm_number, user_token=request.args.get('user_token')) }}">
                                 {{ alarm.alarm_number }}
                             </a>
                         </td>
@@ -143,7 +143,7 @@
         <div class="d-flex justify-content-between align-items-center p-3 border-top bg-white">
             <div class="d-flex align-items-center">
                 <!-- 搜索表单 -->
-                <form id="searchForm" method="GET" action="{{ url_for('alarm_view.index') }}">
+                <form id="searchForm" method="GET" action="{{ url_for('alarms_view.index') }}">
                     <input type="hidden" name="user_token" value="{{ user_token }}">
                     <label class="me-2">每页显示：</label>
                     <select name="page_size" class="form-select form-select-sm" style="width: 100px;" onchange="this.form.submit()">
@@ -167,7 +167,7 @@
                     <li class="page-item">
                         {% set args = request.args.copy() %}
                         {% set _ = args.pop('page', None) %}
-                        <a class="page-link" href="{{ url_for('alarm_view.index', page=pagination.prev_num, **args) }}">上一页</a>
+                        <a class="page-link" href="{{ url_for('alarms_view.index', page=pagination.prev_num, **args) }}">上一页</a>
                     </li>
                     {% endif %}
                     
@@ -176,7 +176,7 @@
                             <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
                                 {% set args = request.args.copy() %}
                                 {% set _ = args.pop('page', None) %}
-                                <a class="page-link" href="{{ url_for('alarm_view.index', page=page_num, **args) }}">{{ page_num }}</a>
+                                <a class="page-link" href="{{ url_for('alarms_view.index', page=page_num, **args) }}">{{ page_num }}</a>
                             </li>
                         {% else %}
                             <li class="page-item disabled"><span class="page-link">...</span></li>
@@ -187,7 +187,7 @@
                     <li class="page-item">
                         {% set args = request.args.copy() %}
                         {% set _ = args.pop('page', None) %}
-                        <a class="page-link" href="{{ url_for('alarm_view.index', page=pagination.next_num, **args) }}">下一页</a>
+                        <a class="page-link" href="{{ url_for('alarms_view.index', page=pagination.next_num, **args) }}">下一页</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -297,7 +297,7 @@
             </div>
             <!-- 修改模态框中的表单 -->
             <div class="modal-body">
-                <form id="confirmForm" method="POST" action="{{ url_for('alarm_view.show_confirm_type', alarm_number='', user_token=user_token) }}">
+                <form id="confirmForm" method="POST" action="{{ url_for('alarms_view.show_confirm_type', alarm_number='', user_token=user_token) }}">
                     <input type="hidden" name="alarm_number" id="alarmNumberInput">
                     <input type="hidden" name="user_token" value="{{ user_token }}">
                     <div class="mb-3">
@@ -319,7 +319,7 @@
                 const form = document.getElementById('confirmForm');
                 const alarmNumber = document.getElementById('alarmNumberInput').value;
                 // 修改为直接使用字符串替换，不需要替换占位符
-                form.action = "{{ url_for('alarm_view.show_confirm_type', alarm_number='PLACEHOLDER', user_token=user_token) }}".replace('PLACEHOLDER', alarmNumber);
+                form.action = "{{ url_for('alarms_view.show_confirm_type', alarm_number='PLACEHOLDER', user_token=user_token) }}".replace('PLACEHOLDER', alarmNumber);
                 form.submit();
             }
             

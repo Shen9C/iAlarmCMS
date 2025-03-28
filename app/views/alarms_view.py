@@ -9,9 +9,9 @@ import re
 from app.utils.web_auth import web_auth_required
 
 # 创建蓝图实例
-bp = Blueprint('alarm_view', __name__)
+bp = Blueprint('alarms_view', __name__)
 
-@bp.route('/')
+@bp.route('/', methods=['GET'])
 @login_required
 def index():
     page = request.args.get('page', 1, type=int)
@@ -70,7 +70,7 @@ def index():
     #     print("-" * 50)
     
     # 修改这里：从 'alarm_list.html' 改为 'alarms/index.html'
-    return render_template('alarms/index.html',
+    return render_template('alarms/alarms_index.html',
                          alarms=alarms,
                          pagination=pagination,
                          alarm_types=alarm_types,
@@ -356,7 +356,7 @@ def change_password():
             'success': True, 
             'message': '密码修改成功',
             'user_token': user_token,
-            'redirect_url': url_for('alarm_view.index', user_token=user_token)
+            'redirect_url': url_for('alarms_view.index', user_token=user_token)
         })
     except Exception as e:
         return jsonify({
@@ -394,7 +394,7 @@ def show_confirm_type(alarm_number):
             alarm.confirmed_time = datetime.now()
             db.session.commit()
             flash('告警确认成功', 'success')
-            return redirect(url_for('alarm_view.index', user_token=user_token))
+            return redirect(url_for('alarms_view.index', user_token=user_token))
         
         # 处理GET请求（显示确认页面）
         # 修改这里：从 'confirm_type.html' 改为 'alarms/confirm_type.html'
@@ -410,7 +410,7 @@ def show_confirm_type(alarm_number):
             alarm.confirmed_time = datetime.now()
             db.session.commit()
             flash('告警确认成功', 'success')
-            return redirect(url_for('alarm_view.index', user_token=user_token))
+            return redirect(url_for('alarms_view.index', user_token=user_token))
         
         # 处理GET请求（显示确认页面）
         return render_template('alarms/alarms_confirm_type.html', alarm=alarm, user_token=user_token)
@@ -418,7 +418,7 @@ def show_confirm_type(alarm_number):
         print(f"Error in confirm_type: {str(e)}")
         db.session.rollback()
         flash('操作失败', 'error')
-        return redirect(url_for('alarm_view.index', user_token=user_token))
+        return redirect(url_for('alarms_view.index', user_token=user_token))
 
 # 修改 process_alarm 路由
 @bp.route('/process/<string:alarm_number>', methods=['POST'])
@@ -437,7 +437,7 @@ def process_alarm(alarm_number):
         return jsonify({
             'success': True,
             'message': '告警已确认',
-            'redirect_url': url_for('alarm_view.index', user_token=user_token)
+            'redirect_url': url_for('alarms_view.index', user_token=user_token)
         })
     except Exception as e:
         print(f"Error processing alarm: {str(e)}")

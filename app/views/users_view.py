@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app.models.users import User
 from app import db
+from flask_paginate import Pagination, get_page_parameter
 
 bp = Blueprint('users', __name__)
 
@@ -10,7 +11,7 @@ bp = Blueprint('users', __name__)
 def index():
     if current_user.role != 'admin':
         flash('您没有权限访问此页面')
-        return redirect(url_for('alarm_view.index', user_token=request.args.get('user_token')))
+        return redirect(url_for('alarms_view.index', user_token=request.args.get('user_token')))
     
     users = User.query.all()
     # 修改模板路径为新的命名规范
@@ -21,7 +22,7 @@ def index():
 def create():
     if current_user.role != 'admin':
         flash('权限不足')
-        return redirect(url_for('alarm_view.index', user_token=request.args.get('user_token')))
+        return redirect(url_for('alarms_view.index', user_token=request.args.get('user_token')))
     
     if request.method == 'POST':
         username = request.form['username']
@@ -46,7 +47,7 @@ def create():
 def edit(id):
     if current_user.role != 'admin':
         flash('权限不足')
-        return redirect(url_for('alarm_view.index', user_token=request.args.get('user_token')))
+        return redirect(url_for('alarms_view.index', user_token=request.args.get('user_token')))
     
     user = User.query.get_or_404(id)
     

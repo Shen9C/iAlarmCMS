@@ -1,5 +1,10 @@
 import os
 import sys
+import logging
+from logging.handlers import RotatingFileHandler
+import shutil
+from datetime import datetime
+import subprocess
 
 # 添加项目根目录到 Python 路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -8,6 +13,28 @@ from app import create_app, db
 from app.models.users import User
 from app.models.alarms import Alarm
 import click
+
+# 确保logs文件夹存在
+logs_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
+os.makedirs(logs_dir, exist_ok=True)
+
+# 配置日志
+log_file_path = os.path.join(logs_dir, 'db_init.log')
+rotating_handler = RotatingFileHandler(
+    log_file_path,
+    maxBytes=50 * 1024 * 1024,  # 50MB
+    backupCount=20  # 最多保留20个文件
+)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        rotating_handler
+    ]
+)
+logger = logging.getLogger(__name__)
 
 app = create_app()
 
@@ -72,91 +99,12 @@ def clear_all():
         except Exception as e:
             click.echo(f'清空数据出错: {str(e)}')
 
-from app import create_app, db
-from app.models.users import User
-import os
-import logging
-from logging.handlers import RotatingFileHandler
-import shutil
-from datetime import datetime
-import subprocess
-import sys
-
-# 确保logs文件夹存在
-logs_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
-os.makedirs(logs_dir, exist_ok=True)
-
-# 配置日志
-log_file_path = os.path.join(logs_dir, 'db_init.log')
-rotating_handler = RotatingFileHandler(
-    log_file_path,
-    maxBytes=50 * 1024 * 1024,  # 50MB
-    backupCount=20  # 最多保留20个文件
-)
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        rotating_handler
-    ]
-)
-logger = logging.getLogger(__name__)
-
-def run_flask_command(command):
-    """运行Flask命令"""
-    project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    try:
-        result = subprocess.run(
-            f"cd {project_dir} && flask {command}", 
-            shell=True, 
-            capture_output=True, 
-            text=True
-        )
-        if result.returncode != 0:
-            logger.error(f"命令执行失败: flask {command}")
-            logger.error(f"错误信息: {result.stderr}")
-            return False
-        logger.info(f"命令执行成功: flask {command}")
-        logger.debug(f"输出: {result.stdout}")
-        return True
-    except Exception as e:
-        logger.error(f"执行命令时出错: {str(e)}")
-        return False
-
 def init_database():
     """初始化数据库"""
     app = create_app()
     
     # 获取数据库文件路径
     db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'instance', 'app.db')
-    
-    # 获取迁移目录路径
-    migrations_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'migrations')
-    
-    # 如果迁移目录存在，先备份再删除
-    if os.path.exists(migrations_dir):
-        try:
-            # 创建备份目录
-            backup_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'backups')
-            os.makedirs(backup_dir, exist_ok=True)
-            
-            # 备份迁移目录
-            migrations_backup_dir = os.path.join(
-                backup_dir, 
-                f'migrations_backup_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
-            )
-            shutil.copytree(migrations_dir, migrations_backup_dir)
-            logger.info(f"迁移目录已备份到: {migrations_backup_dir}")
-            
-            # 删除迁移目录
-            shutil.rmtree(migrations_dir)
-            logger.info("已删除旧的迁移目录")
-        except Exception as e:
-            logger.error(f"备份或删除迁移目录失败: {str(e)}")
-            logger.error("请确保没有其他程序正在使用迁移目录，或者手动关闭Flask应用后再试")
-            return False
     
     # 如果数据库文件存在，先备份再删除
     if os.path.exists(db_path):
@@ -240,69 +188,71 @@ def init_database():
     # 确保instance目录存在
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
     
-    # 初始化迁移仓库
-    logger.info("初始化迁移仓库...")
-    if not run_flask_command("db init"):
-        return False
-    
-    # 创建数据库表
+    # 简化初始化过程，不再处理迁移
     try:
         with app.app_context():
+            # 1. 创建新表
             db.create_all()
             logger.info("数据库表创建完成")
-    except Exception as e:
-        logger.error(f"创建数据库表时出错: {str(e)}")
-        return False
-    
-    # 创建迁移脚本
-    logger.info("创建迁移脚本...")
-    if not run_flask_command('db migrate -m "Initial migration"'):
-        return False
-    
-    # 应用迁移
-    logger.info("应用迁移...")
-    if not run_flask_command("db upgrade"):
-        return False
-    
-    # 创建默认管理员用户
-    try:
-        with app.app_context():
-            admin = User.query.filter_by(username='管理员').first()
-            if admin:
-                # 如果管理员已存在，重置密码
-                logger.info(f"找到现有管理员用户: {admin.username}")
-                admin.set_password('admin123')
-                db.session.commit()
-                logger.info("已重置管理员密码为: admin123")
-            else:
-                # 创建新管理员
-                admin = User(username='管理员', is_admin=True, role='admin')
-                admin.set_password('admin123')
-                db.session.add(admin)
-                db.session.commit()
-                logger.info("已创建新管理员用户: 管理员 (密码: admin123)")
             
-            # 验证密码是否正确设置
-            from werkzeug.security import check_password_hash
-            if hasattr(admin, 'password_hash') and admin.password_hash:
-                logger.info(f"管理员密码哈希值: {admin.password_hash[:10]}...")
-                test_password = 'admin123'
-                is_valid = check_password_hash(admin.password_hash, test_password)
-                logger.info(f"密码验证测试 ('admin123'): {'成功' if is_valid else '失败'}")
+            # 2. 创建管理员用户 - 修改这里，确保所有字段都有值
+            # 先检查是否已存在管理员用户
+            try:
+                # 直接使用SQL查询，避免ORM映射问题
+                admin_exists = db.session.execute(db.text("SELECT COUNT(*) FROM users WHERE username = '管理员'")).scalar() > 0
+            except Exception as e:
+                logger.warning(f"检查管理员用户时出错: {str(e)}")
+                admin_exists = False
+            
+            default_password = 'admin123'
+            
+            if admin_exists:
+                logger.info("找到现有管理员用户，将更新密码")
+                # 使用SQL更新密码
+                from werkzeug.security import generate_password_hash
+                password_hash = generate_password_hash(default_password)
+                db.session.execute(db.text(f"UPDATE users SET password_hash = '{password_hash}' WHERE username = '管理员'"))
             else:
-                logger.error("管理员密码哈希值为空或不存在")
-        
-        # 添加调试信息，列出所有用户
-        with app.app_context():
-            users = User.query.all()
-            logger.info(f"数据库中的用户数量: {len(users)}")
-            for user in users:
-                logger.info(f"用户: {user.username}, 角色: {user.role}, 是否管理员: {user.is_admin}, 密码哈希存在: {bool(user.password_hash)}")
-        
-        logger.info("数据库初始化完成")
-        return True
+                logger.info("创建新的管理员用户")
+                # 创建新的管理员用户，确保所有字段都有值
+                from datetime import datetime
+                admin = User(
+                    username='管理员',
+                    is_admin=True,
+                    role='admin',
+                    last_login_time=datetime.now(),
+                    last_login_ip='127.0.0.1',
+                    login_count=0,
+                    active=True
+                )
+                admin.set_password(default_password)
+                db.session.add(admin)
+            
+            db.session.commit()
+            logger.info("管理员用户设置完成")
+            logger.info("=== 默认管理员账户信息 ===")
+            logger.info(f"用户名: 管理员")
+            logger.info(f"密码: {default_password}")
+            logger.info("========================")
+            
+            # 验证数据库状态 - 使用SQL直接查询，避免ORM映射问题
+            try:
+                users_result = db.session.execute(db.text("SELECT username, role, is_admin FROM users")).fetchall()
+                logger.info(f"\n数据库中的用户列表:")
+                logger.info("------------------------")
+                for user in users_result:
+                    logger.info(f"用户名: {user[0]}")
+                    logger.info(f"角色: {user[1]}")
+                    logger.info(f"是否管理员: {user[2]}")
+                    logger.info("------------------------")
+            except Exception as e:
+                logger.error(f"查询用户列表时出错: {str(e)}")
+            
+            logger.info("数据库初始化完成")
+            return True
+            
     except Exception as e:
-        logger.error(f"创建管理员用户时出错: {str(e)}")
+        logger.error(f"数据库初始化过程中出错: {str(e)}")
         import traceback
         logger.error(traceback.format_exc())
         return False

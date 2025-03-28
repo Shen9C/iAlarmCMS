@@ -38,7 +38,7 @@ $(document).ready(function() {
         const userToken = new URLSearchParams(window.location.search).get('user_token');
         
         // 跳转到确认类型选择页面
-        window.location.href = `/alarm_view/confirm_type/${alarmNumber}?user_token=${userToken}`;
+        window.location.href = `/alarms_view/confirm_type/${alarmNumber}?user_token=${userToken}`;
     });
 
     // 确认类型表单提交事件
@@ -53,7 +53,7 @@ $(document).ready(function() {
         }
 
         const userToken = new URLSearchParams(window.location.search).get('user_token');
-        const requestUrl = `/alarm_view/process/${alarmNumber}?user_token=${userToken}`;
+        const requestUrl = `/alarms_view/process/${alarmNumber}?user_token=${userToken}`;
         
         // 发送请求前禁用提交按钮
         $('#confirmSubmit').prop('disabled', true);
@@ -99,7 +99,7 @@ $(document).ready(function() {
         const userToken = new URLSearchParams(window.location.search).get('user_token');
         
         // 使用正确的URL格式
-        window.location.href = `/alarm_view/${alarmNumber}?user_token=${userToken}`;
+        window.location.href = `/alarms_view/${alarmNumber}?user_token=${userToken}`;
     });
 
     // 确认提交事件
@@ -113,7 +113,7 @@ $(document).ready(function() {
         }
 
         const userToken = new URLSearchParams(window.location.search).get('user_token');
-        const requestUrl = `/alarm_view/process/${alarmNumber}?user_token=${userToken}`;
+        const requestUrl = `/alarms_view/process/${alarmNumber}?user_token=${userToken}`;
         
         const formData = new FormData();
         formData.append('confirm_type', confirmType);

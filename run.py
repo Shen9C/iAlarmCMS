@@ -30,6 +30,17 @@ logger = logging.getLogger(__name__)
 # 创建应用实例
 app = create_app()
 
+def clear_all_sessions():
+    """清理所有用户会话"""
+    try:
+        # 更新所有用户的令牌为空
+        User.query.update({User.current_token: None})
+        db.session.commit()
+        logger.info("所有用户会话已清理")
+    except Exception as e:
+        logger.error(f"清理会话时发生错误: {str(e)}")
+        db.session.rollback()
+
 if __name__ == '__main__':
     with app.app_context():
         # 列出所有用户，帮助调试

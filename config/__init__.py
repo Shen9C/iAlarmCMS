@@ -3,7 +3,8 @@ from datetime import timedelta
 
 class Config:
     # 基础配置
-    DEBUG = False
+    DEBUG_LOG_ENABLED = True
+    DEBUG = True
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-key-123'
     BASEDIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     

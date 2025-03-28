@@ -14,7 +14,7 @@
             <p>告警时间：{{ alarm.alarm_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
             
             <!-- 修改表单的 action 属性 -->
-            <form method="POST" action="{{ url_for('alarm_view.show_confirm_type', alarm_number=alarm.alarm_number, user_token=user_token) }}">
+            <form method="POST" action="{{ url_for('alarms_view.show_confirm_type', alarm_number=alarm.alarm_number, user_token=user_token) }}">
                 <!-- 表单内容 -->
                 <div class="mb-3">
                     <label for="confirmType" class="form-label">确认类型</label>
@@ -24,7 +24,7 @@
                     </div>
                     <button type="submit" class="btn btn-primary">确认</button>
                 </form>
-                <a href="{{ url_for('alarm_view.index', user_token=user_token) }}" class="btn btn-secondary">取消</a>
+                <a href="{{ url_for('alarms_view.index', user_token=user_token) }}" class="btn btn-secondary">取消</a>
             </form>
         </div>
     </div>

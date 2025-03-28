@@ -1,0 +1,290 @@
+2025-03-28 23:50:37,452 - __main__ - INFO - 开始初始化数据库...
+2025-03-28 23:50:37,452 - __main__ - INFO - 提示: 请确保所有Flask应用已关闭，以避免文件访问冲突
+2025-03-28 23:50:37,464 - __main__ - INFO - 数据库表创建完成
+2025-03-28 23:50:37,558 - __main__ - INFO - 管理员用户设置完成
+2025-03-28 23:50:37,558 - __main__ - INFO - === 默认管理员账户信息 ===
+2025-03-28 23:50:37,558 - __main__ - INFO - 用户名: 管理员
+2025-03-28 23:50:37,558 - __main__ - INFO - 密码: admin123
+2025-03-28 23:50:37,558 - __main__ - INFO - ========================
+2025-03-28 23:50:37,559 - __main__ - INFO - 
+数据库中的用户列表:
+2025-03-28 23:50:37,559 - __main__ - INFO - ------------------------
+2025-03-28 23:50:37,559 - __main__ - INFO - 用户名: 管理员
+2025-03-28 23:50:37,559 - __main__ - INFO - 角色: admin
+2025-03-28 23:50:37,559 - __main__ - INFO - 是否管理员: True
+2025-03-28 23:50:37,559 - __main__ - INFO - ------------------------
+2025-03-28 23:50:37,560 - __main__ - INFO - 数据库初始化完成
+2025-03-28 23:50:37,560 - __main__ - INFO - 数据库初始化成功
+2025-03-28 23:53:26,978 - __main__ - INFO - 开始初始化数据库...
+2025-03-28 23:53:26,978 - __main__ - INFO - 提示: 请确保所有Flask应用已关闭，以避免文件访问冲突
+2025-03-28 23:53:26,996 - __main__ - INFO - 数据库表创建完成
+2025-03-28 23:53:27,002 - __main__ - ERROR - 数据库初始化过程中出错: (sqlite3.OperationalError) no such column: users.last_login_ip
+[SQL: SELECT users.id AS users_id, users.username AS users_username, users.password_hash AS users_password_hash, users.role AS users_role, users.is_admin AS users_is_admin, users.current_token AS users_current_token, users.token_timestamp AS users_token_timestamp, users.last_login_time AS users_last_login_time, users.last_login_ip AS users_last_login_ip, users.login_count AS users_login_count, users.active AS users_active 
+FROM users 
+WHERE users.username = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('管理员', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-28 23:53:27,008 - __main__ - ERROR - Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: users.last_login_ip
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "E:\20_Coding_交付项目\320_oilfield_gateway\scripts\init_db.py", line 199, in init_database
+    admin = User.query.filter_by(username='管理员').first()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\orm\query.py", line 2748, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\orm\query.py", line 2847, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\orm\session.py", line 2308, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\orm\session.py", line 2190, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\orm\context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1416, in execute
+    return meth(
+           ^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\sql\elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1639, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 2343, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: users.last_login_ip
+[SQL: SELECT users.id AS users_id, users.username AS users_username, users.password_hash AS users_password_hash, users.role AS users_role, users.is_admin AS users_is_admin, users.current_token AS users_current_token, users.token_timestamp AS users_token_timestamp, users.last_login_time AS users_last_login_time, users.last_login_ip AS users_last_login_ip, users.login_count AS users_login_count, users.active AS users_active 
+FROM users 
+WHERE users.username = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('管理员', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+2025-03-28 23:53:27,009 - __main__ - ERROR - 数据库初始化失败
+2025-03-28 23:53:37,825 - __main__ - INFO - 开始初始化数据库...
+2025-03-28 23:53:37,825 - __main__ - INFO - 提示: 请确保所有Flask应用已关闭，以避免文件访问冲突
+2025-03-28 23:53:37,845 - __main__ - INFO - 数据库表创建完成
+2025-03-28 23:53:37,854 - __main__ - ERROR - 数据库初始化过程中出错: (sqlite3.OperationalError) no such column: users.last_login_ip
+[SQL: SELECT users.id AS users_id, users.username AS users_username, users.password_hash AS users_password_hash, users.role AS users_role, users.is_admin AS users_is_admin, users.current_token AS users_current_token, users.token_timestamp AS users_token_timestamp, users.last_login_time AS users_last_login_time, users.last_login_ip AS users_last_login_ip, users.login_count AS users_login_count, users.active AS users_active 
+FROM users 
+WHERE users.username = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('管理员', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-28 23:53:37,860 - __main__ - ERROR - Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: users.last_login_ip
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "E:\20_Coding_交付项目\320_oilfield_gateway\scripts\init_db.py", line 199, in init_database
+    admin = User.query.filter_by(username='管理员').first()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\orm\query.py", line 2748, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\orm\query.py", line 2847, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\orm\session.py", line 2308, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\orm\session.py", line 2190, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\orm\context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1416, in execute
+    return meth(
+           ^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\sql\elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1639, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 2343, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: users.last_login_ip
+[SQL: SELECT users.id AS users_id, users.username AS users_username, users.password_hash AS users_password_hash, users.role AS users_role, users.is_admin AS users_is_admin, users.current_token AS users_current_token, users.token_timestamp AS users_token_timestamp, users.last_login_time AS users_last_login_time, users.last_login_ip AS users_last_login_ip, users.login_count AS users_login_count, users.active AS users_active 
+FROM users 
+WHERE users.username = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('管理员', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+2025-03-28 23:53:37,860 - __main__ - ERROR - 数据库初始化失败
+2025-03-28 23:55:14,042 - __main__ - INFO - 开始初始化数据库...
+2025-03-28 23:55:14,042 - __main__ - INFO - 提示: 请确保所有Flask应用已关闭，以避免文件访问冲突
+2025-03-28 23:55:14,060 - __main__ - INFO - 数据库表创建完成
+2025-03-28 23:55:14,066 - __main__ - ERROR - 数据库初始化过程中出错: (sqlite3.OperationalError) no such column: users.last_login_ip
+[SQL: SELECT users.id AS users_id, users.username AS users_username, users.password_hash AS users_password_hash, users.role AS users_role, users.is_admin AS users_is_admin, users.current_token AS users_current_token, users.token_timestamp AS users_token_timestamp, users.last_login_time AS users_last_login_time, users.last_login_ip AS users_last_login_ip, users.login_count AS users_login_count, users.active AS users_active 
+FROM users 
+WHERE users.username = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('管理员', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-28 23:55:14,071 - __main__ - ERROR - Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: users.last_login_ip
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "E:\20_Coding_交付项目\320_oilfield_gateway\scripts\init_db.py", line 199, in init_database
+    admin = User.query.filter_by(username='管理员').first()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\orm\query.py", line 2748, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\orm\query.py", line 2847, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\orm\session.py", line 2308, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\orm\session.py", line 2190, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\orm\context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1416, in execute
+    return meth(
+           ^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\sql\elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1639, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 2343, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "D:\Python3128\Lib\site-packages\sqlalchemy\engine\default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: users.last_login_ip
+[SQL: SELECT users.id AS users_id, users.username AS users_username, users.password_hash AS users_password_hash, users.role AS users_role, users.is_admin AS users_is_admin, users.current_token AS users_current_token, users.token_timestamp AS users_token_timestamp, users.last_login_time AS users_last_login_time, users.last_login_ip AS users_last_login_ip, users.login_count AS users_login_count, users.active AS users_active 
+FROM users 
+WHERE users.username = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('管理员', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+2025-03-28 23:55:14,072 - __main__ - ERROR - 数据库初始化失败
+2025-03-28 23:56:34,831 - __main__ - INFO - 开始初始化数据库...
+2025-03-28 23:56:34,832 - __main__ - INFO - 提示: 请确保所有Flask应用已关闭，以避免文件访问冲突
+2025-03-28 23:56:34,847 - __main__ - INFO - 数据库表创建完成
+2025-03-28 23:56:34,848 - __main__ - INFO - 找到现有管理员用户，将更新密码
+2025-03-28 23:56:34,955 - __main__ - INFO - 管理员用户设置完成
+2025-03-28 23:56:34,955 - __main__ - INFO - === 默认管理员账户信息 ===
+2025-03-28 23:56:34,955 - __main__ - INFO - 用户名: 管理员
+2025-03-28 23:56:34,955 - __main__ - INFO - 密码: admin123
+2025-03-28 23:56:34,955 - __main__ - INFO - ========================
+2025-03-28 23:56:34,956 - __main__ - INFO - 
+数据库中的用户列表:
+2025-03-28 23:56:34,956 - __main__ - INFO - ------------------------
+2025-03-28 23:56:34,956 - __main__ - INFO - 用户名: 管理员
+2025-03-28 23:56:34,956 - __main__ - INFO - 角色: admin
+2025-03-28 23:56:34,956 - __main__ - INFO - 是否管理员: 1
+2025-03-28 23:56:34,956 - __main__ - INFO - ------------------------
+2025-03-28 23:56:34,957 - __main__ - INFO - 数据库初始化完成
+2025-03-28 23:56:34,957 - __main__ - INFO - 数据库初始化成功
+2025-03-29 00:01:20,320 - __main__ - INFO - 开始初始化数据库...
+2025-03-29 00:01:20,321 - __main__ - INFO - 提示: 请确保所有Flask应用已关闭，以避免文件访问冲突
+2025-03-29 00:01:20,333 - __main__ - INFO - 数据库表创建完成
+2025-03-29 00:01:20,334 - __main__ - INFO - 找到现有管理员用户，将更新密码
+2025-03-29 00:01:20,416 - __main__ - INFO - 管理员用户设置完成
+2025-03-29 00:01:20,417 - __main__ - INFO - === 默认管理员账户信息 ===
+2025-03-29 00:01:20,417 - __main__ - INFO - 用户名: 管理员
+2025-03-29 00:01:20,417 - __main__ - INFO - 密码: admin123
+2025-03-29 00:01:20,417 - __main__ - INFO - ========================
+2025-03-29 00:01:20,418 - __main__ - INFO - 
+数据库中的用户列表:
+2025-03-29 00:01:20,418 - __main__ - INFO - ------------------------
+2025-03-29 00:01:20,418 - __main__ - INFO - 用户名: 管理员
+2025-03-29 00:01:20,418 - __main__ - INFO - 角色: admin
+2025-03-29 00:01:20,419 - __main__ - INFO - 是否管理员: 1
+2025-03-29 00:01:20,419 - __main__ - INFO - ------------------------
+2025-03-29 00:01:20,419 - __main__ - INFO - 数据库初始化完成
+2025-03-29 00:01:20,419 - __main__ - INFO - 数据库初始化成功
+2025-03-29 00:01:24,936 - __main__ - INFO - 开始初始化数据库...
+2025-03-29 00:01:24,936 - __main__ - INFO - 提示: 请确保所有Flask应用已关闭，以避免文件访问冲突
+2025-03-29 00:01:24,949 - __main__ - INFO - 数据库表创建完成
+2025-03-29 00:01:24,950 - __main__ - INFO - 找到现有管理员用户，将更新密码
+2025-03-29 00:01:25,038 - __main__ - INFO - 管理员用户设置完成
+2025-03-29 00:01:25,039 - __main__ - INFO - === 默认管理员账户信息 ===
+2025-03-29 00:01:25,039 - __main__ - INFO - 用户名: 管理员
+2025-03-29 00:01:25,039 - __main__ - INFO - 密码: admin123
+2025-03-29 00:01:25,039 - __main__ - INFO - ========================
+2025-03-29 00:01:25,039 - __main__ - INFO - 
+数据库中的用户列表:
+2025-03-29 00:01:25,039 - __main__ - INFO - ------------------------
+2025-03-29 00:01:25,039 - __main__ - INFO - 用户名: 管理员
+2025-03-29 00:01:25,039 - __main__ - INFO - 角色: admin
+2025-03-29 00:01:25,039 - __main__ - INFO - 是否管理员: 1
+2025-03-29 00:01:25,039 - __main__ - INFO - ------------------------
+2025-03-29 00:01:25,039 - __main__ - INFO - 数据库初始化完成
+2025-03-29 00:01:25,041 - __main__ - INFO - 数据库初始化成功
+2025-03-29 00:03:20,134 - __main__ - INFO - 开始初始化数据库...
+2025-03-29 00:03:20,135 - __main__ - INFO - 提示: 请确保所有Flask应用已关闭，以避免文件访问冲突
+2025-03-29 00:03:20,147 - __main__ - INFO - 数据库表创建完成
+2025-03-29 00:03:20,147 - __main__ - INFO - 找到现有管理员用户，将更新密码
+2025-03-29 00:03:20,233 - __main__ - INFO - 管理员用户设置完成
+2025-03-29 00:03:20,234 - __main__ - INFO - === 默认管理员账户信息 ===
+2025-03-29 00:03:20,234 - __main__ - INFO - 用户名: 管理员
+2025-03-29 00:03:20,234 - __main__ - INFO - 密码: admin123
+2025-03-29 00:03:20,234 - __main__ - INFO - ========================
+2025-03-29 00:03:20,234 - __main__ - INFO - 
+数据库中的用户列表:
+2025-03-29 00:03:20,234 - __main__ - INFO - ------------------------
+2025-03-29 00:03:20,234 - __main__ - INFO - 用户名: 管理员
+2025-03-29 00:03:20,234 - __main__ - INFO - 角色: admin
+2025-03-29 00:03:20,234 - __main__ - INFO - 是否管理员: 1
+2025-03-29 00:03:20,234 - __main__ - INFO - ------------------------
+2025-03-29 00:03:20,234 - __main__ - INFO - 数据库初始化完成
+2025-03-29 00:03:20,235 - __main__ - INFO - 数据库初始化成功

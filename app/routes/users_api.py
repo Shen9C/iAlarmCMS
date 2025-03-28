@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from app.models.users import User
 from app import db
 
-bp = Blueprint('user_api', __name__, url_prefix='/api/users')
+bp = Blueprint('users_api', __name__, url_prefix='/api/users')
 
 @bp.route('/delete/<int:id>', methods=['POST'])
 @login_required

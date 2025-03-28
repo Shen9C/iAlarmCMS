@@ -1,5 +1,5 @@
-from flask import Blueprint, jsonify, request
-from flask_login import login_user, logout_user, login_required, current_user
+from flask import Blueprint, request, jsonify
+from flask_login import login_user, logout_user, current_user, login_required
 from datetime import datetime
 import logging
 from app.models.users import User
@@ -8,49 +8,76 @@ from app.utils.auth_helper import validate_password
 
 # 设置日志
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
-bp = Blueprint('web_auth_api', __name__, url_prefix='/api/web/auth')
+bp = Blueprint('web_auth_api', __name__, url_prefix='/api/web_auth')
 
 @bp.route('/login', methods=['POST'])
 def web_login_api():
     """Web端登录API"""
+    # 添加直接打印语句
+    print("====== API登录请求开始处理 ======")
+    print(f"请求方法: {request.method}")
+    print(f"请求头: {dict(request.headers)}")
+    
+    # 获取JSON数据
     try:
         data = request.get_json()
+        print(f"登录数据: {data}")
+        
         username = data.get('username')
         password = data.get('password')
         
+        print(f"用户名: {username}, 密码: {password}")
+        
+        # 查询数据库中的所有用户
+        all_users = User.query.all()
+        print(f"数据库中的用户列表: {[u.username for u in all_users]}")
+        
         user = User.query.filter_by(username=username).first()
-        if user is None or not user.check_password(password):
+        if user is None:
+            print(f"登录失败 - 用户不存在: {username}")
             return jsonify({
-                'code': 401,
-                'message': '用户名或密码错误'
-            }), 401
+                'success': False,
+                'error': '用户名或密码错误'
+            })
+        
+        print(f"找到用户: {user.username}, ID: {user.id}, 是否管理员: {user.is_admin}")
+        
+        if not user.check_password(password):
+            print(f"登录失败 - 密码错误: 用户={username}")
+            return jsonify({
+                'success': False,
+                'error': '用户名或密码错误'
+            })
         
         token = user.generate_token()
         user.current_token = token
+        # 更新登录信息
         user.last_login_time = datetime.utcnow()
-        user.login_count = (user.login_count or 0) + 1
-        user.last_login_ip = request.remote_addr
+        # 删除这一行: user.last_login_ip = request.remote_addr
+        # 删除这一行: user.login_count = (user.login_count or 0) + 1
+        
         user.token_timestamp = datetime.utcnow()
         db.session.commit()
         
         login_user(user, remember=True)
+        print(f"登录成功 - 用户: {username}, 生成Token: {token}")
         
         return jsonify({
-            'code': 200,
-            'message': '登录成功',
+            'success': True,
             'data': {
-                'token': token,
-                'username': user.username,
-                'role': user.role
+                'user_token': token
             }
         })
     except Exception as e:
-        logger.error(f"[ERROR] 登录过程发生错误: {str(e)}")
+        print(f"登录处理异常: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
         return jsonify({
-            'code': 500,
-            'message': f'登录失败: {str(e)}'
-        }), 500
+            'success': False,
+            'error': f'服务器错误: {str(e)}'
+        })
 
 @bp.route('/logout', methods=['POST'])
 @login_required

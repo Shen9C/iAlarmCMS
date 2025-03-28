@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import time
 import uuid
 
+# 在User类中确保有以下字段
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     
@@ -14,9 +15,11 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     role = db.Column(db.String(64), default='user')
     is_admin = db.Column(db.Boolean, default=False)
-    last_login_time = db.Column(db.DateTime)
-    current_token = db.Column(db.String(128))
+    current_token = db.Column(db.String(256))
     token_timestamp = db.Column(db.DateTime)
+    last_login_time = db.Column(db.DateTime)
+    # 删除 last_login_ip 字段
+    # 删除 login_count 字段
     active = db.Column(db.Boolean, default=True)
     
     def set_password(self, password):

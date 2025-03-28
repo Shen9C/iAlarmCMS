@@ -4,7 +4,7 @@ from app.models.edge_devices import EdgeDevice
 from app.utils.decorators import admin_required
 from app import db
 
-bp = Blueprint('edge_device', __name__)
+bp = Blueprint('edge_devices', __name__)
 
 @bp.route('/edge_devices')
 @login_required

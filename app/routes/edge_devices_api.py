@@ -1,13 +1,13 @@
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 from app.models.edge_devices import EdgeDevice
-from app.utils.decorators import admin_required, device_auth_required
+from app.utils.decorators import device_auth_required
 from app import db
 from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
-bp = Blueprint('edge_device_api', __name__, url_prefix='/api/edge_devices')
+bp = Blueprint('edge_devices_api', __name__, url_prefix='/api/edge_devices')
 
 @bp.route('', methods=['GET'])
 @login_required
@@ -29,7 +29,6 @@ def get_edge_devices():
 
 @bp.route('', methods=['POST'])
 @login_required
-@admin_required
 def add_edge_device():
     """添加边缘设备"""
     try:
@@ -71,7 +70,6 @@ def add_edge_device():
 
 @bp.route('/<int:device_id>', methods=['PUT'])
 @login_required
-@admin_required
 def update_edge_device(device_id):
     """更新边缘设备"""
     try:
@@ -127,7 +125,6 @@ def update_edge_device(device_id):
 
 @bp.route('/<int:device_id>', methods=['DELETE'])
 @login_required
-@admin_required
 def delete_edge_device(device_id):
     """删除边缘设备"""
     try:
@@ -155,7 +152,6 @@ def delete_edge_device(device_id):
 
 @bp.route('/<int:device_id>/regenerate_keys', methods=['POST'])
 @login_required
-@admin_required
 def regenerate_keys(device_id):
     """重新生成设备密钥"""
     try:
@@ -217,7 +213,6 @@ def verify_device_auth():
 
 @bp.route('/auth/status/<int:device_id>', methods=['GET'])
 @login_required
-@admin_required
 def get_device_auth_status(device_id):
     """获取边缘设备认证状态"""
     try:

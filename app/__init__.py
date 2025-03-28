@@ -3,6 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user, logout_user
 from flask_migrate import Migrate
 from config import Config  
+import logging
+
+# 设置日志
+logger = logging.getLogger(__name__)
 
 # 初始化Flask扩展
 db = SQLAlchemy()
@@ -12,6 +16,18 @@ login_manager = LoginManager()
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    
+    # 配置日志级别
+    if app.config.get('DEBUG_LOG_ENABLED', False):
+        # 修改这里，确保日志配置正确
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.StreamHandler()  # 添加控制台处理器
+            ]
+        )
+        logger.debug("应用启动，调试日志已启用")
     
     # 初始化扩展
     db.init_app(app)
@@ -29,7 +45,9 @@ def create_app():
     
     # ===================== 注册告警相关蓝图 =====================
     from app.views.alarms_view import bp as alarms_view_bp
+    from app.routes.alarms_api import bp as alarms_api_bp
     app.register_blueprint(alarms_view_bp, url_prefix='/alarms')
+    app.register_blueprint(alarms_api_bp)
     
     # ===================== 注册用户相关蓝图 =====================
     from app.views.users_view import bp as users_view_bp
@@ -61,70 +79,72 @@ def create_app():
     app.register_blueprint(settings_view_bp)
     app.register_blueprint(settings_api_bp)
     
+    # 删除这部分，因为已经不需要了
     # ===================== 注册机机接口蓝图 =====================
-    from app.routes.machine_api import bp as machine_api_bp
-    app.register_blueprint(machine_api_bp)
+    # from app.routes.machine_api import bp as machine_api_bp
+    # app.register_blueprint(machine_api_bp)
     
     @app.before_request
     def check_auth():
         """全局请求拦截器，验证用户登录状态和URL"""
+        if app.config.get('DEBUG_LOG_ENABLED', False):
+            logger.debug(f"请求信息: endpoint={request.endpoint}, path={request.path}, method={request.method}")
+            
+            # 如果是登录请求，记录用户名和密码信息（仅用于调试）
+            if request.endpoint == 'web_auth.web_login' and request.method == 'POST':
+                if request.is_json:
+                    data = request.get_json()
+                    logger.debug(f"登录尝试 - 用户名: {data.get('username')}, 密码: {data.get('password')}")
+                elif request.form:
+                    logger.debug(f"登录尝试 - 用户名: {request.form.get('username')}, 密码: {request.form.get('password')}")
+            
+            logger.debug(f"用户认证状态: authenticated={current_user.is_authenticated}")
+            if current_user.is_authenticated:
+                logger.debug(f"当前登录用户: {current_user.username}, Token: {current_user.current_token}")
+        
         # 不需要验证的路由和静态资源
         public_endpoints = [
-            'web_auth_view.login',
-            'web_auth_api.login',
+            'web_auth.web_login',
+            'web_auth_api.web_login_api',
             'static',
-            'machine_api.create_alarm',
-            'machine_api.create_batch_alarms',
-            'machine_api.get_alarm_status'
+            'edge_device_api.create_alarm',
+            'edge_device_api.create_batch_alarms',
+            'edge_device_api.get_alarm_status'
         ]
         
-        # 检查当前请求是否需要验证
         if request.endpoint and not any(request.endpoint.startswith(ep) for ep in public_endpoints):
-            # 检查用户是否已登录
             if not current_user.is_authenticated:
-                return redirect(url_for('web_auth_view.login'))
-            
-            # 检查用户令牌
-            user_token = request.args.get('user_token')
-            if not user_token:
-                # 如果是 AJAX 请求，返回401状态码
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return jsonify({'status': 'error', 'message': '会话已过期'}), 401
-                # 如果是普通请求，重定向到登录页面
-                logout_user()
-                return redirect(url_for('web_auth_view.login'))
-            
-            # 检查令牌是否过期
-            if current_user.is_token_expired():
-                # 自动刷新令牌
-                new_token = current_user.generate_token()
-                db.session.commit()
-                # 如果是 AJAX 请求，返回新令牌
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return jsonify({'status': 'refresh', 'new_token': new_token}), 200
-            
-            # 验证令牌是否匹配
-            if current_user.current_token != user_token:
-                logout_user()
-                return redirect(url_for('web_auth_view.login'))
-            
-            # 检查令牌是否过期
-            if current_user.is_token_expired():
-                logout_user()
-                return redirect(url_for('web_auth_view.login'))
-
+                if app.config.get('DEBUG_LOG_ENABLED', False):
+                    logger.debug("用户未认证，重定向到登录页面")
+                if request.is_xhr:
+                    return jsonify({
+                        'success': False,
+                        'error': '未登录或会话已过期'
+                    }), 401
+                return redirect(url_for('web_auth.web_login'))
+    
     @app.route('/')
     def index():
         """应用程序主入口"""
-        if current_user.is_authenticated and current_user.current_token:
-            return redirect(url_for('alarms_view.index', user_token=current_user.current_token))
-        return redirect(url_for('web_auth_view.login'))
-
-    @app.context_processor
-    def inject_settings():
-        """注入系统配置到模板上下文"""
-        from app.models.settings import SystemConfig
-        return {'system_config': SystemConfig.get_instance()}
+        if app.config.get('DEBUG_LOG_ENABLED', False):
+            logger.debug(f"访问根路径: authenticated={current_user.is_authenticated}")
+        
+        if current_user.is_authenticated:
+            if current_user.current_token:
+                if app.config.get('DEBUG_LOG_ENABLED', False):
+                    logger.debug(f"用户已登录，重定向到告警页面: token={current_user.current_token}")
+                return redirect(url_for('alarms_view.index', user_token=current_user.current_token))
+            
+            token = current_user.generate_token()
+            current_user.current_token = token
+            db.session.commit()
+            if app.config.get('DEBUG_LOG_ENABLED', False):
+                logger.debug(f"生成新token并重定向: token={token}")
+            return redirect(url_for('alarms_view.index', user_token=token))
+        
+        if app.config.get('DEBUG_LOG_ENABLED', False):
+            logger.debug("用户未登录，重定向到登录页面")
+        return redirect(url_for('web_auth.web_login'))
 
     return app
 

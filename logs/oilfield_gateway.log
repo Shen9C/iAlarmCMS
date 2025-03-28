@@ -534,3 +534,1718 @@ FROM users]
 2025-03-28 18:21:52,794 - werkzeug - INFO -  * Debugger PIN: 137-698-916
 2025-03-28 18:21:59,832 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\__init__.py', reloading
 2025-03-28 18:21:59,917 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 22:19:13,531 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 22:19:13,533 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 22:19:13,552 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 22:19:13,553 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 22:19:19,944 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:19:19] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-03-28 22:19:26,836 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:19:26] "[33mGET /edge_devices/device_list?user_token=35eff26e-1d76-4f10-839b-807ae99b3f48 HTTP/1.1[0m" 404 -
+2025-03-28 22:19:33,429 - app - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\__init__.py", line 88, in check_auth
+    return redirect(url_for('web_auth_view.login'))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\helpers.py", line 222, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_auth_view.login'. Did you mean 'web_auth.web_login' instead?
+2025-03-28 22:19:33,434 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:19:33] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-28 22:19:34,084 - app - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\__init__.py", line 88, in check_auth
+    return redirect(url_for('web_auth_view.login'))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\helpers.py", line 222, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_auth_view.login'. Did you mean 'web_auth.web_login' instead?
+2025-03-28 22:19:34,088 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:19:34] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-28 22:31:38,857 - app - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\__init__.py", line 88, in check_auth
+    return redirect(url_for('web_auth_view.login'))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\helpers.py", line 222, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_auth_view.login'. Did you mean 'web_auth.web_login' instead?
+2025-03-28 22:31:38,861 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:31:38] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-28 22:31:39,920 - app - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\__init__.py", line 88, in check_auth
+    return redirect(url_for('web_auth_view.login'))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\helpers.py", line 222, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_auth_view.login'. Did you mean 'web_auth.web_login' instead?
+2025-03-28 22:31:39,924 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:31:39] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-28 22:31:49,929 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 22:31:49,930 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 22:31:49,947 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 22:31:49,947 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 22:31:54,695 - app - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\__init__.py", line 88, in check_auth
+    return redirect(url_for('web_auth_view.login'))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\helpers.py", line 222, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_auth_view.login'. Did you mean 'web_auth.web_login' instead?
+2025-03-28 22:31:54,702 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:31:54] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-28 22:36:08,103 - app - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\__init__.py", line 88, in check_auth
+    return redirect(url_for('web_auth_view.login'))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\helpers.py", line 222, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_auth_view.login'. Did you mean 'web_auth.web_login' instead?
+2025-03-28 22:36:08,108 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:36:08] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-28 22:36:08,402 - app - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\__init__.py", line 88, in check_auth
+    return redirect(url_for('web_auth_view.login'))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\helpers.py", line 222, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_auth_view.login'. Did you mean 'web_auth.web_login' instead?
+2025-03-28 22:36:08,404 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:36:08] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-28 22:39:10,094 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 22:39:10,100 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 22:39:10,125 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 22:39:10,125 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 22:39:13,518 - app - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\__init__.py", line 88, in check_auth
+    return redirect(url_for('web_auth.login'))  # –ﬁ∏ƒ’‚¿Ô
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\helpers.py", line 222, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_auth.login'. Did you mean 'web_auth.web_login' instead?
+2025-03-28 22:39:13,524 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:39:13] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-28 22:41:03,497 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 22:41:03,497 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 22:41:03,512 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 22:41:03,512 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 22:41:06,739 - app - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\__init__.py", line 88, in check_auth
+    return redirect(url_for('web_auth.login'))  # –ﬁ∏ƒ’‚¿Ô
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\helpers.py", line 222, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_auth.login'. Did you mean 'web_auth.web_login' instead?
+2025-03-28 22:41:06,743 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:41:06] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-28 22:44:02,074 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 22:44:02,074 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 22:44:02,090 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 22:44:02,091 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 22:44:05,850 - app - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\__init__.py", line 88, in check_auth
+    return redirect(url_for('web_auth.login'))  # –ﬁ∏ƒ’‚¿Ô
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\helpers.py", line 222, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_auth.login'. Did you mean 'web_auth.web_login' instead?
+2025-03-28 22:44:05,857 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:44:05] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-28 22:45:51,996 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 22:45:51,996 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 22:45:52,011 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 22:45:52,011 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 22:45:54,558 - app - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\__init__.py", line 88, in check_auth
+    return redirect(url_for('web_auth.login'))  # –ﬁ∏ƒ’‚¿Ô
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\helpers.py", line 222, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_auth.login'. Did you mean 'web_auth.web_login' instead?
+2025-03-28 22:45:54,565 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:45:54] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-28 22:49:17,722 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 22:49:17,722 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 22:49:17,741 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 22:49:17,741 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 22:49:20,933 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:49:20] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-28 22:49:20,941 - app - ERROR - Exception on /web/auth/login [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\views\web_auth_view.py", line 47, in web_login
+    return render_template('auth/web_login.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 151, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\jinja2\loaders.py", line 126, in load
+    source, filename, uptodate = self.get_source(environment, name)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 65, in get_source
+    return self._get_source_fast(environment, template)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 99, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: auth/web_login.html
+2025-03-28 22:49:20,945 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:49:20] "[35m[1mGET /web/auth/login HTTP/1.1[0m" 500 -
+2025-03-28 22:53:58,639 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 22:53:58,648 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 22:53:58,665 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 22:53:58,665 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 22:54:04,891 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:54:04] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-28 22:54:04,923 - app - ERROR - Exception on /web/auth/login [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\views\web_auth_view.py", line 47, in web_login
+    return render_template('web_auth/login.html')  # –ﬁ∏ƒ’‚¿Ô
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 152, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 133, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\templates\web_auth\login.html", line 30, in top-level template code
+    <form method="POST" action="{{ url_for('web_api.login') }}" id="loginForm">
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_api.login'. Did you mean 'web_auth.web_login' instead?
+2025-03-28 22:54:04,930 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:54:04] "[35m[1mGET /web/auth/login HTTP/1.1[0m" 500 -
+2025-03-28 22:54:05,901 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:54:05] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-28 22:54:05,909 - app - ERROR - Exception on /web/auth/login [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\views\web_auth_view.py", line 47, in web_login
+    return render_template('web_auth/login.html')  # –ﬁ∏ƒ’‚¿Ô
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 152, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 133, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\templates\web_auth\login.html", line 30, in top-level template code
+    <form method="POST" action="{{ url_for('web_api.login') }}" id="loginForm">
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_api.login'. Did you mean 'web_auth.web_login' instead?
+2025-03-28 22:54:05,915 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:54:05] "[35m[1mGET /web/auth/login HTTP/1.1[0m" 500 -
+2025-03-28 22:54:59,093 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:54:59] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-28 22:54:59,108 - app - ERROR - Exception on /web/auth/login [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\views\web_auth_view.py", line 47, in web_login
+    return render_template('web_auth/login.html')  # –ﬁ∏ƒ’‚¿Ô
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 152, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 133, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\templates\web_auth\login.html", line 30, in top-level template code
+    <form method="POST" action="{{ url_for('web_auth_api.login') }}" id="loginForm">
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_api.login'. Did you mean 'web_auth.web_login' instead?
+2025-03-28 22:54:59,110 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:54:59] "[35m[1mGET /web/auth/login HTTP/1.1[0m" 500 -
+2025-03-28 22:54:59,922 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:54:59] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-28 22:54:59,932 - app - ERROR - Exception on /web/auth/login [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\views\web_auth_view.py", line 47, in web_login
+    return render_template('web_auth/login.html')  # –ﬁ∏ƒ’‚¿Ô
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 152, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 133, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\templates\web_auth\login.html", line 30, in top-level template code
+    <form method="POST" action="{{ url_for('web_auth_api.login') }}" id="loginForm">
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_api.login'. Did you mean 'web_auth.web_login' instead?
+2025-03-28 22:54:59,939 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:54:59] "[35m[1mGET /web/auth/login HTTP/1.1[0m" 500 -
+2025-03-28 22:55:56,933 - app - ERROR - Exception on /web/auth/login [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\views\web_auth_view.py", line 47, in web_login
+    return render_template('web_auth/login.html')  # –ﬁ∏ƒ’‚¿Ô
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 152, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 133, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\templates\web_auth\login.html", line 30, in top-level template code
+    <!-- –ﬁ∏ƒ±Ìµ•µƒ action  Ù–‘ -->
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_api.login'. Did you mean 'web_auth.web_login' instead?
+2025-03-28 22:55:56,937 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:55:56] "[35m[1mGET /web/auth/login HTTP/1.1[0m" 500 -
+2025-03-28 22:56:38,558 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 22:56:38,558 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 22:56:38,572 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 22:56:38,574 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 22:56:41,618 - app - ERROR - Exception on /web/auth/login [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\views\web_auth_view.py", line 47, in web_login
+    return render_template('web_auth/login.html')  # –ﬁ∏ƒ’‚¿Ô
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 152, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 133, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\templates\web_auth\login.html", line 60, in top-level template code
+    fetch('{{ url_for("web_auth_api.login") }}', {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_auth_api.login'. Did you mean 'web_auth_api.web_login_api' instead?
+2025-03-28 22:56:41,627 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:56:41] "[35m[1mGET /web/auth/login HTTP/1.1[0m" 500 -
+2025-03-28 22:57:26,330 - app - ERROR - Exception on /web/auth/login [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\views\web_auth_view.py", line 47, in web_login
+    return render_template('web_auth/login.html')  # –ﬁ∏ƒ’‚¿Ô
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 152, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 133, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\templates\web_auth\login.html", line 60, in top-level template code
+    fetch('{{ url_for("web_auth_api.web_login_api") }}', {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'web_auth_api.login'. Did you mean 'web_auth_api.web_login_api' instead?
+2025-03-28 22:57:26,337 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:57:26] "[35m[1mGET /web/auth/login HTTP/1.1[0m" 500 -
+2025-03-28 22:57:35,369 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 22:57:35,373 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 22:57:35,386 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 22:57:35,386 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 22:57:40,641 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:57:40] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-28 22:57:40,664 - app - ERROR - Exception on /web/auth/login [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\views\web_auth_view.py", line 47, in web_login
+    return render_template('web_auth/login.html')  # –ﬁ∏ƒ’‚¿Ô
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 152, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 133, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\templates\web_auth\login.html", line 71, in top-level template code
+    window.location.href = "{{ url_for('alarms_view.index') }}?user_token=" + data.data.user_token;
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'alarms_view.index'. Did you mean 'alarm_view.index' instead?
+2025-03-28 22:57:40,672 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:57:40] "[35m[1mGET /web/auth/login HTTP/1.1[0m" 500 -
+2025-03-28 22:57:41,353 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:57:41] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-28 22:57:41,369 - app - ERROR - Exception on /web/auth/login [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\views\web_auth_view.py", line 47, in web_login
+    return render_template('web_auth/login.html')  # –ﬁ∏ƒ’‚¿Ô
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 152, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 133, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\templates\web_auth\login.html", line 71, in top-level template code
+    window.location.href = "{{ url_for('alarms_view.index') }}?user_token=" + data.data.user_token;
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'alarms_view.index'. Did you mean 'alarm_view.index' instead?
+2025-03-28 22:57:41,371 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:57:41] "[35m[1mGET /web/auth/login HTTP/1.1[0m" 500 -
+2025-03-28 22:59:53,571 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:59:53] "[33mGET /web HTTP/1.1[0m" 404 -
+2025-03-28 22:59:56,079 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:59:56] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-28 22:59:56,089 - app - ERROR - Exception on /web/auth/login [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\views\web_auth_view.py", line 47, in web_login
+    return render_template('web_auth/login.html')  # –ﬁ∏ƒ’‚¿Ô
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 152, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 133, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\templates\web_auth\login.html", line 71, in top-level template code
+    window.location.href = "{{ url_for('alarm_view.index') }}?user_token=" + data.data.user_token;
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'alarms_view.index'. Did you mean 'alarm_view.index' instead?
+2025-03-28 22:59:56,095 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:59:56] "[35m[1mGET /web/auth/login HTTP/1.1[0m" 500 -
+2025-03-28 22:59:58,242 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:59:58] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-28 22:59:58,252 - app - ERROR - Exception on /web/auth/login [GET]
+Traceback (most recent call last):
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\views\web_auth_view.py", line 47, in web_login
+    return render_template('web_auth/login.html')  # –ﬁ∏ƒ’‚¿Ô
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 152, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\templating.py", line 133, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "D:\Python3128\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "e:\20_Coding_Ωª∏∂œÓƒø\320_oilfield_gateway\app\templates\web_auth\login.html", line 71, in top-level template code
+    window.location.href = "{{ url_for('alarm_view.index') }}?user_token=" + data.data.user_token;
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1071, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\flask\app.py", line 1060, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python3128\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'alarms_view.index'. Did you mean 'alarm_view.index' instead?
+2025-03-28 22:59:58,257 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 22:59:58] "[35m[1mGET /web/auth/login HTTP/1.1[0m" 500 -
+2025-03-28 23:00:53,019 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:00:53,019 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:00:53,038 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 23:00:53,038 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 23:00:58,296 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:00:58] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-28 23:00:58,314 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:00:58] "GET /web/auth/login HTTP/1.1" 200 -
+2025-03-28 23:01:00,482 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:01:00] "[32mPOST /api/web/auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:01:00,495 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:01:00] "GET /web/auth/login HTTP/1.1" 200 -
+2025-03-28 23:02:06,182 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:02:06] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-28 23:02:06,191 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:02:06] "GET /web/auth/login HTTP/1.1" 200 -
+2025-03-28 23:02:12,882 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:02:12] "[32mPOST /api/web/auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:02:12,896 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:02:12] "GET /web/auth/login HTTP/1.1" 200 -
+2025-03-28 23:03:01,337 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:03:01,337 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:03:01,355 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 23:03:01,355 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 23:03:05,171 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:03:05] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-28 23:03:05,193 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:03:05] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:03:12,041 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:03:12] "[32mPOST /api/web/auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:03:12,049 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:03:12] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:03:19,949 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:03:19] "[32mPOST /api/web/auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:03:19,951 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:03:19] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:03:24,682 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:03:24] "[32mPOST /api/web/auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:03:24,694 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:03:24] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:03:37,578 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:03:37] "[32mPOST /api/web/auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:03:37,578 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:03:37] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:03:54,150 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:03:54] "[32mPOST /api/web/auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:03:54,161 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:03:54] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:04:42,359 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:04:42] "[32mPOST /api/web/auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:04:42,363 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:04:42] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:10:10,036 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:10:10] "[32mPOST /api/web/auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:10:10,051 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:10:10] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:10:18,546 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:10:18] "[32mPOST /api/web/auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:10:18,569 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:10:18] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:12:20,728 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:12:20] "[32mPOST /api/web/auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:12:20,733 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:12:20] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:12:25,720 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:12:25] "[32mPOST /api/web/auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:12:25,732 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:12:25] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:13:59,045 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:13:59] "[32mPOST /api/web/auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:13:59,053 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:13:59] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:14:05,810 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:14:05] "[32mPOST /api/web/auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:14:05,810 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:14:05] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:15:40,903 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:15:40] "[32mPOST /api/web/auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:15:40,903 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:15:40] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:15:53,177 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:15:53,180 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:15:53,194 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 23:15:53,195 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 23:15:55,482 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:15:55] "[33mPOST /api/web/auth/login HTTP/1.1[0m" 404 -
+2025-03-28 23:16:11,381 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:16:11] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-28 23:16:11,400 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:16:11] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:16:19,006 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:16:19] "[32mPOST /api/web_auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:16:19,033 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:16:19] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:18:33,257 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:18:33] "[32mPOST /api/web_auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:18:33,270 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:18:33] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:19:18,495 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:19:18] "[32mPOST /api/web_auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:19:18,500 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:19:18] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:21:40,765 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:21:40] "[32mPOST /api/web_auth/login HTTP/1.1[0m" 302 -
+2025-03-28 23:21:40,771 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:21:40] "GET /web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:21:56,344 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:21:56,346 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:21:56,364 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 23:21:56,364 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 23:21:58,297 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-28 23:21:58,298 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=False
+2025-03-28 23:21:58,301 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:21:58] "[31m[1mPOST /api/web_auth/login HTTP/1.1[0m" 401 -
+2025-03-28 23:22:31,498 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-28 23:22:31,499 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=False
+2025-03-28 23:22:31,501 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:22:31] "[31m[1mPOST /api/web_auth/login HTTP/1.1[0m" 401 -
+2025-03-28 23:22:39,297 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-28 23:22:39,298 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=False
+2025-03-28 23:22:39,300 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:22:39] "[31m[1mPOST /api/web_auth/login HTTP/1.1[0m" 401 -
+2025-03-28 23:26:19,350 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:26:19,354 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:26:19,379 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 23:26:19,381 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 23:26:24,687 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-28 23:26:24,687 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=False
+2025-03-28 23:26:24,690 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:26:24] "[31m[1mPOST /api/web_auth/login HTTP/1.1[0m" 401 -
+2025-03-28 23:28:57,444 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-28 23:28:57,444 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=False
+2025-03-28 23:28:57,446 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:28:57] "[31m[1mPOST /api/web_auth/login HTTP/1.1[0m" 401 -
+2025-03-28 23:29:10,940 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:29:10,942 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:29:10,958 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 23:29:10,959 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 23:29:12,947 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-28 23:29:12,947 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=False
+2025-03-28 23:29:12,952 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:29:12] "[31m[1mPOST /api/web_auth/login HTTP/1.1[0m" 401 -
+2025-03-28 23:30:34,510 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:30:34,512 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:30:34,525 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 23:30:34,525 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 23:30:37,288 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-28 23:30:37,289 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=False
+2025-03-28 23:30:37,291 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:30:37] "[31m[1mPOST /api/web_auth/login HTTP/1.1[0m" 401 -
+2025-03-28 23:32:31,504 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-28 23:32:31,505 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=False
+2025-03-28 23:32:31,508 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:32:31] "[31m[1mPOST /api/web_auth/login HTTP/1.1[0m" 401 -
+2025-03-28 23:33:39,521 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-28 23:33:39,522 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=False
+2025-03-28 23:33:39,523 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:33:39] "[31m[1mPOST /api/web_auth/login HTTP/1.1[0m" 401 -
+2025-03-28 23:33:46,272 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:33:46,274 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:33:46,295 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 23:33:46,295 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 23:33:46,297 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 23:33:46,756 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:33:46,758 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:33:46,763 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 23:33:46,765 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 23:33:49,489 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-28 23:33:49,489 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=False
+2025-03-28 23:33:49,493 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:33:49] "[31m[1mPOST /api/web_auth/login HTTP/1.1[0m" 401 -
+2025-03-28 23:35:18,138 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\views\\web_auth_view.py', reloading
+2025-03-28 23:35:18,216 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 23:35:18,694 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:35:18,696 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:35:18,702 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 23:35:18,706 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 23:35:21,733 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\views\\web_auth_view.py', reloading
+2025-03-28 23:35:21,824 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 23:35:23,035 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:35:23,037 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:35:23,044 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 23:35:23,047 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 23:36:06,260 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\__init__.py', reloading
+2025-03-28 23:36:06,344 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 23:36:06,829 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-28 23:36:06,873 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:36:06,875 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:36:06,881 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 23:36:06,886 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 23:36:17,957 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\views\\web_auth_view.py', reloading
+2025-03-28 23:36:18,055 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 23:36:18,578 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-28 23:36:18,627 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:36:18,629 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:36:18,636 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 23:36:18,640 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 23:36:21,674 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\views\\web_auth_view.py', reloading
+2025-03-28 23:36:21,778 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 23:36:22,377 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-28 23:36:22,428 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:36:22,430 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:36:22,438 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 23:36:22,441 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 23:36:23,463 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\views\\web_auth_view.py', reloading
+2025-03-28 23:36:23,553 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 23:36:24,094 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-28 23:36:24,150 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:36:24,152 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:36:24,159 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 23:36:24,162 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 23:36:27,593 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-28 23:36:27,594 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=False
+2025-03-28 23:36:27,597 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:36:27] "[31m[1mPOST /api/web_auth/login HTTP/1.1[0m" 401 -
+2025-03-28 23:37:21,479 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\routes\\web_auth_api.py', reloading
+2025-03-28 23:37:21,587 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 23:37:22,272 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-28 23:38:28,413 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-28 23:38:28,450 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:38:28,451 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:38:28,468 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 23:38:28,468 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 23:38:28,468 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 23:38:28,846 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-28 23:38:28,883 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 0
+2025-03-28 23:38:28,885 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:38:28,891 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 23:38:28,894 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 23:38:33,577 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-28 23:38:33,578 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=False
+2025-03-28 23:38:33,582 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:38:33] "POST /api/web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:50:55,950 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-28 23:50:55,997 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-28 23:50:55,997 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-28 23:50:55,999 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:50:56,022 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-28 23:50:56,023 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-28 23:50:56,024 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 23:50:56,644 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-28 23:50:56,708 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-28 23:50:56,708 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-28 23:50:56,711 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-28 23:50:56,724 - werkzeug - WARNING -  * Debugger is active!
+2025-03-28 23:50:56,730 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-28 23:51:01,016 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-28 23:51:01,016 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=False
+2025-03-28 23:51:01,117 - werkzeug - INFO - 127.0.0.1 - - [28/Mar/2025 23:51:01] "POST /api/web_auth/login HTTP/1.1" 200 -
+2025-03-28 23:52:58,548 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\models\\users.py', reloading
+2025-03-28 23:52:58,672 - werkzeug - INFO -  * Restarting with stat
+2025-03-28 23:52:59,406 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-28 23:56:44,423 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:01:35,380 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:03:35,939 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:03:35,976 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:03:35,976 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:03:35,977 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:03:35,994 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-29 00:03:35,994 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-29 00:03:35,995 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:03:36,459 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:03:36,493 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:03:36,493 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:03:36,495 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:03:36,500 - werkzeug - WARNING -  * Debugger is active!
+2025-03-29 00:03:36,503 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-29 00:03:40,521 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-29 00:03:40,521 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=False
+2025-03-29 00:03:40,607 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:03:40] "POST /api/web_auth/login HTTP/1.1" 200 -
+2025-03-29 00:04:23,785 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\routes\\web_auth_api.py', reloading
+2025-03-29 00:04:23,870 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:04:24,391 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:04:24,435 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:04:24,436 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:04:24,437 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:04:24,443 - werkzeug - WARNING -  * Debugger is active!
+2025-03-29 00:04:24,448 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-29 00:04:39,958 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-29 00:04:39,959 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=False
+2025-03-29 00:04:40,056 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:04:40] "POST /api/web_auth/login HTTP/1.1" 200 -
+2025-03-29 00:04:40,077 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:04:40,080 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:04:40,081 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: f0a62802-e5a0-43f0-b333-92ac40d10246
+2025-03-29 00:04:40,093 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:04:40] "[35m[1mGET /alarms/?user_token=f0a62802-e5a0-43f0-b333-92ac40d10246 HTTP/1.1[0m" 500 -
+2025-03-29 00:04:40,182 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:04:40] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-29 00:04:40,182 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:04:40] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:04:40,193 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:04:40] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:06:44,302 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\views\\alarms_view.py', reloading
+2025-03-29 00:06:44,433 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:06:45,101 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:06:45,143 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:06:45,143 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:06:45,149 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:06:45,154 - werkzeug - WARNING -  * Debugger is active!
+2025-03-29 00:06:45,182 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-29 00:07:12,686 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-29 00:07:12,689 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:07:12,690 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:07:12,805 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:07:12] "POST /api/web_auth/login HTTP/1.1" 200 -
+2025-03-29 00:07:12,822 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:07:12,824 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:07:12,824 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 5f1062a9-3a67-4b3b-a515-93af7a20396d
+2025-03-29 00:07:12,872 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:07:12] "[35m[1mGET /alarms/?user_token=5f1062a9-3a67-4b3b-a515-93af7a20396d HTTP/1.1[0m" 500 -
+2025-03-29 00:07:12,982 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:07:12] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:07:12,987 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:07:12] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-29 00:07:13,004 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:07:13] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:08:21,432 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-29 00:08:21,433 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:08:21,434 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 5f1062a9-3a67-4b3b-a515-93af7a20396d
+2025-03-29 00:08:21,542 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:08:21] "POST /api/web_auth/login HTTP/1.1" 200 -
+2025-03-29 00:08:21,557 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:08:21,559 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:08:21,559 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 93adc014-faa4-4a71-99e0-b111bfae83d9
+2025-03-29 00:08:21,580 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:08:21] "[35m[1mGET /alarms/?user_token=93adc014-faa4-4a71-99e0-b111bfae83d9 HTTP/1.1[0m" 500 -
+2025-03-29 00:08:21,609 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:08:21] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:08:21,610 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:08:21] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-29 00:08:21,633 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:08:21] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:08:32,285 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:08:32,324 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:08:32,324 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:08:32,329 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:08:32,349 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-29 00:08:32,349 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-29 00:08:32,350 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:08:33,005 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:08:33,054 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:08:33,055 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:08:33,057 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:08:33,065 - werkzeug - WARNING -  * Debugger is active!
+2025-03-29 00:08:33,068 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-29 00:08:34,511 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-29 00:08:34,515 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:08:34,515 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:08:34,633 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:08:34] "POST /api/web_auth/login HTTP/1.1" 200 -
+2025-03-29 00:08:34,653 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:08:34,655 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:08:34,656 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: b6d7b48b-d0a2-4afe-abe2-2b63f883b203
+2025-03-29 00:08:34,704 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:08:34] "[35m[1mGET /alarms/?user_token=b6d7b48b-d0a2-4afe-abe2-2b63f883b203 HTTP/1.1[0m" 500 -
+2025-03-29 00:08:34,816 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:08:34] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:08:34,817 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:08:34] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-29 00:08:34,836 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:08:34] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:09:41,310 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-29 00:09:41,311 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:09:41,311 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: b6d7b48b-d0a2-4afe-abe2-2b63f883b203
+2025-03-29 00:09:41,413 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:09:41] "POST /api/web_auth/login HTTP/1.1" 200 -
+2025-03-29 00:09:41,433 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:09:41,435 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:09:41,435 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: e179c203-a083-454c-af02-c9aad78e5b4d
+2025-03-29 00:09:41,455 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:09:41] "[35m[1mGET /alarms/?user_token=e179c203-a083-454c-af02-c9aad78e5b4d HTTP/1.1[0m" 500 -
+2025-03-29 00:09:41,484 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:09:41] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-29 00:09:41,484 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:09:41] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:09:41,504 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:09:41] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:10:27,603 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:10:27,655 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:10:27,655 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:10:27,665 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:10:27,687 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-29 00:10:27,688 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-29 00:10:27,688 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:10:28,268 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:10:28,311 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:10:28,311 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:10:28,312 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:10:28,318 - werkzeug - WARNING -  * Debugger is active!
+2025-03-29 00:10:28,321 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-29 00:10:31,524 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-29 00:10:31,527 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:10:31,527 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:10:31,655 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:10:31] "POST /api/web_auth/login HTTP/1.1" 200 -
+2025-03-29 00:10:31,672 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:10:31,673 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:10:31,674 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: e83110fc-0659-43f5-82cf-435c186e9cd8
+2025-03-29 00:10:31,723 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:10:31] "[35m[1mGET /alarms/?user_token=e83110fc-0659-43f5-82cf-435c186e9cd8 HTTP/1.1[0m" 500 -
+2025-03-29 00:10:31,855 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:10:31] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-29 00:10:31,856 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:10:31] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:10:31,865 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:10:31] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:11:40,767 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-29 00:11:40,768 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:11:40,768 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: e83110fc-0659-43f5-82cf-435c186e9cd8
+2025-03-29 00:11:40,861 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:11:40] "POST /api/web_auth/login HTTP/1.1" 200 -
+2025-03-29 00:11:40,876 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:11:40,878 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:11:40,878 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: f983c245-d315-42a6-8484-bf67b822bd1c
+2025-03-29 00:11:40,896 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:11:40] "[35m[1mGET /alarms/?user_token=f983c245-d315-42a6-8484-bf67b822bd1c HTTP/1.1[0m" 500 -
+2025-03-29 00:11:40,921 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:11:40] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:11:40,922 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:11:40] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-29 00:11:40,931 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:11:40] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:12:43,659 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:12:43,696 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:12:43,696 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:12:43,702 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:12:43,720 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-29 00:12:43,720 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-29 00:12:43,721 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:12:44,124 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:12:44,161 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:12:44,161 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:12:44,162 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:12:44,169 - werkzeug - WARNING -  * Debugger is active!
+2025-03-29 00:12:44,171 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-29 00:12:46,544 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-29 00:12:46,548 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:12:46,548 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:12:46,702 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:12:46] "POST /api/web_auth/login HTTP/1.1" 200 -
+2025-03-29 00:12:46,719 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:12:46,720 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:12:46,721 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 57d19bd1-83b5-453d-8ded-fa714d3cd68c
+2025-03-29 00:12:46,770 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:12:46] "[35m[1mGET /alarms/?user_token=57d19bd1-83b5-453d-8ded-fa714d3cd68c HTTP/1.1[0m" 500 -
+2025-03-29 00:12:46,950 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:12:46] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-29 00:12:46,950 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:12:46] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:12:46,959 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:12:46] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:16:46,629 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-29 00:16:46,630 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:16:46,631 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 57d19bd1-83b5-453d-8ded-fa714d3cd68c
+2025-03-29 00:16:46,738 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:16:46] "POST /api/web_auth/login HTTP/1.1" 200 -
+2025-03-29 00:16:46,755 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:16:46,756 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:16:46,756 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 93e71f4b-9171-4e20-800d-58d3c00f0332
+2025-03-29 00:16:46,782 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:16:46] "[35m[1mGET /alarms/?user_token=93e71f4b-9171-4e20-800d-58d3c00f0332 HTTP/1.1[0m" 500 -
+2025-03-29 00:16:46,813 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:16:46] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:16:46,813 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:16:46] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-29 00:16:46,823 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:16:46] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:16:54,972 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:16:55,008 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:16:55,008 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:16:55,013 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:16:55,029 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-29 00:16:55,029 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-29 00:16:55,030 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:16:55,408 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:16:55,445 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:16:55,446 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:16:55,447 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:16:55,453 - werkzeug - WARNING -  * Debugger is active!
+2025-03-29 00:16:55,455 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-29 00:16:59,401 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-29 00:16:59,403 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:16:59,404 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:16:59,506 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:16:59] "POST /api/web_auth/login HTTP/1.1" 200 -
+2025-03-29 00:16:59,523 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:16:59,525 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:16:59,525 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: cda4454e-38cd-460c-ad20-7efef84841b3
+2025-03-29 00:16:59,561 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:16:59] "[35m[1mGET /alarms/?user_token=cda4454e-38cd-460c-ad20-7efef84841b3 HTTP/1.1[0m" 500 -
+2025-03-29 00:16:59,650 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:16:59] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-29 00:16:59,650 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:16:59] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:16:59,659 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:16:59] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:17:42,519 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-29 00:17:42,520 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:17:42,521 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: cda4454e-38cd-460c-ad20-7efef84841b3
+2025-03-29 00:17:42,623 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:17:42] "POST /api/web_auth/login HTTP/1.1" 200 -
+2025-03-29 00:17:42,640 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:17:42,643 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:17:42,644 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 3022f044-ed89-4314-98cd-bc96b43f7b4d
+2025-03-29 00:17:42,660 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:17:42] "[35m[1mGET /alarms/?user_token=3022f044-ed89-4314-98cd-bc96b43f7b4d HTTP/1.1[0m" 500 -
+2025-03-29 00:17:42,694 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:17:42] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:17:42,694 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:17:42] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-29 00:17:42,701 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:17:42] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:18:59,094 - app - DEBUG - «Î«Û–≈œ¢: endpoint=web_auth_api.web_login_api, path=/api/web_auth/login, method=POST
+2025-03-29 00:18:59,095 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:18:59,095 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 3022f044-ed89-4314-98cd-bc96b43f7b4d
+2025-03-29 00:18:59,219 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:18:59] "POST /api/web_auth/login HTTP/1.1" 200 -
+2025-03-29 00:18:59,243 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:18:59,245 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:18:59,245 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 66963d5a-1c76-4ef5-9a25-ef9ad4437fad
+2025-03-29 00:18:59,258 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:18:59] "GET /alarms/?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:18:59,304 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:18:59,306 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:18:59,306 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 66963d5a-1c76-4ef5-9a25-ef9ad4437fad
+2025-03-29 00:18:59,308 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:18:59] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:19:06,112 - app - DEBUG - «Î«Û–≈œ¢: endpoint=edge_devices.index, path=/edge_devices, method=GET
+2025-03-29 00:19:06,114 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:19:06,114 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 66963d5a-1c76-4ef5-9a25-ef9ad4437fad
+2025-03-29 00:19:06,123 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:06] "GET /edge_devices?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:19:06,154 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:19:06,157 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:19:06,157 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 66963d5a-1c76-4ef5-9a25-ef9ad4437fad
+2025-03-29 00:19:06,158 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:06] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:19:09,011 - app - DEBUG - «Î«Û–≈œ¢: endpoint=tasks_api.get_tasks, path=/api/tasks, method=GET
+2025-03-29 00:19:09,013 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:19:09,013 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 66963d5a-1c76-4ef5-9a25-ef9ad4437fad
+2025-03-29 00:19:09,016 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:09] "GET /api/tasks?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:19:10,795 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:19:10,797 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:19:10,798 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 66963d5a-1c76-4ef5-9a25-ef9ad4437fad
+2025-03-29 00:19:10,799 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:10] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:19:11,625 - app - DEBUG - «Î«Û–≈œ¢: endpoint=users.index, path=/users/, method=GET
+2025-03-29 00:19:11,627 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:19:11,627 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 66963d5a-1c76-4ef5-9a25-ef9ad4437fad
+2025-03-29 00:19:11,653 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:11] "[35m[1mGET /users/?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1[0m" 500 -
+2025-03-29 00:19:11,686 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:11] "GET /users/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2025-03-29 00:19:11,698 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:11] "GET /users/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2025-03-29 00:19:11,711 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:11] "GET /users/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2025-03-29 00:19:11,765 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:11] "[36mGET /users/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:19:29,184 - app - DEBUG - «Î«Û–≈œ¢: endpoint=users.index, path=/users/, method=GET
+2025-03-29 00:19:29,185 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:19:29,186 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 66963d5a-1c76-4ef5-9a25-ef9ad4437fad
+2025-03-29 00:19:29,193 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:29] "[35m[1mGET /users/?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1[0m" 500 -
+2025-03-29 00:19:29,235 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:29] "[36mGET /users/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:19:29,235 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:29] "[36mGET /users/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-29 00:19:29,249 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:29] "[36mGET /users/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:19:31,939 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.statistics, path=/alarms/statistics, method=GET
+2025-03-29 00:19:31,940 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:19:31,941 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 66963d5a-1c76-4ef5-9a25-ef9ad4437fad
+2025-03-29 00:19:31,984 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:31] "GET /alarms/statistics?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:19:32,014 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:19:32,016 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:19:32,016 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 66963d5a-1c76-4ef5-9a25-ef9ad4437fad
+2025-03-29 00:19:32,017 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:32] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:19:33,050 - app - DEBUG - «Î«Û–≈œ¢: endpoint=settings.index, path=/settings, method=GET
+2025-03-29 00:19:33,052 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:19:33,052 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 66963d5a-1c76-4ef5-9a25-ef9ad4437fad
+2025-03-29 00:19:33,099 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:33] "[35m[1mGET /settings?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1[0m" 500 -
+2025-03-29 00:19:33,124 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:33] "GET /settings?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2025-03-29 00:19:33,131 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:33] "GET /settings?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2025-03-29 00:19:33,141 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:33] "GET /settings?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2025-03-29 00:19:33,201 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:33] "[36mGET /settings?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:19:34,884 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:19:34,886 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:19:34,887 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 66963d5a-1c76-4ef5-9a25-ef9ad4437fad
+2025-03-29 00:19:34,888 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:19:34] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:20:27,884 - app - DEBUG - «Î«Û–≈œ¢: endpoint=users.index, path=/users/, method=GET
+2025-03-29 00:20:27,884 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:20:27,884 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 66963d5a-1c76-4ef5-9a25-ef9ad4437fad
+2025-03-29 00:20:27,895 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:20:27] "[35m[1mGET /users/?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1[0m" 500 -
+2025-03-29 00:20:27,927 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:20:27] "[36mGET /users/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:20:27,928 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:20:27] "[36mGET /users/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-29 00:20:27,948 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:20:27] "[36mGET /users/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:20:58,961 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\views\\users_view.py', reloading
+2025-03-29 00:20:59,088 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:20:59,767 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:22:02,046 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:22:02,100 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:22:02,101 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:22:02,109 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:22:02,141 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-29 00:22:02,141 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-29 00:22:02,143 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:22:02,723 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:22:02,765 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:22:02,766 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:22:02,767 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:22:02,773 - werkzeug - WARNING -  * Debugger is active!
+2025-03-29 00:22:02,776 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-29 00:22:05,405 - app - DEBUG - «Î«Û–≈œ¢: endpoint=users.index, path=/users/, method=GET
+2025-03-29 00:22:05,408 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:22:05,408 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:22:05,424 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:22:05] "GET /users/?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:22:05,458 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:22:05,459 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:22:05,460 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:22:05,509 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:22:05] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:22:06,986 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.statistics, path=/alarms/statistics, method=GET
+2025-03-29 00:22:06,988 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:22:06,988 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:22:07,014 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:22:07] "GET /alarms/statistics?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:22:07,044 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:22:07,045 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:22:07,046 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:22:07,047 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:22:07] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:22:07,855 - app - DEBUG - «Î«Û–≈œ¢: endpoint=settings.index, path=/settings, method=GET
+2025-03-29 00:22:07,856 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:22:07,857 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:22:07,899 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:22:07] "[35m[1mGET /settings?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1[0m" 500 -
+2025-03-29 00:22:07,924 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:22:07] "[36mGET /settings?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:22:07,931 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:22:07] "[36mGET /settings?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-29 00:22:07,945 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:22:07] "[36mGET /settings?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:23:13,612 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:23:13,613 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:23:13,613 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:23:13,614 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:23:13] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:23:14,501 - app - DEBUG - «Î«Û–≈œ¢: endpoint=settings.index, path=/settings, method=GET
+2025-03-29 00:23:14,502 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:23:14,502 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:23:14,517 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:23:14] "[35m[1mGET /settings?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1[0m" 500 -
+2025-03-29 00:23:14,545 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:23:14] "[36mGET /settings?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:23:14,551 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:23:14] "[36mGET /settings?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-29 00:23:14,560 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:23:14] "[36mGET /settings?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-03-29 00:23:59,477 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\views\\settings_view.py', reloading
+2025-03-29 00:23:59,612 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:24:00,227 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:24:16,995 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:24:57,381 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:24:57,418 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:24:57,419 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:24:57,420 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:24:57,435 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-29 00:24:57,435 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-29 00:24:57,436 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:24:57,824 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:24:57,859 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:24:57,859 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:24:57,861 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:24:57,865 - werkzeug - WARNING -  * Debugger is active!
+2025-03-29 00:24:57,868 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-29 00:25:00,543 - app - DEBUG - «Î«Û–≈œ¢: endpoint=None, path=/settings, method=GET
+2025-03-29 00:25:00,545 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:25:00,546 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:25:00,547 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:25:00] "[33mGET /settings?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1[0m" 404 -
+2025-03-29 00:25:38,086 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\views\\settings_view.py', reloading
+2025-03-29 00:25:38,190 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:25:38,641 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:25:38,679 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:25:38,679 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:25:38,681 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:25:38,687 - werkzeug - WARNING -  * Debugger is active!
+2025-03-29 00:25:38,691 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-29 00:25:42,144 - app - DEBUG - «Î«Û–≈œ¢: endpoint=None, path=/settings, method=GET
+2025-03-29 00:25:42,148 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:25:42,149 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:25:42,150 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:25:42] "[32mGET /settings?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1[0m" 308 -
+2025-03-29 00:25:42,156 - app - DEBUG - «Î«Û–≈œ¢: endpoint=settings.index, path=/settings/, method=GET
+2025-03-29 00:25:42,157 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:25:42,158 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:25:42,173 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:25:42] "GET /settings/?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:25:42,207 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:25:42,208 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:25:42,208 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:25:42,245 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:25:42] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:25:50,397 - app - DEBUG - «Î«Û–≈œ¢: endpoint=settings_api.update_basic_settings, path=/api/settings/basic, method=POST
+2025-03-29 00:25:50,398 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:25:50,399 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:25:50,400 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:25:50] "[35m[1mPOST /api/settings/basic?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1[0m" 500 -
+2025-03-29 00:28:20,745 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\routes\\settings_api.py', reloading
+2025-03-29 00:28:20,887 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:28:22,601 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:28:36,017 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:29:42,960 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:30:37,083 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:31:48,683 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:31:48,740 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:31:48,740 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:31:48,742 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:31:48,765 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-29 00:31:48,765 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-29 00:31:48,766 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:31:49,283 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:31:49,329 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:31:49,329 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:31:49,331 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:31:49,337 - werkzeug - WARNING -  * Debugger is active!
+2025-03-29 00:31:49,340 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-29 00:31:53,657 - app - DEBUG - «Î«Û–≈œ¢: endpoint=settings_api.update_basic_settings, path=/api/settings/basic, method=POST
+2025-03-29 00:31:53,660 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:31:53,660 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:31:53,665 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:31:53] "[35m[1mPOST /api/settings/basic?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1[0m" 500 -
+2025-03-29 00:32:42,135 - app - DEBUG - «Î«Û–≈œ¢: endpoint=settings_api.update_basic_settings, path=/api/settings/basic, method=POST
+2025-03-29 00:32:42,137 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:32:42,137 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:32:42,138 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:32:42] "[35m[1mPOST /api/settings/basic?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1[0m" 500 -
+2025-03-29 00:32:44,951 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.statistics, path=/alarms/statistics, method=GET
+2025-03-29 00:32:44,952 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:32:44,952 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:32:45,011 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:32:45] "GET /alarms/statistics?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:32:45,036 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:32:45,037 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:32:45,038 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:32:45,131 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:32:45] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:32:46,000 - app - DEBUG - «Î«Û–≈œ¢: endpoint=users.index, path=/users/, method=GET
+2025-03-29 00:32:46,001 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:32:46,002 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:32:46,010 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:32:46] "GET /users/?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:32:46,044 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:32:46,045 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:32:46,046 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:32:46,048 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:32:46] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:32:47,459 - app - DEBUG - «Î«Û–≈œ¢: endpoint=tasks_api.get_tasks, path=/api/tasks, method=GET
+2025-03-29 00:32:47,461 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:32:47,461 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:32:47,464 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:32:47] "GET /api/tasks?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:32:49,300 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:32:49,302 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:32:49,302 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:32:49,304 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:32:49] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:32:50,539 - app - DEBUG - «Î«Û–≈œ¢: endpoint=tasks_api.get_tasks, path=/api/tasks, method=GET
+2025-03-29 00:32:50,540 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:32:50,541 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:32:50,542 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:32:50] "GET /api/tasks?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:32:52,905 - app - DEBUG - «Î«Û–≈œ¢: endpoint=tasks_api.get_tasks, path=/api/tasks, method=GET
+2025-03-29 00:32:52,907 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:32:52,907 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:32:52,909 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:32:52] "GET /api/tasks?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:32:55,540 - app - DEBUG - «Î«Û–≈œ¢: endpoint=edge_devices.index, path=/edge_devices, method=GET
+2025-03-29 00:32:55,542 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:32:55,542 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:32:55,555 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:32:55] "GET /edge_devices?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:32:55,600 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:32:55,602 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:32:55,603 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:32:55,604 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:32:55] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:32:58,964 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:32:58,966 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:32:58,966 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:32:58,997 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:32:58] "GET /alarms/?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:32:59,022 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:32:59,024 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:32:59,025 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:32:59,026 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:32:59] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:33:01,015 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:33:01,016 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:33:01,016 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:33:01,023 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:33:01] "GET /alarms/?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:33:01,042 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:33:01,044 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:33:01,045 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:33:01,047 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:33:01] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:33:01,672 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:33:01,674 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:33:01,674 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:33:01,680 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:33:01] "GET /alarms/?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad&alarm_type=&status=&device_name=&start_date=&end_date= HTTP/1.1" 200 -
+2025-03-29 00:33:01,722 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:33:01,724 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:33:01,725 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:33:01,726 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:33:01] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:33:02,365 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:33:02,366 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:33:02,366 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:33:02,369 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:33:02] "GET /alarms/?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:33:02,407 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:33:02,409 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:33:02,409 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:33:02,410 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:33:02] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:33:21,048 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-03-29 00:33:21,049 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:33:21,050 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:33:21,054 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:33:21] "GET /alarms/?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:33:21,076 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:33:21,078 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:33:21,078 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:33:21,080 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:33:21] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:33:21,818 - app - DEBUG - «Î«Û–≈œ¢: endpoint=edge_devices.index, path=/edge_devices, method=GET
+2025-03-29 00:33:21,819 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:33:21,821 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:33:21,823 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:33:21] "GET /edge_devices?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:33:21,858 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:33:21,859 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:33:21,860 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:33:21,861 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:33:21] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:33:24,452 - app - DEBUG - «Î«Û–≈œ¢: endpoint=tasks_api.get_tasks, path=/api/tasks, method=GET
+2025-03-29 00:33:24,454 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:33:24,454 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:33:24,455 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:33:24] "GET /api/tasks?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:33:26,998 - app - DEBUG - «Î«Û–≈œ¢: endpoint=settings.index, path=/settings/, method=GET
+2025-03-29 00:33:26,999 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:33:27,000 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:33:27,013 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:33:27] "GET /settings/?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:33:27,036 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:33:27,038 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:33:27,038 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:33:27,040 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:33:27] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:33:36,004 - app - DEBUG - «Î«Û–≈œ¢: endpoint=settings_api.update_basic_settings, path=/api/settings/basic, method=POST
+2025-03-29 00:33:36,005 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:33:36,005 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:33:36,006 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:33:36] "[35m[1mPOST /api/settings/basic?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1[0m" 500 -
+2025-03-29 00:34:30,800 - app - DEBUG - «Î«Û–≈œ¢: endpoint=settings_api.update_basic_settings, path=/api/settings/basic, method=POST
+2025-03-29 00:34:30,802 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:34:30,802 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:34:30,803 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:34:30] "[35m[1mPOST /api/settings/basic?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1[0m" 500 -
+2025-03-29 00:34:33,663 - app - DEBUG - «Î«Û–≈œ¢: endpoint=settings_api.update_basic_settings, path=/api/settings/basic, method=POST
+2025-03-29 00:34:33,664 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:34:33,664 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:34:33,666 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:34:33] "[35m[1mPOST /api/settings/basic?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1[0m" 500 -
+2025-03-29 00:35:14,325 - app - DEBUG - «Î«Û–≈œ¢: endpoint=settings_api.update_basic_settings, path=/api/settings/basic, method=POST
+2025-03-29 00:35:14,326 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:35:14,327 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:35:14,328 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:35:14] "[35m[1mPOST /api/settings/basic?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1[0m" 500 -
+2025-03-29 00:35:48,324 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:35:48,361 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:35:48,362 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:35:48,363 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:35:48,383 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-03-29 00:35:48,383 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-29 00:35:48,384 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:35:48,821 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:35:48,870 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:35:48,871 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:35:48,873 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:35:48,879 - werkzeug - WARNING -  * Debugger is active!
+2025-03-29 00:35:48,883 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-29 00:35:51,805 - app - DEBUG - «Î«Û–≈œ¢: endpoint=settings_api.update_basic_settings, path=/api/settings/basic, method=POST
+2025-03-29 00:35:51,809 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:35:51,810 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:35:51,812 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:35:51] "[35m[1mPOST /api/settings/basic?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1[0m" 500 -
+2025-03-29 00:35:53,942 - app - DEBUG - «Î«Û–≈œ¢: endpoint=settings.index, path=/settings/, method=GET
+2025-03-29 00:35:53,944 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:35:53,944 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:35:53,967 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:35:53] "GET /settings/?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:35:53,980 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:35:53,981 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:35:53,982 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:35:54,064 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:35:54] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:35:59,046 - app - DEBUG - «Î«Û–≈œ¢: endpoint=settings_api.update_basic_settings, path=/api/settings/basic, method=POST
+2025-03-29 00:35:59,047 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:35:59,047 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:35:59,049 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:35:59] "POST /api/settings/basic?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:36:05,876 - app - DEBUG - «Î«Û–≈œ¢: endpoint=users.index, path=/users/, method=GET
+2025-03-29 00:36:05,878 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:36:05,878 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:36:05,887 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:36:05] "GET /users/?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:36:05,920 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:36:05,922 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:36:05,922 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:36:05,923 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:36:05] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:36:08,167 - app - DEBUG - «Î«Û–≈œ¢: endpoint=settings.index, path=/settings/, method=GET
+2025-03-29 00:36:08,169 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:36:08,169 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:36:08,172 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:36:08] "GET /settings/?user_token=66963d5a-1c76-4ef5-9a25-ef9ad4437fad HTTP/1.1" 200 -
+2025-03-29 00:36:08,198 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-03-29 00:36:08,199 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-03-29 00:36:08,200 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-03-29 00:36:08,202 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 00:36:08] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-29 00:37:11,495 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\routes\\settings.py', reloading
+2025-03-29 00:37:11,597 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:37:12,351 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:37:12,401 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:37:12,402 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:37:12,404 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:37:12,412 - werkzeug - WARNING -  * Debugger is active!
+2025-03-29 00:37:12,417 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-03-29 00:37:30,533 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_gateway\\app\\routes\\settings.py', reloading
+2025-03-29 00:37:30,621 - werkzeug - INFO -  * Restarting with stat
+2025-03-29 00:37:31,144 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-03-29 00:37:31,189 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-03-29 00:37:31,190 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-03-29 00:37:31,192 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-03-29 00:37:31,199 - werkzeug - WARNING -  * Debugger is active!
+2025-03-29 00:37:31,203 - werkzeug - INFO -  * Debugger PIN: 137-698-916

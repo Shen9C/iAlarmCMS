@@ -27,7 +27,8 @@
                         {% endif %}
                         {% endwith %}
                         
-                        <form method="POST" action="{{ url_for('web_api.login') }}" id="loginForm">
+                        <!-- 移除 action 属性，只使用 AJAX 处理 -->
+                        <form id="loginForm">
                             <div class="mb-3">
                                 <label for="username" class="form-label">用户名</label>
                                 <input type="text" class="form-control" id="username" name="username" required>
@@ -57,7 +58,8 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
         password: document.getElementById('password').value
     };
     
-    fetch('{{ url_for("web_api.login") }}', {
+    // 修改为正确的后端路由路径
+    fetch('/web_auth/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -68,10 +70,10 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // 修改为正确的路由名称
-            window.location.href = "{{ url_for('alarm_view.index') }}?user_token=" + data.data.user_token;
+            // 修改为根路径，让应用自己处理重定向
+            window.location.href = "/?user_token=" + data.data.user_token;
         } else {
-            alert(data.error);
+            alert(data.error || '登录失败');
         }
     })
     .catch(error => {

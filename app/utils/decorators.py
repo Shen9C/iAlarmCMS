@@ -7,7 +7,7 @@ def admin_required(f):
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or current_user.role != 'admin':
             flash('您没有权限执行此操作')
-            return redirect(url_for('alarm_view.index', user_token=request.args.get('user_token')))
+            return redirect(url_for('alarms_view.index', user_token=request.args.get('user_token')))
         return f(*args, **kwargs)
     return decorated_function
 
