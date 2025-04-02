@@ -1,0 +1,26 @@
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        username: this.querySelector('[name="username"]').value,
+        password: this.querySelector('[name="password"]').value
+    };
+    
+    fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.code === 200) {
+            // 保存 token 到 localStorage
+            localStorage.setItem('token', data.data.token);
+            window.location.href = '/';
+        } else {
+            alert(data.message);
+        }
+    });
+});

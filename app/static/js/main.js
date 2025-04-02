@@ -30,3 +30,12 @@ $(document).ajaxComplete(function(e, xhr, settings) {
         window.location.href = '/auth/login';
     }
 });
+
+
+function logout() {
+    apiRequest('/api/auth/logout', { method: 'POST' })
+        .then(() => {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        });
+}

@@ -10,7 +10,7 @@
                 <div class="card-header">
                     <h3 class="card-title">边缘设备管理</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary btn-sm" id="addDeviceBtn">
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addDeviceModal">
                             <i class="fas fa-plus"></i> 添加设备
                         </button>
                     </div>
@@ -80,30 +80,28 @@
 </div>
 
 <!-- 添加设备模态框 -->
-<div class="modal fade" id="addDeviceModal" tabindex="-1" role="dialog" aria-labelledby="addDeviceModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="addDeviceModal" tabindex="-1" aria-labelledby="addDeviceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addDeviceModalLabel">添加边缘设备</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="addDeviceForm">
-                    <div class="form-group">
-                        <label for="deviceName">设备名称</label>
-                        <input type="text" class="form-control" id="deviceName" required>
+                    <div class="form-group mb-3">
+                        <label for="deviceName" class="form-label">设备名称</label>
+                        <input type="text" class="form-control" id="deviceName" name="device_name" required>
                     </div>
-                    <div class="form-group">
-                        <label for="deviceIp">IP地址</label>
-                        <input type="text" class="form-control" id="deviceIp" required pattern="^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$">
+                    <div class="form-group mb-3">
+                        <label for="deviceIp" class="form-label">IP地址</label>
+                        <input type="text" class="form-control" id="deviceIp" name="ip_address" required pattern="^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$">
                         <small class="form-text text-muted">请输入有效的IPv4地址，例如：192.168.1.1</small>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                 <button type="button" class="btn btn-primary" id="saveDeviceBtn">保存</button>
             </div>
         </div>
@@ -111,14 +109,12 @@
 </div>
 
 <!-- 编辑设备模态框 -->
-<div class="modal fade" id="editDeviceModal" tabindex="-1" role="dialog" aria-labelledby="editDeviceModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="editDeviceModal" tabindex="-1">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editDeviceModalLabel">编辑边缘设备</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="editDeviceForm">
@@ -135,7 +131,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                 <button type="button" class="btn btn-primary" id="updateDeviceBtn">更新</button>
             </div>
         </div>
@@ -143,21 +139,19 @@
 </div>
 
 <!-- 确认删除模态框 -->
-<div class="modal fade" id="deleteDeviceModal" tabindex="-1" role="dialog" aria-labelledby="deleteDeviceModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="deleteDeviceModal" tabindex="-1">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteDeviceModalLabel">确认删除</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <p>您确定要删除设备 <span id="deleteDeviceName" class="font-weight-bold"></span> 吗？此操作不可逆。</p>
                 <input type="hidden" id="deleteDeviceId">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                 <button type="button" class="btn btn-danger" id="confirmDeleteBtn">确认删除</button>
             </div>
         </div>
@@ -165,14 +159,12 @@
 </div>
 
 <!-- 确认重新生成密钥模态框 -->
-<div class="modal fade" id="regenerateKeysModal" tabindex="-1" role="dialog" aria-labelledby="regenerateKeysModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="regenerateKeysModal" tabindex="-1">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="regenerateKeysModalLabel">确认重新生成密钥</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <p>您确定要为此设备重新生成访问密钥(AK)和密钥(SK)吗？</p>
@@ -180,7 +172,7 @@
                 <input type="hidden" id="regenerateDeviceId">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                 <button type="button" class="btn btn-warning" id="confirmRegenerateBtn">确认重新生成</button>
             </div>
         </div>
@@ -188,183 +180,181 @@
 </div>
 {% endblock %}
 
+{% block extra_css %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+<!-- 添加Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+/* 完全移除模态框遮罩层 */
+.modal-backdrop {
+    display: none !important;
+}
+
+/* 调整模态框样式 */
+.modal-dialog {
+    z-index: 2056 !important; /* 提高z-index确保在最上层 */
+    margin: 8rem auto !important; /* 调整位置 */
+}
+
+/* 确保模态框内容可交互 */
+.modal-content {
+    box-shadow: 0 5px 15px rgba(0,0,0,.5) !important; /* 添加阴影增强视觉效果 */
+}
+
+/* 防止页面锁定 */
+body.modal-open {
+    overflow: auto !important;
+    padding-right: 0 !important;
+}
+
+/* 确保输入框可编辑 */
+.modal input, .modal textarea, .modal select {
+    pointer-events: auto !important;
+    background-color: #fff !important;
+    opacity: 1 !important;
+}
+
+/* 确保按钮可点击 */
+.modal button {
+    pointer-events: auto !important;
+}
+</style>
+{% endblock %}
+
 {% block scripts %}
+<!-- 添加Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
-<!-- JavaScript代码部分 -->
 <script>
+console.log('脚本开始加载...');
+console.log('jQuery版本:', typeof $ !== 'undefined' ? $.fn.jquery : '未加载');
+console.log('Bootstrap对象:', typeof bootstrap !== 'undefined' ? '已加载' : '未加载');
+
+// 检查模态框相关方法是否存在
+if (typeof bootstrap !== 'undefined') {
+    console.log('Bootstrap.Modal是否存在:', typeof bootstrap.Modal !== 'undefined');
+}
+
+// 直接添加调试代码，不等待文档加载
+console.log('添加设备按钮元素:', document.getElementById('addDeviceBtn'));
+console.log('添加设备模态框元素:', document.getElementById('addDeviceModal'));
+
+// 检查添加设备模态框的内容
+var modalEl = document.getElementById('addDeviceModal');
+if (modalEl) {
+    console.log('模态框HTML:', modalEl.outerHTML);
+}
+
 $(document).ready(function() {
-// 添加设备
-$('#saveDeviceBtn').click(function() {
-var name = $('#deviceName').val();
-var ip = $('#deviceIp').val();
-
-if (!name || !ip) {
-toastr.error('请填写所有必填字段');
-return;
-}
-
-// 验证IP地址格式
-var ipPattern = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-if (!ipPattern.test(ip)) {
-toastr.error('请输入有效的IPv4地址');
-return;
-}
-
-$.ajax({
-url: '/api/edge_devices',  // 确保这个路径与您的API路由匹配
-type: 'POST',
-contentType: 'application/json',
-data: JSON.stringify({
-name: name,
-ip_address: ip
-}),
-success: function(response) {
-if (response.code === 200) {
-toastr.success('设备添加成功');
-$('#addDeviceModal').modal('hide');
-// 刷新页面
-location.reload();
-} else {
-toastr.error(response.message || '添加失败');
-}
-},
-error: function(xhr) {
-var errorMsg = '添加失败';
-if (xhr.responseJSON && xhr.responseJSON.message) {
-errorMsg = xhr.responseJSON.message;
-}
-toastr.error(errorMsg);
-}
-});
-});
-
-// 编辑设备
-$('.edit-device').click(function() {
-var id = $(this).data('id');
-var name = $(this).data('name');
-var ip = $(this).data('ip');
-
-$('#editDeviceId').val(id);
-$('#editDeviceName').val(name);
-$('#editDeviceIp').val(ip);
-
-$('#editDeviceModal').modal('show');
-});
-
-$('#updateDeviceBtn').click(function() {
-var id = $('#editDeviceId').val();
-var name = $('#editDeviceName').val();
-var ip = $('#editDeviceIp').val();
-
-if (!name || !ip) {
-toastr.error('请填写所有必填字段');
-return;
-}
-
-// 验证IP地址格式
-var ipPattern = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-if (!ipPattern.test(ip)) {
-toastr.error('请输入有效的IPv4地址');
-return;
-}
-
-$.ajax({
-url: '/api/edge_devices/' + id,  // 确保这个路径与您的API路由匹配
-type: 'PUT',
-contentType: 'application/json',
-data: JSON.stringify({
-name: name,
-ip_address: ip
-}),
-success: function(response) {
-if (response.code === 200) {
-toastr.success('设备更新成功');
-$('#editDeviceModal').modal('hide');
-// 刷新页面
-location.reload();
-} else {
-toastr.error(response.message || '更新失败');
-}
-},
-error: function(xhr) {
-var errorMsg = '更新失败';
-if (xhr.responseJSON && xhr.responseJSON.message) {
-errorMsg = xhr.responseJSON.message;
-}
-toastr.error(errorMsg);
-}
-});
-});
-
-// 删除设备
-$('.delete-device').click(function() {
-var id = $(this).data('id');
-var name = $(this).data('name');
-
-$('#deleteDeviceId').val(id);
-$('#deleteDeviceName').text(name);
-
-$('#deleteDeviceModal').modal('show');
-});
-
-$('#confirmDeleteBtn').click(function() {
-var id = $('#deleteDeviceId').val();
-
-$.ajax({
-url: '/api/edge_devices/' + id,  // 确保这个路径与您的API路由匹配
-type: 'DELETE',
-success: function(response) {
-if (response.code === 200) {
-toastr.success('设备删除成功');
-$('#deleteDeviceModal').modal('hide');
-// 刷新页面
-location.reload();
-} else {
-toastr.error(response.message || '删除失败');
-}
-},
-error: function(xhr) {
-var errorMsg = '删除失败';
-if (xhr.responseJSON && xhr.responseJSON.message) {
-errorMsg = xhr.responseJSON.message;
-}
-toastr.error(errorMsg);
-}
-});
-});
-
-// 重新生成密钥
-$('.regenerate-keys').click(function() {
-var id = $(this).data('id');
-$('#regenerateDeviceId').val(id);
-$('#regenerateKeysModal').modal('show');
-});
-
-$('#confirmRegenerateBtn').click(function() {
-var id = $('#regenerateDeviceId').val();
-
-$.ajax({
-url: '/api/edge_devices/' + id + '/regenerate_keys',  // 确保这个路径与您的API路由匹配
-type: 'POST',
-success: function(response) {
-if (response.code === 200) {
-toastr.success('密钥重新生成成功');
-$('#regenerateKeysModal').modal('hide');
-// 刷新页面
-location.reload();
-} else {
-toastr.error(response.message || '操作失败');
-}
-},
-error: function(xhr) {
-var errorMsg = '操作失败';
-if (xhr.responseJSON && xhr.responseJSON.message) {
-errorMsg = xhr.responseJSON.message;
-}
-toastr.error(errorMsg);
-}
-});
-});
+    console.log('文档加载完成');
+    
+    // 检查base.html是否已经加载了Bootstrap 5
+    console.log('页面上是否有Bootstrap 5的CSS:', $('link[href*="bootstrap@5"]').length > 0);
+    console.log('页面上是否有Bootstrap 5的JS:', $('script[src*="bootstrap@5"]').length > 0);
+    
+    // 手动初始化所有模态框
+    var modals = document.querySelectorAll('.modal');
+    modals.forEach(function(modalEl) {
+        var modal = new bootstrap.Modal(modalEl, {
+            backdrop: false, // 禁用backdrop
+            keyboard: true
+        });
+        
+        // 存储modal实例到DOM元素
+        modalEl._bsModal = modal;
+    });
+    
+    // 添加设备按钮点击事件 - 手动触发模态框
+    $('#addDeviceBtn').on('click', function() {
+        console.log('点击添加设备按钮');
+        var modalEl = document.getElementById('addDeviceModal');
+        if (modalEl && modalEl._bsModal) {
+            modalEl._bsModal.show();
+        } else {
+            // 如果没有存储实例，创建新实例
+            var modal = new bootstrap.Modal(modalEl, {
+                backdrop: false,
+                keyboard: true
+            });
+            modal.show();
+        }
+        
+        // 确保输入框可编辑
+        setTimeout(function() {
+            $('#deviceName').prop('disabled', false).focus();
+            $('#deviceIp').prop('disabled', false);
+        }, 500);
+    });
+    
+    // 修改前端AJAX请求代码：
+    $('#saveDeviceBtn').click(function() {
+        console.log('点击保存按钮');
+        var name = $('#deviceName').val();
+        var ip = $('#deviceIp').val();
+        
+        console.log('表单数据:', {
+            name: name,
+            ip_address: ip
+        });
+    
+        if (!name || !ip) {
+            console.log('表单验证失败：字段为空');
+            toastr.error('请填写所有必填字段');
+            return;
+        }
+    
+        // 验证IP地址格式
+        var ipPattern = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+        if (!ipPattern.test(ip)) {
+            console.log('IP地址格式验证失败');
+            toastr.error('请输入有效的IPv4地址');
+            return;
+        }
+    
+        console.log('开始发送AJAX请求');
+        
+        // 修改AJAX请求，使用标准jQuery方式
+        $.ajax({
+            url: '/api/edge_devices',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                name: name,
+                ip_address: ip
+            }),
+            success: function(response) {
+                console.log('请求成功，响应:', response);
+                if (response.code === 200) {
+                    toastr.success('设备添加成功');
+                    // 关闭模态框
+                    var modalEl = document.getElementById('addDeviceModal');
+                    if (modalEl._bsModal) {
+                        modalEl._bsModal.hide();
+                    } else {
+                        var modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }
+                    // 刷新页面
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    toastr.error(response.message || '添加失败');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('请求错误:', error);
+                console.log('错误状态:', status);
+                console.log('响应文本:', xhr.responseText);
+                toastr.error('添加设备失败，请检查网络连接');
+            }
+        });
+    });
+    
+    // 其他代码保持不变
 });
 </script>
 {% endblock %}

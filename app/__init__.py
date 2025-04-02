@@ -13,7 +13,10 @@ db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
 
-def create_app():
+# 删除这行错误的导入
+# from app.routes import tasks_view  # 删除这行
+
+def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(Config)
     
@@ -57,14 +60,21 @@ def create_app():
     
     # ===================== 注册边缘设备相关蓝图 =====================
     from app.views.edge_devices_view import bp as edge_devices_view_bp
-    from app.routes.edge_devices_api import bp as edge_devices_api_bp
     app.register_blueprint(edge_devices_view_bp)
+    
+    # 注册边缘设备API蓝图 - 确保只注册一次
+    from app.routes.edge_devices_api import bp as edge_devices_api_bp
     app.register_blueprint(edge_devices_api_bp)
+    
+    # 注释掉这两行，避免重复注册
+    # from app.views.edge_devices_view import api_bp as edge_devices_api_bp
+    # app.register_blueprint(edge_devices_api_bp)
     
     # ===================== 注册任务相关蓝图 =====================
     from app.views.tasks_view import bp as tasks_view_bp
     from app.routes.tasks_api import bp as tasks_api_bp
-    app.register_blueprint(tasks_view_bp)
+    # 修改这行，使用正确的蓝图变量
+    app.register_blueprint(tasks_view_bp)  # 修改这行
     app.register_blueprint(tasks_api_bp)
     
     # ===================== 注册统计相关蓝图 =====================

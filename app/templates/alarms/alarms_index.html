@@ -7,7 +7,8 @@
     <div class="card-header">
         <h5 class="mb-0 d-flex justify-content-between align-items-center">
             <span>告警列表</span>
-            <a href="{{ url_for('alarms_view.export_alarms', user_token=request.args.get('user_token')) }}" class="btn btn-success btn-sm">
+            <!-- 修改导出按钮 -->
+            <a href="#" class="btn btn-success btn-sm" onclick="exportAlarms(); return false;">
                 <i class="bi bi-download"></i> 导出
             </a>
         </h5>
@@ -176,7 +177,8 @@
                             <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
                                 {% set args = request.args.copy() %}
                                 {% set _ = args.pop('page', None) %}
-                                <a class="page-link" href="{{ url_for('alarms_view.index', page=page_num, **args) }}">{{ page_num }}</a>
+                                <!-- 修改分页链接，移除 user_token -->
+                                <a class="page-link" href="{{ url_for('alarms_view.index', page=page_num) }}">{{ page_num }}</a>
                             </li>
                         {% else %}
                             <li class="page-item disabled"><span class="page-link">...</span></li>
@@ -342,9 +344,59 @@
     </div>
 </div>
 
-<!-- Move scripts inside content block -->
+<!-- 在 content block 末尾添加 JavaScript -->
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
 <script>
+// 确认告警
+function submitConfirmForm() {
+    const alarmNumber = document.getElementById('alarmNumberInput').value;
+    const confirmType = document.getElementById('confirmType').value;
+    
+    apiRequest('/api/alarms/confirm', {
+        method: 'POST',
+        body: JSON.stringify({
+            alarm_number: alarmNumber,
+            confirm_type: confirmType
+        })
+    })
+    .then(data => {
+        if (data.code === 200) {
+            alert('告警确认成功');
+            window.location.reload();
+        } else {
+            alert('确认失败：' + data.message);
+        }
+    });
+    
+    // 关闭模态框
+    const modal = bootstrap.Modal.getInstance(document.getElementById('alarmConfirmModal'));
+    modal.hide();
+}
+
+// 导出告警列表
+function exportAlarms() {
+    apiRequest('/api/alarms/export', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/vnd.ms-excel'
+        }
+    })
+    .then(response => {
+        // 处理文件下载
+        const blob = new Blob([response], { type: 'application/vnd.ms-excel' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '告警列表.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    });
+}
+
+// 初始化页面事件
 document.addEventListener('DOMContentLoaded', function() {
+    // 模态框事件处理
     const modalElement = document.getElementById('alarmConfirmModal');
     const alarmNumberInput = document.getElementById('alarmNumberInput');
 
@@ -355,6 +407,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 const alarmNumber = button.getAttribute('data-alarm-number');
                 alarmNumberInput.value = alarmNumber;
             }
+        });
+    }
+
+    // 导出按钮事件绑定
+    const exportBtn = document.querySelector('.btn-success');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            exportAlarms();
         });
     }
 });

@@ -1,12 +1,18 @@
-from flask import Blueprint, jsonify, request
-from flask_login import login_required, current_user
+from flask import Blueprint, request, jsonify
+from flask_login import login_required
 from app.models.edge_devices import EdgeDevice
-from app.utils.decorators import device_auth_required
+from app.utils.decorators import admin_required  # 确保这个导入存在
+# 添加 device_auth_required 装饰器的导入
+from app.utils.decorators import device_auth_required  # 添加这行导入
 from app import db
+import secrets
+import string
+
 from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
+# 创建API蓝图，URL前缀为 /api/edge_devices
 bp = Blueprint('edge_devices_api', __name__, url_prefix='/api/edge_devices')
 
 @bp.route('', methods=['GET'])
@@ -29,44 +35,50 @@ def get_edge_devices():
 
 @bp.route('', methods=['POST'])
 @login_required
-def add_edge_device():
-    """添加边缘设备"""
+# 移除 @admin_required 装饰器
+def add_device():
+    """添加新的边缘设备"""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({"code": 400, "message": "无效的请求数据"}), 400
+        
         name = data.get('name')
         ip_address = data.get('ip_address')
         
-        # 验证必填字段
         if not name or not ip_address:
-            return jsonify({
-                'code': 400,
-                'message': '设备名称和IP地址不能为空'
-            }), 400
+            return jsonify({"code": 400, "message": "设备名称和IP地址不能为空"}), 400
         
         # 检查设备名称是否已存在
-        if EdgeDevice.query.filter_by(name=name).first():
-            return jsonify({
-                'code': 400,
-                'message': f'设备名称 {name} 已存在'
-            }), 400
+        existing_device = EdgeDevice.query.filter_by(name=name).first()
+        if existing_device:
+            return jsonify({"code": 400, "message": "设备名称已存在"}), 400
+        
+        # 检查IP地址是否已存在
+        existing_ip = EdgeDevice.query.filter_by(ip_address=ip_address).first()
+        if existing_ip:
+            return jsonify({"code": 400, "message": "IP地址已被使用"}), 400
+        
+        # 生成访问密钥和密钥
+        access_key = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(20))
+        secret_key = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(40))
         
         # 创建新设备
-        device = EdgeDevice(name=name, ip_address=ip_address)
-        db.session.add(device)
+        new_device = EdgeDevice(
+            name=name,
+            ip_address=ip_address,
+            access_key=access_key,
+            secret_key=secret_key
+        )
+        
+        db.session.add(new_device)
         db.session.commit()
         
-        return jsonify({
-            'code': 200,
-            'message': '添加成功',
-            'data': device.to_dict()
-        })
+        return jsonify({"code": 200, "message": "设备添加成功", "data": {"id": new_device.id}}), 200
+    
     except Exception as e:
         db.session.rollback()
-        logger.error(f"添加边缘设备失败: {str(e)}")
-        return jsonify({
-            'code': 500,
-            'message': f'添加边缘设备失败: {str(e)}'
-        }), 500
+        return jsonify({"code": 500, "message": f"添加设备失败: {str(e)}"}), 500
 
 @bp.route('/<int:device_id>', methods=['PUT'])
 @login_required
@@ -183,8 +195,9 @@ def regenerate_keys(device_id):
         }), 500
 
 @bp.route('/auth/verify', methods=['POST'])
-@device_auth_required
-def verify_device_auth():
+# 在文件的第196行附近，有一个使用了 device_auth_required 装饰器的函数
+@device_auth_required  # 现在这个装饰器已经被正确导入
+def some_function():
     """验证边缘设备认证"""
     try:
         device_id = request.headers.get('X-Device-ID')
