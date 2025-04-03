@@ -41,3 +41,20 @@ class Config:
     REMEMBER_COOKIE_HTTPONLY = True
 
 config = Config
+
+
+# # PostgreSQL数据库配置
+# DB_USER = os.environ.get('DB_USER') or 'postgres'
+# DB_PASSWORD = os.environ.get('DB_PASSWORD') or 'password'
+# DB_HOST = os.environ.get('DB_HOST') or 'localhost'
+# DB_PORT = os.environ.get('DB_PORT') or '5432'
+# DB_NAME = os.environ.get('DB_NAME') or 'oilfield_web'
+
+# PostgreSQL数据库配置
+DB_USER = 'shen9c'
+DB_PASSWORD = '123456'
+DB_HOST = 'localhost'
+DB_PORT = '25432'
+DB_NAME = 'oilfield_web'
+# 构建PostgreSQL连接URI
+SQLALCHEMY_DATABASE_URI = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'

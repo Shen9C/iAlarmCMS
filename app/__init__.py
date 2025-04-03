@@ -18,7 +18,7 @@ login_manager = LoginManager()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
-    app.config.from_object(Config)
+    app.config.from_object(config_class)
     
     # 配置日志级别
     if app.config.get('DEBUG_LOG_ENABLED', False):
@@ -155,7 +155,14 @@ def create_app(config_class=Config):
         if app.config.get('DEBUG_LOG_ENABLED', False):
             logger.debug("用户未登录，重定向到登录页面")
         return redirect(url_for('web_auth.web_login'))
-
+    
+    # 注册自定义过滤器
+    @app.template_filter('datetime')
+    def format_datetime(value):
+        if value is None:
+            return ""
+        return value.strftime('%Y-%m-%d %H:%M:%S')
+    
     return app
 
 @login_manager.user_loader

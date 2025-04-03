@@ -60,16 +60,6 @@ def index():
     )
     alarms = pagination.items
     
-    # # 添加调试打印
-    # for alarm in alarms:
-    #     print(f"告警ID: {alarm.id}")
-    #     print(f"摄像头IP: {alarm.camera_ip}")
-    #     print(f"设备名称: {alarm.device_name}")
-    #     print(f"告警类型: {alarm.alarm_type}")
-    #     print("原始数据:", vars(alarm))
-    #     print("-" * 50)
-    
-    # 修改这里：从 'alarm_list.html' 改为 'alarms/index.html'
     return render_template('alarms/alarms_index.html',
                          alarms=alarms,
                          pagination=pagination,
@@ -90,9 +80,9 @@ def mark_as_handled():
         
         alarms = Alarm.query.filter(Alarm.id.in_(alarm_ids)).all()
         for alarm in alarms:
-            alarm.status = 'handled'
-            alarm.handled_by = current_user.username
-            alarm.handled_time = datetime.now()
+            alarm.status = '已处理'
+            alarm.is_processed = True
+            alarm.processed_time = datetime.now()
         
         db.session.commit()
         return jsonify({'success': True, 'user_token': user_token})
@@ -126,16 +116,19 @@ def export():
         
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow(['告警编号', '告警状态', '告警类型', '油井名称', '摄像头IP', '告警时间'])
+        writer.writerow(['告警编号', '告警状态', '确认状态', '告警类型', '设备名称', '摄像头IP', '告警时间', '上报次数', '最后上报时间'])
         
         for alarm in alarms:
             writer.writerow([
                 alarm.alarm_number,
                 '已处理' if alarm.is_processed else '未处理',
+                '已确认' if alarm.is_confirmed else '未确认',
                 alarm.alarm_type,
                 alarm.device_name or '',
-                alarm.device_ip or '',
-                alarm.alarm_time.strftime('%Y-%m-%d %H:%M:%S')
+                alarm.camera_ip or '',
+                alarm.alarm_time.strftime('%Y-%m-%d %H:%M:%S'),
+                alarm.report_count,
+                alarm.last_report_time.strftime('%Y-%m-%d %H:%M:%S') if alarm.last_report_time else ''
             ])
         
         output.seek(0)
@@ -221,21 +214,21 @@ def statistics():
             'daily_stats': formatted_daily_stats
         }
         
-        # 修改这里：从 'alarm_statistics.html' 改为 'alarms/alarm_statistics.html'
         return render_template('alarms/alarm_statistics.html', stats=stats, user_token=user_token)
 
     except Exception as e:
         print(f"Error in statistics: {str(e)}")
         import traceback
         print(traceback.format_exc())
-        # 修改这里：从 'alarm_statistics.html' 改为 'alarms/alarm_statistics.html'
         return render_template('alarms/alarm_statistics.html', stats={
             'total_alarms': 0,
             'processed_alarms': 0,
             'unprocessed_alarms': 0,
+            'confirmed_alarms': 0,
+            'unconfirmed_alarms': 0,
             'type_stats': [],
             'device_stats': [],
-            'daily_stats': []
+            'daily_stats': {'dates': [], 'counts': []}
         })
 
 @bp.route('/export_alarms')
@@ -265,17 +258,19 @@ def export_alarms():
         
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow(['告警编号', '告警状态', '告警类型', '油井名称', '摄像头IP', '告警时间'])
+        writer.writerow(['告警编号', '告警状态', '确认状态', '告警类型', '设备名称', '摄像头IP', '告警时间', '上报次数', '最后上报时间'])
         
         for alarm in alarms:
             writer.writerow([
                 alarm.alarm_number,
-                '告警清除' if alarm.is_processed else '告警产生',
+                '已处理' if alarm.is_processed else '未处理',
                 '已确认' if alarm.is_confirmed else '未确认',
                 alarm.alarm_type,
                 alarm.device_name,
-                alarm.camera_ip or '',  # 确保使用 camera_ip
-                alarm.alarm_time.strftime('%Y-%m-%d %H:%M:%S')
+                alarm.camera_ip or '',
+                alarm.alarm_time.strftime('%Y-%m-%d %H:%M:%S'),
+                alarm.report_count,
+                alarm.last_report_time.strftime('%Y-%m-%d %H:%M:%S') if alarm.last_report_time else ''
             ])
         
         output.seek(0)
@@ -289,11 +284,6 @@ def export_alarms():
         )
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    return send_file(
-        excel_file,
-        as_attachment=True,
-        download_name=f'alarms_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
-    )
 
 
 def check_password_strength(password):
@@ -365,15 +355,12 @@ def change_password():
             'user_token': user_token
         })
 
-# 修改 alarm_detail 路由
 @bp.route('/detail/<string:alarm_number>')
 @web_auth_required
 def alarm_detail(alarm_number):
     alarm = Alarm.query.filter_by(alarm_number=alarm_number).first_or_404()
-    # 修改这里：从 'alarm_detail.html' 改为 'alarms/alarm_detail.html'
     return render_template('alarms/alarm_detail.html', alarm=alarm, user_token=request.args.get('user_token'))
 
-# 修改 show_confirm_type 路由
 @bp.route('/confirm_type/<string:alarm_number>', methods=['GET', 'POST'])
 @web_auth_required
 def show_confirm_type(alarm_number):
@@ -392,22 +379,7 @@ def show_confirm_type(alarm_number):
             alarm.is_confirmed = True
             alarm.confirm_type = confirm_type
             alarm.confirmed_time = datetime.now()
-            db.session.commit()
-            flash('告警确认成功', 'success')
-            return redirect(url_for('alarms_view.index', user_token=user_token))
-        
-        # 处理GET请求（显示确认页面）
-        # 修改这里：从 'confirm_type.html' 改为 'alarms/confirm_type.html'
-        if request.method == 'POST':
-            confirm_type = request.form.get('confirm_type')
-            
-            if not confirm_type:
-                flash('缺少确认类型', 'error')
-                return render_template('alarms/confirm_type.html', alarm=alarm, user_token=user_token)
-            
-            alarm.is_confirmed = True
-            alarm.confirm_type = confirm_type
-            alarm.confirmed_time = datetime.now()
+            alarm.status = '已确认'
             db.session.commit()
             flash('告警确认成功', 'success')
             return redirect(url_for('alarms_view.index', user_token=user_token))
@@ -420,7 +392,6 @@ def show_confirm_type(alarm_number):
         flash('操作失败', 'error')
         return redirect(url_for('alarms_view.index', user_token=user_token))
 
-# 修改 process_alarm 路由
 @bp.route('/process/<string:alarm_number>', methods=['POST'])
 @web_auth_required
 def process_alarm(alarm_number):
@@ -432,6 +403,7 @@ def process_alarm(alarm_number):
         alarm.is_confirmed = True
         alarm.confirmed_time = datetime.now()
         alarm.confirm_type = confirm_type
+        alarm.status = '已确认'
         db.session.commit()
         
         return jsonify({

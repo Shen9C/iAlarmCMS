@@ -5560,3 +5560,269 @@ werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'alarms
 2025-03-29 22:40:05,816 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
 2025-03-29 22:40:05,817 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 22:40:05] "[36mGET /static/js/api.js HTTP/1.1[0m" 304 -
 2025-03-29 22:40:05,817 - werkzeug - INFO - 127.0.0.1 - - [29/Mar/2025 22:40:05] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-02 21:47:42,800 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-04-02 21:47:42,884 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-04-02 21:47:42,885 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-04-02 21:47:42,886 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-04-02 21:47:42,911 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.4:5000
+2025-04-02 21:47:42,911 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-02 21:47:42,914 - werkzeug - INFO -  * Restarting with stat
+2025-04-02 21:47:43,359 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-04-02 21:47:43,406 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-04-02 21:47:43,407 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-04-02 21:47:43,409 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-04-02 21:47:43,419 - werkzeug - WARNING -  * Debugger is active!
+2025-04-02 21:47:43,423 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-04-02 21:47:47,334 - app - DEBUG - «Î«Û–≈œ¢: endpoint=index, path=/, method=GET
+2025-04-02 21:47:47,334 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=False
+2025-04-02 21:47:47,334 - app - DEBUG - ”√ªßŒ¥»œ÷§£¨÷ÿ∂®œÚµΩµ«¬º“≥√Ê
+2025-04-02 21:47:47,338 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:47:47] "[35m[1mGET /?ide_webview_request_time=1743601667326 HTTP/1.1[0m" 500 -
+2025-04-02 21:47:47,412 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:47:47] "GET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2025-04-02 21:47:47,413 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:47:47] "GET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2025-04-02 21:47:47,423 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:47:47] "GET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2025-04-02 21:48:10,179 - app - DEBUG - «Î«Û–≈œ¢: endpoint=None, path=/favicon.ico, method=GET
+2025-04-02 21:48:10,182 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-02 21:48:10,182 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-02 21:48:10,183 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:48:10] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-02 21:48:12,623 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-04-02 21:48:12,624 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-02 21:48:12,624 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-02 21:48:12,665 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:48:12] "GET /alarms/ HTTP/1.1" 200 -
+2025-04-02 21:48:12,678 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-04-02 21:48:12,679 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-02 21:48:12,679 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-02 21:48:12,680 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:48:12] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-02 21:48:12,683 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/js/api.js, method=GET
+2025-04-02 21:48:12,684 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-02 21:48:12,685 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-02 21:48:12,685 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:48:12] "GET /static/js/api.js HTTP/1.1" 200 -
+2025-04-02 21:48:14,508 - app - DEBUG - «Î«Û–≈œ¢: endpoint=edge_devices.index, path=/edge_devices/, method=GET
+2025-04-02 21:48:14,509 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-02 21:48:14,509 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-02 21:48:14,514 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:48:14] "GET /edge_devices/ HTTP/1.1" 200 -
+2025-04-02 21:48:14,533 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-04-02 21:48:14,535 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-02 21:48:14,535 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-02 21:48:14,536 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:48:14] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-02 21:48:33,379 - app - DEBUG - «Î«Û–≈œ¢: endpoint=tasks_view.index, path=/tasks/, method=GET
+2025-04-02 21:48:33,380 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-02 21:48:33,381 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-02 21:48:33,392 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:48:33] "GET /tasks/ HTTP/1.1" 200 -
+2025-04-02 21:48:33,415 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-04-02 21:48:33,417 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-02 21:48:33,417 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-02 21:48:33,419 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:48:33] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-02 21:48:33,429 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/js/api.js, method=GET
+2025-04-02 21:48:33,431 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-02 21:48:33,431 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-02 21:48:33,433 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:48:33] "[36mGET /static/js/api.js HTTP/1.1[0m" 304 -
+2025-04-02 21:48:33,444 - app - DEBUG - «Î«Û–≈œ¢: endpoint=tasks_api.get_tasks, path=/api/tasks, method=GET
+2025-04-02 21:48:33,446 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-02 21:48:33,446 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-02 21:48:33,449 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:48:33] "GET /api/tasks HTTP/1.1" 200 -
+2025-04-02 21:48:33,453 - app - DEBUG - «Î«Û–≈œ¢: endpoint=tasks_api.get_tasks, path=/api/tasks, method=GET
+2025-04-02 21:48:33,454 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-02 21:48:33,455 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-02 21:48:33,457 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:48:33] "GET /api/tasks HTTP/1.1" 200 -
+2025-04-02 21:48:36,535 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-04-02 21:48:36,537 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-02 21:48:36,537 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-02 21:48:36,540 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:48:36] "GET /alarms/ HTTP/1.1" 200 -
+2025-04-02 21:48:36,563 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/css/style.css, method=GET
+2025-04-02 21:48:36,564 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-02 21:48:36,565 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-02 21:48:36,566 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:48:36] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-02 21:48:36,570 - app - DEBUG - «Î«Û–≈œ¢: endpoint=static, path=/static/js/api.js, method=GET
+2025-04-02 21:48:36,571 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-02 21:48:36,571 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-02 21:48:36,572 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2025 21:48:36] "[36mGET /static/js/api.js HTTP/1.1[0m" 304 -
+2025-04-03 20:36:41,005 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-04-03 20:36:41,078 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-04-03 20:36:41,079 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-04-03 20:36:41,081 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-04-03 20:36:41,107 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2025-04-03 20:36:41,107 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-03 20:36:41,109 - werkzeug - INFO -  * Restarting with stat
+2025-04-03 20:36:41,640 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-04-03 20:36:41,683 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-04-03 20:36:41,685 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-04-03 20:36:41,686 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-04-03 20:36:41,693 - werkzeug - WARNING -  * Debugger is active!
+2025-04-03 20:36:41,696 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-04-03 20:38:15,216 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_web\\app\\models\\edge_devices.py', reloading
+2025-04-03 20:38:15,321 - werkzeug - INFO -  * Restarting with stat
+2025-04-03 20:38:16,775 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-04-03 20:38:16,821 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-04-03 20:38:16,822 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-04-03 20:38:16,823 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-04-03 20:38:16,831 - werkzeug - WARNING -  * Debugger is active!
+2025-04-03 20:38:16,837 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-04-03 20:38:19,870 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_web\\app\\models\\edge_devices.py', reloading
+2025-04-03 20:38:19,968 - werkzeug - INFO -  * Restarting with stat
+2025-04-03 20:38:20,390 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-04-03 20:38:20,430 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-04-03 20:38:20,431 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-04-03 20:38:20,432 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-04-03 20:38:20,437 - werkzeug - WARNING -  * Debugger is active!
+2025-04-03 20:38:20,440 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-04-03 20:38:21,459 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_web\\app\\models\\edge_devices.py', reloading
+2025-04-03 20:38:21,563 - werkzeug - INFO -  * Restarting with stat
+2025-04-03 20:38:22,077 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-04-03 20:38:22,121 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-04-03 20:38:22,121 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-04-03 20:38:22,123 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-04-03 20:38:22,128 - werkzeug - WARNING -  * Debugger is active!
+2025-04-03 20:38:22,130 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-04-03 20:38:24,155 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_web\\app\\models\\edge_devices.py', reloading
+2025-04-03 20:38:24,240 - werkzeug - INFO -  * Restarting with stat
+2025-04-03 20:38:24,635 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-04-03 20:38:24,673 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-04-03 20:38:24,673 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-04-03 20:38:24,674 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-04-03 20:38:24,682 - werkzeug - WARNING -  * Debugger is active!
+2025-04-03 20:38:24,683 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-04-03 20:38:33,740 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_web\\app\\models\\edge_devices.py', reloading
+2025-04-03 20:38:33,849 - werkzeug - INFO -  * Restarting with stat
+2025-04-03 20:38:34,302 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-04-03 20:38:34,341 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-04-03 20:38:34,341 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-04-03 20:38:34,342 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-04-03 20:38:34,349 - werkzeug - WARNING -  * Debugger is active!
+2025-04-03 20:38:34,352 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-04-03 20:38:35,373 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_web\\app\\models\\edge_devices.py', reloading
+2025-04-03 20:38:35,486 - werkzeug - INFO -  * Restarting with stat
+2025-04-03 20:38:36,002 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-04-03 20:38:36,046 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-04-03 20:38:36,046 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-04-03 20:38:36,048 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-04-03 20:38:36,053 - werkzeug - WARNING -  * Debugger is active!
+2025-04-03 20:38:36,055 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-04-03 20:46:32,951 - app - DEBUG - «Î«Û–≈œ¢: endpoint=index, path=/, method=GET
+2025-04-03 20:46:32,954 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-03 20:46:32,954 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-03 20:46:32,955 - app - DEBUG - ∑√Œ ∏˘¬∑æ∂: authenticated=True
+2025-04-03 20:46:32,962 - app - DEBUG - …˙≥…–¬token≤¢÷ÿ∂®œÚ: token=7763c58e-64f1-4f40-bc73-df9e9399dd7e
+2025-04-03 20:46:32,963 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 20:46:32] "[32mGET / HTTP/1.1[0m" 302 -
+2025-04-03 20:46:32,966 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-04-03 20:46:32,966 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-03 20:46:32,967 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 7763c58e-64f1-4f40-bc73-df9e9399dd7e
+2025-04-03 20:46:32,981 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 20:46:32] "[35m[1mGET /alarms/?user_token=7763c58e-64f1-4f40-bc73-df9e9399dd7e HTTP/1.1[0m" 500 -
+2025-04-03 20:46:33,171 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 20:46:33] "GET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2025-04-03 20:46:33,172 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 20:46:33] "GET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2025-04-03 20:46:33,184 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 20:46:33] "GET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2025-04-03 20:46:33,228 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 20:46:33] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-04-03 21:05:00,210 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_web\\app\\models\\alarms.py', reloading
+2025-04-03 21:05:00,357 - werkzeug - INFO -  * Restarting with stat
+2025-04-03 21:05:01,419 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-04-03 21:05:01,480 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-04-03 21:05:01,480 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-04-03 21:05:01,488 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-04-03 21:05:01,495 - werkzeug - WARNING -  * Debugger is active!
+2025-04-03 21:05:01,500 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-04-03 21:05:03,530 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_web\\app\\models\\alarms.py', reloading
+2025-04-03 21:05:03,643 - werkzeug - INFO -  * Restarting with stat
+2025-04-03 21:05:04,081 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-04-03 21:05:04,123 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-04-03 21:05:04,123 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-04-03 21:05:04,125 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-04-03 21:05:04,130 - werkzeug - WARNING -  * Debugger is active!
+2025-04-03 21:05:04,134 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-04-03 21:05:05,153 - werkzeug - INFO -  * Detected change in 'e:\\20_Coding_Ωª∏∂œÓƒø\\320_oilfield_web\\app\\models\\alarms.py', reloading
+2025-04-03 21:05:05,249 - werkzeug - INFO -  * Restarting with stat
+2025-04-03 21:05:05,685 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-04-03 21:05:05,726 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-04-03 21:05:05,726 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-04-03 21:05:05,728 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-04-03 21:05:05,734 - werkzeug - WARNING -  * Debugger is active!
+2025-04-03 21:05:05,736 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-04-03 21:05:46,623 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-04-03 21:05:46,625 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-03 21:05:46,625 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-03 21:05:46,638 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:46] "[35m[1mGET /alarms/?user_token=7763c58e-64f1-4f40-bc73-df9e9399dd7e HTTP/1.1[0m" 500 -
+2025-04-03 21:05:46,717 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:46] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-04-03 21:05:46,718 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:46] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-04-03 21:05:46,725 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:46] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-04-03 21:05:46,757 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:46] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-04-03 21:05:47,805 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-04-03 21:05:47,806 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-03 21:05:47,807 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-03 21:05:47,813 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:47] "[35m[1mGET /alarms/?user_token=7763c58e-64f1-4f40-bc73-df9e9399dd7e HTTP/1.1[0m" 500 -
+2025-04-03 21:05:47,825 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:47] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-04-03 21:05:47,827 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:47] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-04-03 21:05:47,838 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:47] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-04-03 21:05:47,861 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:47] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-04-03 21:05:52,374 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-04-03 21:05:52,376 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-03 21:05:52,376 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-03 21:05:52,388 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:52] "[35m[1mGET /alarms/ HTTP/1.1[0m" 500 -
+2025-04-03 21:05:52,400 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:52] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-04-03 21:05:52,402 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:52] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-04-03 21:05:52,409 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:52] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-04-03 21:05:55,866 - app - DEBUG - «Î«Û–≈œ¢: endpoint=index, path=/, method=GET
+2025-04-03 21:05:55,867 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-03 21:05:55,867 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-03 21:05:55,868 - app - DEBUG - ∑√Œ ∏˘¬∑æ∂: authenticated=True
+2025-04-03 21:05:55,876 - app - DEBUG - …˙≥…–¬token≤¢÷ÿ∂®œÚ: token=6e107a3e-f669-4534-a269-83ab9959496b
+2025-04-03 21:05:55,877 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:55] "[32mGET / HTTP/1.1[0m" 302 -
+2025-04-03 21:05:55,881 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-04-03 21:05:55,883 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-03 21:05:55,883 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 6e107a3e-f669-4534-a269-83ab9959496b
+2025-04-03 21:05:55,899 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:55] "[35m[1mGET /alarms/?user_token=6e107a3e-f669-4534-a269-83ab9959496b HTTP/1.1[0m" 500 -
+2025-04-03 21:05:56,829 - app - DEBUG - «Î«Û–≈œ¢: endpoint=index, path=/, method=GET
+2025-04-03 21:05:56,830 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-03 21:05:56,831 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 6e107a3e-f669-4534-a269-83ab9959496b
+2025-04-03 21:05:56,831 - app - DEBUG - ∑√Œ ∏˘¬∑æ∂: authenticated=True
+2025-04-03 21:05:56,832 - app - DEBUG - ”√ªß“—µ«¬º£¨÷ÿ∂®œÚµΩ∏ÊæØ“≥√Ê: token=6e107a3e-f669-4534-a269-83ab9959496b
+2025-04-03 21:05:56,832 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:56] "[32mGET / HTTP/1.1[0m" 302 -
+2025-04-03 21:05:56,835 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-04-03 21:05:56,837 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-03 21:05:56,837 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: 6e107a3e-f669-4534-a269-83ab9959496b
+2025-04-03 21:05:56,848 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:56] "[35m[1mGET /alarms/?user_token=6e107a3e-f669-4534-a269-83ab9959496b HTTP/1.1[0m" 500 -
+2025-04-03 21:05:56,861 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:56] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-04-03 21:05:56,862 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:56] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-04-03 21:05:56,884 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:05:56] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-04-03 21:06:25,101 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-04-03 21:06:25,144 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-04-03 21:06:25,144 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-04-03 21:06:25,150 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-04-03 21:06:25,168 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2025-04-03 21:06:25,168 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-03 21:06:25,169 - werkzeug - INFO -  * Restarting with stat
+2025-04-03 21:06:25,580 - app - DEBUG - ”¶”√∆Ù∂Ø£¨µ˜ ‘»’÷æ“—∆Ù”√
+2025-04-03 21:06:25,621 - __main__ - INFO -  ˝æ›ø‚÷–µƒ”√ªß ˝¡ø: 1
+2025-04-03 21:06:25,622 - __main__ - INFO - ”√ªß: π‹¿Ì‘±, Ω«…´: admin,  «∑Òπ‹¿Ì‘±: True
+2025-04-03 21:06:25,625 - __main__ - INFO - À˘”–”√ªßª·ª∞“—«Â¿Ì
+2025-04-03 21:06:25,631 - werkzeug - WARNING -  * Debugger is active!
+2025-04-03 21:06:25,634 - werkzeug - INFO -  * Debugger PIN: 137-698-916
+2025-04-03 21:06:45,751 - app - DEBUG - «Î«Û–≈œ¢: endpoint=index, path=/, method=GET
+2025-04-03 21:06:45,754 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-03 21:06:45,755 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: None
+2025-04-03 21:06:45,755 - app - DEBUG - ∑√Œ ∏˘¬∑æ∂: authenticated=True
+2025-04-03 21:06:45,764 - app - DEBUG - …˙≥…–¬token≤¢÷ÿ∂®œÚ: token=ff31a8c6-49e9-40fa-9dee-261d339e18cb
+2025-04-03 21:06:45,765 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:06:45] "[32mGET / HTTP/1.1[0m" 302 -
+2025-04-03 21:06:45,768 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-04-03 21:06:45,770 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-03 21:06:45,770 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: ff31a8c6-49e9-40fa-9dee-261d339e18cb
+2025-04-03 21:06:45,800 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:06:45] "[35m[1mGET /alarms/?user_token=ff31a8c6-49e9-40fa-9dee-261d339e18cb HTTP/1.1[0m" 500 -
+2025-04-03 21:06:46,423 - app - DEBUG - «Î«Û–≈œ¢: endpoint=index, path=/, method=GET
+2025-04-03 21:06:46,424 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-03 21:06:46,425 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: ff31a8c6-49e9-40fa-9dee-261d339e18cb
+2025-04-03 21:06:46,425 - app - DEBUG - ∑√Œ ∏˘¬∑æ∂: authenticated=True
+2025-04-03 21:06:46,425 - app - DEBUG - ”√ªß“—µ«¬º£¨÷ÿ∂®œÚµΩ∏ÊæØ“≥√Ê: token=ff31a8c6-49e9-40fa-9dee-261d339e18cb
+2025-04-03 21:06:46,426 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:06:46] "[32mGET / HTTP/1.1[0m" 302 -
+2025-04-03 21:06:46,430 - app - DEBUG - «Î«Û–≈œ¢: endpoint=alarms_view.index, path=/alarms/, method=GET
+2025-04-03 21:06:46,430 - app - DEBUG - ”√ªß»œ÷§◊¥Ã¨: authenticated=True
+2025-04-03 21:06:46,431 - app - DEBUG - µ±«∞µ«¬º”√ªß: π‹¿Ì‘±, Token: ff31a8c6-49e9-40fa-9dee-261d339e18cb
+2025-04-03 21:06:46,445 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:06:46] "[35m[1mGET /alarms/?user_token=ff31a8c6-49e9-40fa-9dee-261d339e18cb HTTP/1.1[0m" 500 -
+2025-04-03 21:06:46,578 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:06:46] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-04-03 21:06:46,579 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:06:46] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-04-03 21:06:46,585 - werkzeug - INFO - 127.0.0.1 - - [03/Apr/2025 21:06:46] "[36mGET /alarms/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
