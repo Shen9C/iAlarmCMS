@@ -5,27 +5,26 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app import db
 
 class Alarm(db.Model):
-    __tablename__ = 'alarms'  # 表名为'alarms'
+    __tablename__ = 'alarms'
     id = db.Column(db.Integer, primary_key=True)
-    alarm_number = db.Column(db.String(50), index=True)  # 添加索引提高查询性能
+    alarm_number = db.Column(db.String(50), index=True)
     alarm_type = db.Column(db.String(100))
     
-    # 添加外键关联
     device_id = db.Column(db.String(64), db.ForeignKey('edge_devices.device_id'), nullable=False)
-    device_name = db.Column(db.String(100))  # 保留此字段用于显示，但不作为主要关联字段
+    device_name = db.Column(db.String(100))
     
     camera_ip = db.Column(db.String(50))
-    # 使用时区感知的时间戳类型
-    alarm_time = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(datetime.timezone.utc))
-    last_report_time = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(datetime.timezone.utc))
-    report_count = db.Column(db.Integer, default=1)  # 添加上报次数字段
+    # 修改为 TIMESTAMP WITH TIME ZONE
+    alarm_time = db.Column(db.TIMESTAMP(timezone=True), default=lambda: datetime.now(datetime.timezone.utc))
+    last_report_time = db.Column(db.TIMESTAMP(timezone=True), default=lambda: datetime.now(datetime.timezone.utc))
+    report_count = db.Column(db.Integer, default=1)
     alarm_image = db.Column(db.String(255))
     is_processed = db.Column(db.Boolean, default=False)
-    processed_time = db.Column(db.DateTime)
+    processed_time = db.Column(db.TIMESTAMP(timezone=True))
     is_confirmed = db.Column(db.Boolean, default=False)
-    confirmed_time = db.Column(db.DateTime)
+    confirmed_time = db.Column(db.TIMESTAMP(timezone=True))
     status = db.Column(db.String(20), default='待确认')
-    confirm_type = db.Column(db.String(20))  # 添加确认类型字段：'fault'(故障) 或 'false_alarm'(误报)
+    confirm_type = db.Column(db.String(20))
     
     def __repr__(self) -> str:
         return f'<Alarm {self.alarm_number}>'

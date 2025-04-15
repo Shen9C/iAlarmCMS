@@ -1,5 +1,6 @@
 from app import db
 from datetime import datetime
+from sqlalchemy import TIMESTAMP
 
 class SystemConfig(db.Model):
     """系统基本配置模型，存储预定义的系统配置项"""
@@ -9,7 +10,7 @@ class SystemConfig(db.Model):
     company_name = db.Column(db.String(100), default="示例公司")
     logo_url = db.Column(db.String(255), default="/static/images/logo.png")
     theme_color = db.Column(db.String(20), default="#3498db")
-    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now(datetime.timezone.utc), onupdate=lambda: datetime.now(datetime.timezone.utc))
     
     @classmethod
     def get_instance(cls):
@@ -27,7 +28,7 @@ class KeyValueSetting(db.Model):
     key = db.Column(db.String(50), unique=True, nullable=False)
     value = db.Column(db.String(500))
     description = db.Column(db.String(200))
-    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now(datetime.timezone.utc), onupdate=lambda: datetime.now(datetime.timezone.utc))
     
     @classmethod
     def get_setting(cls, key, default=None):

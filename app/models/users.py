@@ -3,8 +3,10 @@
 from app import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import TIMESTAMP
 import time
 import uuid
+from datetime import datetime
 
 # 在User类中确保有以下字段
 class User(UserMixin, db.Model):
@@ -16,10 +18,8 @@ class User(UserMixin, db.Model):
     role = db.Column(db.String(64), default='user')
     is_admin = db.Column(db.Boolean, default=False)
     current_token = db.Column(db.String(256))
-    token_timestamp = db.Column(db.DateTime)
-    last_login_time = db.Column(db.DateTime)
-    # 删除 last_login_ip 字段
-    # 删除 login_count 字段
+    token_timestamp = db.Column(TIMESTAMP(timezone=True))
+    last_login_time = db.Column(TIMESTAMP(timezone=True))
     active = db.Column(db.Boolean, default=True)
     
     def set_password(self, password):
