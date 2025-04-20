@@ -199,38 +199,40 @@
 <!-- 添加Bootstrap 5 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-/* 完全移除模态框遮罩层 */
+/* 统一的模态框CSS样式 */
 .modal-backdrop {
-    display: none !important;
+    /* Standard BS5 z-index */
+    z-index: 1050; 
+    opacity: 0.5 !important; /* 调整透明度，确保背景有适当的暗化效果 */
 }
-
-/* 调整模态框样式 */
+.modal {
+    /* Standard BS5 z-index, ensures it's above backdrop */
+    z-index: 1055; 
+    /* Crucially, ensure the modal container itself doesn't block events */
+    pointer-events: none; 
+}
 .modal-dialog {
-    z-index: 2056 !important; /* 提高z-index确保在最上层 */
-    margin: 8rem auto !important; /* 调整位置 */
+    /* Allow interaction with content */
+    pointer-events: auto !important;
+    /* 增加z-index确保在遮罩层之上 */
+    z-index: 1060;
+    /* 添加阴影增强视觉效果 */
+    box-shadow: 0 5px 15px rgba(0,0,0,.5);
 }
-
-/* 确保模态框内容可交互 */
 .modal-content {
-    box-shadow: 0 5px 15px rgba(0,0,0,.5) !important; /* 添加阴影增强视觉效果 */
+    /* The content MUST be interactive */
+    pointer-events: auto !important; 
+    /* Ensure content is visually above its container */
+    position: relative;
+    z-index: 1; /* Relative to modal-dialog */
+    /* Ensure background isn't transparent causing grey-out */
+    background-color: #fff; 
 }
 
-/* 防止页面锁定 */
-body.modal-open {
-    overflow: auto !important;
-    padding-right: 0 !important;
-}
-
-/* 确保输入框可编辑 */
-.modal input, .modal textarea, .modal select {
+/* 确保表单元素可交互 */
+.modal input, .modal textarea, .modal select, .modal button {
     pointer-events: auto !important;
-    background-color: #fff !important;
     opacity: 1 !important;
-}
-
-/* 确保按钮可点击 */
-.modal button {
-    pointer-events: auto !important;
 }
 </style>
 {% endblock %}

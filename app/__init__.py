@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, request, jsonify
+from flask import Flask, redirect, url_for, request, jsonify, flash  # 添加 flash 导入
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user, logout_user
 from flask_migrate import Migrate
@@ -39,6 +39,7 @@ def create_app(config_class=Config):
     
     # 确保所有模型都被导入
     from app.models import settings, tasks, users
+    from app.models.users import User  # 添加这行，确保User模型被正确导入
     
     # 注册认证相关蓝图 =====================
     from app.routes.web_auth_api import bp as web_auth_api_bp
@@ -99,18 +100,18 @@ def create_app(config_class=Config):
         """全局请求拦截器，验证用户登录状态和URL"""
         if app.config.get('DEBUG_LOG_ENABLED', False):
             logger.debug(f"请求信息: endpoint={request.endpoint}, path={request.path}, method={request.method}")
-            
-            # 如果是登录请求，记录用户名和密码信息（仅用于调试）
-            if request.endpoint == 'web_auth.web_login' and request.method == 'POST':
-                if request.is_json:
-                    data = request.get_json()
-                    logger.debug(f"登录尝试 - 用户名: {data.get('username')}, 密码: {data.get('password')}")
-                elif request.form:
-                    logger.debug(f"登录尝试 - 用户名: {request.form.get('username')}, 密码: {request.form.get('password')}")
-            
-            logger.debug(f"用户认证状态: authenticated={current_user.is_authenticated}")
-            if current_user.is_authenticated:
-                logger.debug(f"当前登录用户: {current_user.username}, Token: {current_user.current_token}")
+        
+        # 检查用户认证状态和token
+        if current_user.is_authenticated and not current_user.current_token:
+            logout_user()  # 强制登出
+            # 修改这里：使用 X-Requested-With 头判断是否是 AJAX 请求
+            if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+                flash('会话已过期，请重新登录')
+                return redirect(url_for('web_auth.web_login'))
+            return jsonify({
+                'success': False,
+                'error': '会话已过期，请重新登录'
+            }), 401
         
         # 不需要验证的路由和静态资源
         public_endpoints = [
@@ -126,7 +127,8 @@ def create_app(config_class=Config):
             if not current_user.is_authenticated:
                 if app.config.get('DEBUG_LOG_ENABLED', False):
                     logger.debug("用户未认证，重定向到登录页面")
-                if request.is_xhr:
+                # 修改这里：使用 X-Requested-With 头判断是否是 AJAX 请求
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                     return jsonify({
                         'success': False,
                         'error': '未登录或会话已过期'
@@ -162,6 +164,25 @@ def create_app(config_class=Config):
         if value is None:
             return ""
         return value.strftime('%Y-%m-%d %H:%M:%S')
+    
+    with app.app_context():
+        # 清理所有用户的登录状态
+        try:
+            users = User.query.all()
+            for user in users:
+                user.current_token = None
+                user.token_timestamp = None
+                # 移除这行，因为这个字段可能不存在
+                # user.session_expired = True
+            db.session.commit()
+            
+            # 移除这行，因为它需要请求上下文
+            # logout_user()
+            
+            logger.info("所有用户会话已清理")
+        except Exception as e:
+            logger.error(f"清理用户会话时出错: {str(e)}")
+            logger.exception("详细错误信息：")
     
     return app
 

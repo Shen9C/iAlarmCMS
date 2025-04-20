@@ -1,7 +1,22 @@
 {
-    "api_url": "http://localhost:5000/api/v1/machine/alarms/batch",
-    "access_key": "AKID123456789",
-    "secret_key": "SK987654321",
-    "device_names": ["1号油井", "2号油井", "3号油井", "4号油井", "5号油井", "6号油井", "7号油井"],
-    "alarm_types": ["异常停机", "毛辫子断", "皮带断裂", "发动机冒烟", "原油泄露", "压力表异常"]
+    "device_names": [
+        "油井-001",
+        "油井-002",
+        "油井-003",
+        "油井-004",
+        "油井-005",
+        "油井-006",
+        "油井-007"
+    ],
+    "alarm_types": [
+        "启停检测",
+        "皮带检测",
+        "毛辫子检测",
+        "压力表检测",
+        "井口泄漏检测",
+        "烟火检测"
+    ],
+    "api_url": "http://localhost:5000/api",
+    "access_key": "test_access_key",
+    "secret_key": "test_secret_key"
 }

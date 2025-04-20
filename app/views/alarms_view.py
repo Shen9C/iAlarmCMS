@@ -7,9 +7,12 @@ from datetime import datetime, timedelta
 import io, csv
 import re
 from app.utils.web_auth import web_auth_required
+import logging
 
 # 创建蓝图实例
 bp = Blueprint('alarms_view', __name__)
+
+logger = logging.getLogger(__name__)
 
 @bp.route('/', methods=['GET'])
 @login_required
@@ -20,6 +23,9 @@ def index():
     status = request.args.get('status', '')
     alarm_type = request.args.get('alarm_type', '')
     device_name = request.args.get('device_name', '')
+    
+    # 强制刷新会话，确保获取最新数据
+    db.session.expire_all()
     
     # 构建查询
     query = Alarm.query
@@ -54,14 +60,28 @@ def index():
         ).order_by(Alarm.alarm_type).all()
     alarm_types = [type[0].strip() for type in alarm_types if type[0] and len(type[0].strip()) > 0]
     
-    # 分页
+    # 分页 - 确保不使用缓存结果
     pagination = query.order_by(Alarm.alarm_time.desc()).paginate(
         page=page, per_page=page_size, error_out=False
     )
+    
+    # 获取所有结果，不使用缓存
     alarms = pagination.items
     
+    # 添加调试代码，检查目标告警的状态
+    test_alarms = []
+    for alarm in alarms:
+        # 确保所有告警对象都从数据库重新加载，避免使用缓存数据
+        db.session.refresh(alarm)
+        if alarm.alarm_code == "ALM202504191602239614":
+            logger.info(f"视图中的告警对象(刷新后): alarm_code={alarm.alarm_code}, "
+                      f"is_confirmed={alarm.is_confirmed}, confirm_type={alarm.confirm_type}, "
+                      f"status={alarm.status}")
+        test_alarms.append(alarm)
+
+    # 使用刷新后的对象列表渲染模板
     return render_template('alarms/alarms_index.html',
-                         alarms=alarms,
+                         alarms=test_alarms,
                          pagination=pagination,
                          alarm_types=alarm_types,
                          device_names=device_names,
@@ -80,9 +100,11 @@ def mark_as_handled():
         
         alarms = Alarm.query.filter(Alarm.id.in_(alarm_ids)).all()
         for alarm in alarms:
-            alarm.status = '已处理'
+            # 更新状态为已处理
             alarm.is_processed = True
-            alarm.processed_time = datetime.now()
+            alarm.status = '已处理'
+            alarm.processed_time = datetime.now().astimezone()
+            # 注意：处理操作不会影响告警的确认状态(is_confirmed)和确认类型(confirm_type)
         
         db.session.commit()
         return jsonify({'success': True, 'user_token': user_token})
@@ -120,7 +142,7 @@ def export():
         
         for alarm in alarms:
             writer.writerow([
-                alarm.alarm_number,
+                alarm.alarm_code,
                 '已处理' if alarm.is_processed else '未处理',
                 '已确认' if alarm.is_confirmed else '未确认',
                 alarm.alarm_type,
@@ -262,7 +284,7 @@ def export_alarms():
         
         for alarm in alarms:
             writer.writerow([
-                alarm.alarm_number,
+                alarm.alarm_code,
                 '已处理' if alarm.is_processed else '未处理',
                 '已确认' if alarm.is_confirmed else '未确认',
                 alarm.alarm_type,
@@ -355,66 +377,53 @@ def change_password():
             'user_token': user_token
         })
 
-@bp.route('/detail/<string:alarm_number>')
+@bp.route('/detail/<int:alarm_id>')
 @web_auth_required
-def alarm_detail(alarm_number):
-    alarm = Alarm.query.filter_by(alarm_number=alarm_number).first_or_404()
-    return render_template('alarms/alarm_detail.html', alarm=alarm, user_token=request.args.get('user_token'))
+def alarm_detail(alarm_id):
+    alarm = Alarm.query.get_or_404(alarm_id)
+    user_token = request.args.get('user_token')
+    return render_template('alarms/alarm_detail.html', alarm=alarm, user_token=user_token)
 
-@bp.route('/confirm_type/<string:alarm_number>', methods=['GET', 'POST'])
+@bp.route('/confirm_type/<int:alarm_id>', methods=['GET', 'POST'])
 @web_auth_required
-def show_confirm_type(alarm_number):
-    try:
-        user_token = request.args.get('user_token')
-        alarm = Alarm.query.filter_by(alarm_number=alarm_number).first_or_404()
-        
-        # 处理POST请求（确认告警）
-        if request.method == 'POST':
-            confirm_type = request.form.get('confirm_type')
-            
-            if not confirm_type:
-                flash('缺少确认类型', 'error')
-                return render_template('alarms/alarms_confirm_type.html', alarm=alarm, user_token=user_token)
-            
-            alarm.is_confirmed = True
-            alarm.confirm_type = confirm_type
-            alarm.confirmed_time = datetime.now()
-            alarm.status = '已确认'
-            db.session.commit()
-            flash('告警确认成功', 'success')
-            return redirect(url_for('alarms_view.index', user_token=user_token))
-        
-        # 处理GET请求（显示确认页面）
-        return render_template('alarms/alarms_confirm_type.html', alarm=alarm, user_token=user_token)
-    except Exception as e:
-        print(f"Error in confirm_type: {str(e)}")
-        db.session.rollback()
-        flash('操作失败', 'error')
-        return redirect(url_for('alarms_view.index', user_token=user_token))
-
-@bp.route('/process/<string:alarm_number>', methods=['POST'])
-@web_auth_required
-def process_alarm(alarm_number):
-    try:
-        user_token = request.args.get('user_token')
+def show_confirm_type(alarm_id):
+    user_token = request.args.get('user_token')
+    # 获取告警信息
+    alarm = Alarm.query.get_or_404(alarm_id)
+    
+    # 如果是 POST 请求，处理表单提交
+    if request.method == 'POST':
         confirm_type = request.form.get('confirm_type')
+        if confirm_type:
+            alarm.confirm_type = confirm_type
+            alarm.is_confirmed = True
+            alarm.confirmed_time = datetime.now().astimezone()
+            # 不改变status，只设置确认类型
+            db.session.commit()
+            return redirect(url_for('alarms_view.index', user_token=user_token))
+    
+    # 如果是 GET 请求，显示表单
+    return render_template('alarms/alarms_confirm_type.html', alarm=alarm, user_token=user_token)
+
+@bp.route('/process/<int:alarm_id>', methods=['POST'])
+@web_auth_required
+def process_alarm(alarm_id):
+    user_token = request.args.get('user_token')
+    try:
+        # 获取处理备注
+        notes = request.form.get('notes', '')
         
-        alarm = Alarm.query.filter_by(alarm_number=alarm_number).first_or_404()
-        alarm.is_confirmed = True
-        alarm.confirmed_time = datetime.now()
-        alarm.confirm_type = confirm_type
-        alarm.status = '已确认'
+        # 更新告警状态
+        alarm = Alarm.query.get_or_404(alarm_id)
+        alarm.is_processed = True
+        alarm.processed_time = datetime.now().astimezone()
+        alarm.status = '已处理'
+        # 注意：处理操作不会影响告警的确认状态(is_confirmed)和确认类型(confirm_type)
+        
         db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'message': '告警已确认',
-            'redirect_url': url_for('alarms_view.index', user_token=user_token)
-        })
+        flash('告警已成功处理！', 'success')
     except Exception as e:
-        print(f"Error processing alarm: {str(e)}")
-        return jsonify({
-            'success': False,
-            'message': str(e)
-        }), 500
+        flash(f'处理告警失败：{str(e)}', 'danger')
+    
+    return redirect(url_for('alarms_view.index', user_token=user_token))
 

@@ -22,14 +22,14 @@ def test_add_alarm(client, app):
     })
     
     response = client.post('/add_alarm', data={
-        'alarm_number': 'TEST001',
+        'alarm_id': 'TEST001',
         'alarm_type': '测试告警'
     }, follow_redirects=True)
     
     assert response.status_code == 200
     
     with app.app_context():
-        alarm = Alarm.query.filter_by(alarm_number='TEST001').first()
+        alarm = Alarm.query.filter_by(alarm_id='TEST001').first()
         assert alarm is not None
         assert alarm.alarm_type == '测试告警'
 
@@ -43,7 +43,7 @@ def test_export_alarms(client, app):
     # 添加测试数据
     with app.app_context():
         alarm = Alarm(
-            alarm_number='TEST002',
+            alarm_id='TEST002',
             alarm_type='导出测试',
             alarm_time=datetime.now()
         )

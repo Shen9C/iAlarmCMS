@@ -73,9 +73,6 @@ def run_migrations_offline():
 
 
 def run_migrations_online():
-    # 修改 config 对象，跳过版本检查
-    config.cmd_opts = type('obj', (object,), {'autogenerate': True, 'sql': False, 'head': 'head', 'splice': False, 'branch_label': None, 'version_path': None, 'rev_id': None, 'depends_on': None})
-
     """Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine

@@ -1,8 +1,9 @@
-from app import db
 from datetime import datetime
 from sqlalchemy import TIMESTAMP
+from app import db
 
 class SystemConfig(db.Model):
+    __tablename__ = 'system_config'
     """系统基本配置模型，存储预定义的系统配置项"""
     id = db.Column(db.Integer, primary_key=True)
     system_name_zh = db.Column(db.String(100), default="智能告警综合管理系统")
@@ -10,7 +11,7 @@ class SystemConfig(db.Model):
     company_name = db.Column(db.String(100), default="示例公司")
     logo_url = db.Column(db.String(255), default="/static/images/logo.png")
     theme_color = db.Column(db.String(20), default="#3498db")
-    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now(datetime.timezone.utc), onupdate=lambda: datetime.now(datetime.timezone.utc))
+    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), onupdate=lambda: datetime.now().astimezone())
     
     @classmethod
     def get_instance(cls):
@@ -23,12 +24,13 @@ class SystemConfig(db.Model):
         return config
 
 class KeyValueSetting(db.Model):
+    __tablename__ = 'key_value_settings'
     """键值对形式的系统设置模型，用于存储动态配置项"""
     id = db.Column(db.Integer, primary_key=True)
     key = db.Column(db.String(50), unique=True, nullable=False)
     value = db.Column(db.String(500))
     description = db.Column(db.String(200))
-    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now(datetime.timezone.utc), onupdate=lambda: datetime.now(datetime.timezone.utc))
+    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), onupdate=lambda: datetime.now().astimezone())
     
     @classmethod
     def get_setting(cls, key, default=None):

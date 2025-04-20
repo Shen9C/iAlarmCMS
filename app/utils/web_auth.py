@@ -38,7 +38,7 @@ def web_auth_required(f):
                 }), 401
             # 如果是普通请求，重定向到登录页面
             logout_user()
-            return redirect(url_for('web_api.login'))
+            return redirect(url_for('web_auth.web_login'))
             
         return f(*args, **kwargs)
     return decorated_function

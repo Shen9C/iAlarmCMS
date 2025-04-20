@@ -115,7 +115,7 @@
                               {% if alarm.is_processed %}disabled{% endif %}>
                     </td>
                     <td class="text-center align-middle">
-                        <a href="{{ url_for('alarms_view.alarm_detail', alarm_id=alarm.id, user_token=request.args.get('user_token')) }}">
+                        <a href="{{ url_for('alarms_view.alarm_detail', alarm_code=alarm.alarm_code, user_token=request.args.get('user_token')) }}">
                             {{ alarm.alarm_code }}
                             </a>
                         </td>
@@ -123,8 +123,11 @@
                     <td class="text-center align-middle">
                         {% if alarm.is_processed %}
                             <span class="badge bg-success">已处理</span>
+                        {% elif alarm.is_confirmed %}
+                             <span class="badge bg-primary">已确认</span> <!-- 使用 primary 区分已确认和已处理 -->
+                             <small>({{ alarm.confirm_type or '未知' }})</small>
                             {% else %}
-                            <span class="badge bg-warning text-dark">未处理</span>
+                             <span class="badge bg-warning text-dark">未处理</span> <!-- 使用 warning -->
                             {% endif %}
                         </td>
                     <td class="text-center align-middle">
@@ -153,7 +156,7 @@
                                         class="btn btn-primary confirm-alarm-btn" 
                                     data-bs-toggle="modal" 
                                     data-bs-target="#alarmConfirmModal" 
-                                        data-alarm-id="{{ alarm.id }}" title="确认">
+                                        data-alarm-code="{{ alarm.alarm_code }}" title="确认">
                                         <i class="bi bi-check-lg"></i>
                                 </button>
                             {% endif %}
@@ -161,7 +164,7 @@
                                        class="btn btn-success process-alarm-btn" 
                                        data-bs-toggle="modal" 
                                        data-bs-target="#alarmProcessModal" 
-                                       data-alarm-id="{{ alarm.id }}" title="处理">
+                                       data-alarm-code="{{ alarm.alarm_code }}" title="处理">
                                        <i class="bi bi-gear"></i>
                                 </button>
                             {% endif %}
@@ -403,7 +406,7 @@
             <div class="modal-body">
                 <p>请选择告警确认类型：</p>
                 <form id="confirmForm" method="POST">
-                    <input type="hidden" name="alarm_id" id="alarmIdInput">
+                    <input type="hidden" name="alarm_code" id="alarmCodeInput">
                     <div class="form-group mb-3">
                         <label for="confirm-type-display">确认类型</label>
                         <!-- 替换为按钮和下拉菜单 -->
@@ -416,6 +419,8 @@
                                 <li><a class="dropdown-item confirm-type-option" data-value="正常告警" href="javascript:void(0)">正常告警</a></li>
                                 <li><a class="dropdown-item confirm-type-option" data-value="误报" href="javascript:void(0)">误报</a></li>
                                 <li><a class="dropdown-item confirm-type-option" data-value="测试" href="javascript:void(0)">测试</a></li>
+                                <li><a class="dropdown-item confirm-type-option" data-value="自动" href="javascript:void(0)">自动</a></li>
+                                <li><a class="dropdown-item confirm-type-option" data-value="手动" href="javascript:void(0)">手动</a></li>
                                 <li><a class="dropdown-item confirm-type-option" data-value="其他" href="javascript:void(0)">其他</a></li>
                             </ul>
                         </div>
@@ -468,7 +473,7 @@
             <div class="modal-body">
                 <p>您确定要将此告警标记为已处理吗？</p>
                 <form id="processForm" method="POST">
-                    <input type="hidden" name="alarm_id" id="processAlarmIdInput">
+                    <input type="hidden" name="alarm_code" id="processAlarmCodeInput">
                     <div class="form-group mb-3">
                         <label for="process-notes">处理备注（可选）</label>
                         <textarea class="form-control" id="process-notes" name="notes" rows="3"></textarea>
@@ -649,12 +654,12 @@ function submitConfirmForm() {
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 处理中...';
     }
     
-    const alarmId = document.getElementById('alarmIdInput').value;
+    const alarmCode = document.getElementById('alarmCodeInput').value;
     const confirmType = document.getElementById('confirm-type').value;
     
-    console.log('告警ID:', alarmId, '确认类型:', confirmType);
+    console.log('告警码:', alarmCode, '确认类型:', confirmType);
     
-    if (!alarmId || !confirmType) {
+    if (!alarmCode || !confirmType) {
         showMessage('请选择确认类型', 'error');
         // 恢复按钮状态
         if (submitBtn) {
@@ -666,7 +671,7 @@ function submitConfirmForm() {
     
     // 准备提交数据
     const data = {
-        alarm_id: alarmId,
+        alarm_code: alarmCode,
         confirm_type: confirmType
     };
     
@@ -711,28 +716,28 @@ function submitConfirmForm() {
 
 // 处理告警
 function submitProcessForm() {
-    const alarmId = document.getElementById('processAlarmIdInput').value;
+    const alarmCode = document.getElementById('processAlarmCodeInput').value;
     const notes = document.getElementById('process-notes').value;
     
-    console.log('处理告警:', alarmId);
+    console.log('处理告警:', alarmCode);
     
-    if (!alarmId) {
+    if (!alarmCode) {
         showMessage('处理请求缺少必要参数', 'error');
         return;
     }
     
     // 准备提交数据
     const data = {
-        alarm_id: alarmId,
+        alarm_code: alarmCode,
         notes: notes || ''
     };
     
     // 发送API请求
-    apiRequest(`/api/alarms/${alarmId}/process`, {
+    apiRequest(`/api/alarms/${alarmCode}/process`, {
         method: 'POST',
         body: JSON.stringify(data)
     })
-    .then(response => response) // 直接返回response，apiRequest已经处理了JSON解析
+    .then(response => response.json())
     .then(data => {
         if (data.code === 200) {
             showMessage('告警处理成功', 'success');
@@ -1084,20 +1089,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     const alarmCode = this.getAttribute('data-alarm-code');
                     
                     if (modalId === 'alarmConfirmModal') {
-                        document.getElementById('alarmIdInput').value = alarmCode;
+                        document.getElementById('alarmCodeInput').value = alarmCode;
                     } else if (modalId === 'alarmProcessModal') {
-                        document.getElementById('processAlarmIdInput').value = alarmCode;
-                    }
-                }
-                
-                // 如果有alarm-id属性，设置到相应的输入字段
-                if (this.hasAttribute('data-alarm-id')) {
-                    const alarmId = this.getAttribute('data-alarm-id');
-                    
-                    if (modalId === 'alarmConfirmModal') {
-                        document.getElementById('alarmIdInput').value = alarmId;
-                    } else if (modalId === 'alarmProcessModal') {
-                        document.getElementById('processAlarmIdInput').value = alarmId;
+                        document.getElementById('processAlarmCodeInput').value = alarmCode;
                     }
                 }
                 

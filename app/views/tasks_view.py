@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app.models.tasks import Task
-from app.models.settings import SystemConfig  # 添加这行
+from app.models.settings import SystemConfig
 from app import db
 
 bp = Blueprint('tasks_view', __name__, url_prefix='/tasks')
@@ -48,11 +48,10 @@ def index():
                              statuses=statuses,
                              current_type=task_type,
                              current_status=status,
-                             system_config=system_config)  # 添加这个参数
+                             system_config=system_config)
     except Exception as e:
-        return render_template('tasks/tasks_index.html',
-                             tasks=[],
-                             error=str(e))
+        flash(f'获取任务列表失败: {str(e)}', 'error')
+        return render_template('tasks/tasks_index.html', tasks=[], pagination=None)
 
 @bp.route('/create', methods=['GET', 'POST'])
 @login_required

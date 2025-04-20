@@ -1,6 +1,7 @@
 from app import db
 from sqlalchemy import TIMESTAMP
 from datetime import datetime
+import pytz
 import secrets
 import string
 import uuid
@@ -13,8 +14,8 @@ class EdgeDevice(db.Model):
     device_name = db.Column(db.String(100), nullable=False, comment='设备名称')
     ip_address = db.Column(db.String(50), nullable=False, comment='设备IP地址')
     secret_key = db.Column(db.String(128), nullable=False, comment='设备密钥')
-    created_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now(datetime.timezone.utc))
-    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now(datetime.timezone.utc), onupdate=lambda: datetime.now(datetime.timezone.utc))
+    created_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone())
+    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), onupdate=lambda: datetime.now().astimezone())
     
     def __init__(self, device_name, ip_address, device_id=None, secret_key=None):
         self.device_name = device_name
