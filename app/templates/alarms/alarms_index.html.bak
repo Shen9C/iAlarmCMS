@@ -1,0 +1,392 @@
+{% extends "base.html" %}
+
+{% block title %}告警列表{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">告警列表</h3>
+                    <div class="card-tools">
+                        <div class="btn-group">
+                            <button class="btn btn-outline-primary btn-sm" id="batchConfirmBtn" disabled>
+                                <i class="fas fa-check-circle"></i> 批量确认
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" id="batchProcessBtn" disabled>
+                                <i class="fas fa-gear"></i> 批量处理
+                            </button>
+                            <a href="#" class="btn btn-success btn-sm" onclick="exportAlarms(); return false;">
+                                <i class="fas fa-download"></i> 导出
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- 筛选表单 -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <form class="row g-3" method="get" action="{{ url_for('alarms_view.index') }}">
+                                <input type="hidden" name="user_token" value="{{ request.args.get('user_token') }}">
+                                <!-- 告警类型选择 -->
+                                <div class="col-md-2">
+                                    <label for="alarm_type" class="form-label">告警类型</label>
+                                    <select name="alarm_type" id="alarm_type" class="form-select">
+                                        <option value="">所有类型</option>
+                                        {% for type in alarm_types %}
+                                        <option value="{{ type }}" {% if current_type == type %}selected{% endif %}>
+                                            {{ type }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <!-- 告警状态选择 (使用 is_processed) -->
+                                <div class="col-md-2">
+                                    <label for="status" class="form-label">告警状态</label>
+                                    <select name="status" id="status" class="form-select">
+                                        <option value="">所有状态</option>
+                                        <option value="0" {% if current_status == '0' %}selected{% endif %}>未处理</option>
+                                        <option value="1" {% if current_status == '1' %}selected{% endif %}>已处理</option>
+                                    </select>
+                                </div>
+                                <!-- 设备名称选择 -->
+                                <div class="col-md-2">
+                                    <label for="device_name" class="form-label">油井名称</label>
+                                    <select name="device_name" id="device_name" class="form-select">
+                                        <option value="">所有油井</option>
+                                        {% for device in device_names %}
+                                        <option value="{{ device }}" {% if current_device == device %}selected{% endif %}>
+                                            {{ device }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <!-- 时间选择 -->
+                                <div class="col-md-2">
+                                    <label for="start_date" class="form-label">开始日期</label>
+                                    <input type="date" id="start_date" name="start_date" class="form-control" value="{{ request.args.get('start_date', '') }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="end_date" class="form-label">结束日期</label>
+                                    <input type="date" id="end_date" name="end_date" class="form-control" value="{{ request.args.get('end_date', '') }}">
+                                </div>
+                                <!-- 按钮区域 -->
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary me-2">筛选</button>
+                                    <a href="{{ url_for('alarms_view.index', user_token=request.args.get('user_token')) }}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times"></i> 清除
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 批量操作的全选 -->
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="selectAllAlarms">
+                            <label class="form-check-label" for="selectAllAlarms">全选当页 (已选 <span id="selectedCount">0</span> 项)</label>
+                        </div>
+                    </div>
+
+                    <!-- 消息容器 -->
+                    <div id="messageContainer" class="mb-3"></div>
+
+                    <!-- 表格区域 -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped resizable-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" style="width: 40px">
+                                        <input type="checkbox" id="selectAllHeader" class="form-check-input">
+                                    </th>
+                                    <th class="resizable text-center">告警编号</th>
+                                    <th class="resizable text-center">告警状态</th>
+                                    <th class="resizable text-center">告警确认</th>
+                                    <th class="resizable text-center">告警类型</th>
+                                    <th class="resizable text-center">油井名称</th>
+                                    <th class="resizable text-center">摄像头IP</th>
+                                    <th class="resizable text-center">告警产生时间</th>
+                                    <th class="resizable text-center">告警处理时间</th>
+                                    <th class="resizable text-center">确认时间</th>
+                                    <th class="resizable text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for alarm in alarms %}
+                                <tr>
+                                    <td class="text-center align-middle">
+                                        <input type="checkbox" class="form-check-input alarm-select" 
+                                              data-alarm-code="{{ alarm.alarm_code }}" 
+                                              data-alarm-id="{{ alarm.id }}"
+                                              {% if alarm.is_processed %}disabled{% endif %}>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <a href="{{ url_for('alarms_view.alarm_detail', alarm_id=alarm.id, user_token=request.args.get('user_token')) }}">
+                                            {{ alarm.alarm_code }}
+                                        </a>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        {% if alarm.is_processed %}
+                                            <span class="badge bg-success">已处理</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">未处理</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        {% if alarm.is_confirmed %}
+                                            <span class="badge bg-secondary">{{ alarm.confirmation_type or '故障' }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center align-middle">{{ alarm.alarm_type }}</td>
+                                    <td class="text-center align-middle">{{ alarm.device_name }}</td>
+                                    <td class="text-center align-middle">{{ alarm.camera_ip or '-' }}</td>
+                                    <td class="text-center align-middle">{{ alarm.alarm_time.strftime('%Y-%m-%d %H:%M:%S') if alarm.alarm_time else '-'}}</td>
+                                    <td class="text-center align-middle">
+                                        {{ alarm.processed_time.strftime('%Y-%m-%d %H:%M:%S') if alarm.processed_time else '-' }}
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        {{ alarm.confirmed_at.strftime('%Y-%m-%d %H:%M:%S') if alarm.confirmed_at else '-' }}
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        {% if not alarm.is_processed %}
+                                            {% if not alarm.is_confirmed %}
+                                            <button type="button" 
+                                                    class="btn btn-primary btn-sm confirm-alarm-btn" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#alarmConfirmModal" 
+                                                    data-alarm-id="{{ alarm.id }}" title="确认">
+                                                    <i class="fas fa-check"></i> 确认
+                                            </button>
+                                            {% endif %}
+                                            <button type="button" 
+                                                   class="btn btn-success btn-sm process-alarm-btn" 
+                                                   data-bs-toggle="modal" 
+                                                   data-bs-target="#alarmProcessModal" 
+                                                   data-alarm-id="{{ alarm.id }}" title="处理">
+                                                   <i class="fas fa-gear"></i> 处理
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 分页区域 -->
+                    <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
+                        <div class="d-flex align-items-center">
+                            <!-- 搜索表单 -->
+                            <form id="searchForm" method="GET" action="{{ url_for('alarms_view.index') }}">
+                                <input type="hidden" name="user_token" value="{{ user_token }}">
+                                <label class="me-2 form-label-sm">每页显示：</label>
+                                <select name="page_size" class="form-select form-select-sm d-inline-block" style="width: 80px;" onchange="this.form.submit()">
+                                    <option value="15" {% if page_size == 15 %}selected{% endif %}>15</option>
+                                    <option value="30" {% if page_size == 30 %}selected{% endif %}>30</option>
+                                    <option value="50" {% if page_size == 50 %}selected{% endif %}>50</option>
+                                    <option value="100" {% if page_size == 100 %}selected{% endif %}>100</option>
+                                </select>
+                                {% for key, value in request.args.items() %}
+                                    {% if key not in ['page_size', 'page'] %}
+                                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                                    {% endif %}
+                                {% endfor %}
+                            </form>
+                            <span class="ms-3 text-muted small">共 {{ pagination.total }} 条记录</span>
+                        </div>
+                        
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-sm mb-0">
+                                {% if pagination.has_prev %}
+                                <li class="page-item">
+                                    {% set args = request.args.copy() %}
+                                    {% set _ = args.pop('page', None) %}
+                                    <a class="page-link" href="{{ url_for('alarms_view.index', page=pagination.prev_num, **args) }}">上一页</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled"><span class="page-link">上一页</span></li>
+                                {% endif %}
+                                
+                                {% for page_num in pagination.iter_pages(left_edge=1, left_current=2, right_current=3, right_edge=1) %}
+                                    {% if page_num %}
+                                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                                            {% set args = request.args.copy() %}
+                                            {% set _ = args.pop('page', None) %}
+                                            <a class="page-link" href="{{ url_for('alarms_view.index', page=page_num, **args) }}">{{ page_num }}</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if pagination.has_next %}
+                                <li class="page-item">
+                                    {% set args = request.args.copy() %}
+                                    {% set _ = args.pop('page', None) %}
+                                    <a class="page-link" href="{{ url_for('alarms_view.index', page=pagination.next_num, **args) }}">下一页</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled"><span class="page-link">下一页</span></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 保留所有模态框和JavaScript代码 -->
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+// 在这里添加告警列表页面的特定JavaScript代码
+// 告警确认和处理逻辑
+// 全选功能
+// 批量操作功能
+// 等等
+
+// 导出告警数据
+function exportAlarms() {
+    // 从当前URL获取筛选参数
+    const currentUrl = new URL(window.location.href);
+    const params = new URLSearchParams(currentUrl.search);
+    
+    // 添加导出标志
+    params.set('export', 'true');
+    
+    // 构建导出URL
+    const exportUrl = `${currentUrl.pathname}?${params.toString()}`;
+    
+    // 跳转到导出URL
+    window.location.href = exportUrl;
+}
+
+// 页面加载完成后
+document.addEventListener('DOMContentLoaded', function() {
+    // 全选功能
+    const selectAllCheckbox = document.getElementById('selectAllAlarms');
+    const selectAllHeader = document.getElementById('selectAllHeader');
+    const checkboxes = document.querySelectorAll('.alarm-select');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const batchConfirmBtn = document.getElementById('batchConfirmBtn');
+    const batchProcessBtn = document.getElementById('batchProcessBtn');
+    
+    // 更新选中计数和批量按钮状态
+    function updateSelectedCount() {
+        const selectedCount = document.querySelectorAll('.alarm-select:checked').length;
+        selectedCountSpan.textContent = selectedCount;
+        if (selectedCount > 0) {
+            batchConfirmBtn.disabled = false;
+            batchProcessBtn.disabled = false;
+        } else {
+            batchConfirmBtn.disabled = true;
+            batchProcessBtn.disabled = true;
+        }
+    }
+    
+    // 全选功能
+    selectAllCheckbox.addEventListener('change', function() {
+        checkboxes.forEach(checkbox => {
+            if (!checkbox.disabled) {
+                checkbox.checked = this.checked;
+            }
+        });
+        selectAllHeader.checked = this.checked;
+        updateSelectedCount();
+    });
+    
+    selectAllHeader.addEventListener('change', function() {
+        checkboxes.forEach(checkbox => {
+            if (!checkbox.disabled) {
+                checkbox.checked = this.checked;
+            }
+        });
+        selectAllCheckbox.checked = this.checked;
+        updateSelectedCount();
+    });
+    
+    // 单个复选框改变时更新计数
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedCount);
+    });
+    
+    // 初始化计数
+    updateSelectedCount();
+    
+    // 批量确认按钮点击事件
+    batchConfirmBtn.addEventListener('click', function() {
+        // 实现批量确认逻辑
+    });
+    
+    // 批量处理按钮点击事件
+    batchProcessBtn.addEventListener('click', function() {
+        // 实现批量处理逻辑
+    });
+    
+    // 可调整列宽功能
+    const table = document.querySelector('.resizable-table');
+    const resizableColumns = document.querySelectorAll('th.resizable');
+    
+    let isResizing = false;
+    let currentColumn = null;
+    let startX, startWidth;
+    
+    resizableColumns.forEach(column => {
+        column.addEventListener('mousedown', function(e) {
+            // 检查是否在列右边缘点击
+            const rect = column.getBoundingClientRect();
+            if (e.clientX - rect.left > rect.width - 10) {
+                isResizing = true;
+                currentColumn = column;
+                startX = e.clientX;
+                startWidth = rect.width;
+                
+                // 添加调整中的样式
+                column.classList.add('resizing');
+                
+                // 防止文本选择
+                document.body.style.userSelect = 'none';
+                
+                // 添加鼠标移动和鼠标释放事件
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+                
+                e.preventDefault();
+            }
+        });
+    });
+    
+    function handleMouseMove(e) {
+        if (isResizing) {
+            const width = startWidth + (e.clientX - startX);
+            currentColumn.style.width = `${width}px`;
+        }
+    }
+    
+    function handleMouseUp() {
+        if (isResizing) {
+            // 移除调整中的样式
+            currentColumn.classList.remove('resizing');
+            
+            // 移除事件监听器
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            
+            // 恢复文本选择
+            document.body.style.userSelect = '';
+            
+            isResizing = false;
+            currentColumn = null;
+        }
+    }
+});
+</script>
+{% endblock %} 

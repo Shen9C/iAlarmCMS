@@ -3,19 +3,27 @@
 {% block title %}{{ '编辑油井' if oil_well else '新建油井' }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4">
-    <h1 class="mt-4">{{ '编辑油井' if oil_well else '新建油井' }}</h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ url_for('oil_wells_view.index') }}">油井管理</a></li>
-        <li class="breadcrumb-item active">{{ '编辑油井' if oil_well else '新建油井' }}</li>
-    </ol>
-    
+<div class="container-fluid">
     <div class="row">
-        <div class="col-lg-8">
-            <div class="card mb-4">
+        <div class="col-12">
+            <div class="card">
                 <div class="card-header">
-                    <i class="fas fa-{{ 'edit' if oil_well else 'plus' }} me-1"></i>
-                    {{ '编辑油井信息' if oil_well else '新建油井' }}
+                    <h3 class="card-title">{{ '编辑油井' if oil_well else '新建油井' }}</h3>
+                    <div class="card-tools">
+                        <a href="{{ url_for('oil_wells_view.index') }}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> 返回列表
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-3">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ '编辑油井信息' if oil_well else '油井信息' }}</h3>
                 </div>
                 <div class="card-body">
                     <form method="post" action="{{ url_for('oil_wells_view.edit', oil_well_id=oil_well.id) if oil_well else url_for('oil_wells_view.create') }}">
@@ -60,9 +68,13 @@
                             <textarea class="form-control" id="description" name="description" rows="4" placeholder="请输入油井的详细描述信息...">{{ oil_well.description if oil_well else '' }}</textarea>
                         </div>
                         
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ url_for('oil_wells_view.index') }}" class="btn btn-secondary">取消</a>
-                            <button type="submit" class="btn btn-primary">{{ '保存修改' if oil_well else '创建油井' }}</button>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {{ '保存修改' if oil_well else '创建油井' }}
+                            </button>
+                            <a href="{{ url_for('oil_wells_view.index') }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> 取消
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -70,10 +82,9 @@
         </div>
         
         <div class="col-lg-4">
-            <div class="card mb-4">
+            <div class="card">
                 <div class="card-header">
-                    <i class="fas fa-info-circle me-1"></i>
-                    提示
+                    <h3 class="card-title">提示</h3>
                 </div>
                 <div class="card-body">
                     <h5>油井编号规则</h5>

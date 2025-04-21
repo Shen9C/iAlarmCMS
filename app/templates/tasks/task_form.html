@@ -5,109 +5,115 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4">
-    <h1 class="mt-4">{% if task %}编辑任务{% else %}新建任务{% endif %}</h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ url_for('tasks_view.index') }}">任务列表</a></li>
-        <li class="breadcrumb-item active">{% if task %}编辑任务{% else %}新建任务{% endif %}</li>
-    </ol>
-    
-    <div class="card mb-4">
-        <div class="card-header">
-            <i class="fas fa-tasks me-1"></i>
-            任务信息
-        </div>
-        <div class="card-body">
-            <form method="post">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="task_name" class="form-label">任务名称</label>
-                            <input type="text" class="form-control" id="task_name" name="task_name" value="{{ task.task_name if task else '' }}" required>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="task_type" class="form-label">任务类型</label>
-                            <select class="form-select" id="task_type" name="task_type" required>
-                                <option value="" disabled selected>请选择任务类型</option>
-                                <option value="压力表读数" {% if task and task.task_type == '压力表读数' %}selected{% endif %}>压力表读数</option>
-                                <option value="液位计读数" {% if task and task.task_type == '液位计读数' %}selected{% endif %}>液位计读数</option>
-                                <option value="温度计读数" {% if task and task.task_type == '温度计读数' %}selected{% endif %}>温度计读数</option>
-                                <option value="启停检测" {% if task and task.task_type == '启停检测' %}selected{% endif %}>启停检测</option>
-                                <option value="皮带检测" {% if task and task.task_type == '皮带检测' %}selected{% endif %}>皮带检测</option>
-                                <option value="毛辫子检测" {% if task and task.task_type == '毛辫子检测' %}selected{% endif %}>毛辫子检测</option>
-                                <option value="井口泄漏检测" {% if task and task.task_type == '井口泄漏检测' %}selected{% endif %}>井口泄漏检测</option>
-                                <option value="烟火检测" {% if task and task.task_type == '烟火检测' %}selected{% endif %}>烟火检测</option>
-                            </select>
-                        </div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{% if task %}编辑任务{% else %}新建任务{% endif %}</h3>
+                    <div class="card-tools">
+                        <a href="{{ url_for('tasks_view.index') }}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> 返回列表
+                        </a>
                     </div>
                 </div>
-                
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="well_code" class="form-label">油井编号</label>
-                            <select class="form-select" id="well_code" name="well_code">
-                                <option value="">请选择油井编号</option>
-                                {% for well in oil_wells %}
-                                <option value="{{ well.well_code }}" {% if task and task.well_code == well.well_code %}selected{% endif %}>
-                                    {{ well.well_code }} ({{ well.well_name }})
-                                </option>
-                                {% endfor %}
-                            </select>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="task_name" class="form-label">任务名称</label>
+                                    <input type="text" class="form-control" id="task_name" name="task_name" value="{{ task.task_name if task else '' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="task_type" class="form-label">任务类型</label>
+                                    <select class="form-select" id="task_type" name="task_type" required>
+                                        <option value="" disabled selected>请选择任务类型</option>
+                                        <option value="压力表读数" {% if task and task.task_type == '压力表读数' %}selected{% endif %}>压力表读数</option>
+                                        <option value="液位计读数" {% if task and task.task_type == '液位计读数' %}selected{% endif %}>液位计读数</option>
+                                        <option value="温度计读数" {% if task and task.task_type == '温度计读数' %}selected{% endif %}>温度计读数</option>
+                                        <option value="启停检测" {% if task and task.task_type == '启停检测' %}selected{% endif %}>启停检测</option>
+                                        <option value="皮带检测" {% if task and task.task_type == '皮带检测' %}selected{% endif %}>皮带检测</option>
+                                        <option value="毛辫子检测" {% if task and task.task_type == '毛辫子检测' %}selected{% endif %}>毛辫子检测</option>
+                                        <option value="井口泄漏检测" {% if task and task.task_type == '井口泄漏检测' %}selected{% endif %}>井口泄漏检测</option>
+                                        <option value="烟火检测" {% if task and task.task_type == '烟火检测' %}selected{% endif %}>烟火检测</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="well_name" class="form-label">油井名称</label>
-                            <input type="text" class="form-control" id="well_name" name="well_name" value="{{ task.well_name if task else '' }}" required>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="well_code" class="form-label">油井编号</label>
+                                    <select class="form-select" id="well_code" name="well_code">
+                                        <option value="">请选择油井编号</option>
+                                        {% for well in oil_wells %}
+                                        <option value="{{ well.well_code }}" {% if task and task.well_code == well.well_code %}selected{% endif %}>
+                                            {{ well.well_code }} ({{ well.well_name }})
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="well_name" class="form-label">油井名称</label>
+                                    <input type="text" class="form-control" id="well_name" name="well_name" value="{{ task.well_name if task else '' }}" required>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="device_id" class="form-label">设备</label>
+                                    <select class="form-select" id="device_id" name="device_id" required>
+                                        <option value="" disabled selected>请选择设备</option>
+                                        {% for device in devices %}
+                                        <option value="{{ device.device_id }}" {% if task and task.device_id == device.device_id %}selected{% endif %}>
+                                            {{ device.device_name }} ({{ device.ip_address }})
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="camera_ip" class="form-label">摄像头IP</label>
+                                    <input type="text" class="form-control" id="camera_ip" name="camera_ip" value="{{ task.camera_ip if task else '' }}" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="camera_preset" class="form-label">摄像头预置点</label>
+                                    <input type="number" class="form-control" id="camera_preset" name="camera_preset" min="1" max="255" value="{{ task.camera_preset if task else '1' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="pressure_range" class="form-label">压力表量程</label>
+                                    <input type="number" class="form-control" id="pressure_range" name="pressure_range" step="0.01" min="0" value="{{ task.pressure_range if task else '0' }}" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 保存
+                            </button>
+                            <a href="{{ url_for('tasks_view.index') }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> 取消
+                            </a>
+                        </div>
+                    </form>
                 </div>
-                
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="device_id" class="form-label">设备</label>
-                            <select class="form-select" id="device_id" name="device_id" required>
-                                <option value="" disabled selected>请选择设备</option>
-                                {% for device in devices %}
-                                <option value="{{ device.device_id }}" {% if task and task.device_id == device.device_id %}selected{% endif %}>
-                                    {{ device.device_name }} ({{ device.ip_address }})
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="camera_ip" class="form-label">摄像头IP</label>
-                            <input type="text" class="form-control" id="camera_ip" name="camera_ip" value="{{ task.camera_ip if task else '' }}" required>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="camera_preset" class="form-label">摄像头预置点</label>
-                            <input type="number" class="form-control" id="camera_preset" name="camera_preset" min="1" max="255" value="{{ task.camera_preset if task else '1' }}" required>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="pressure_range" class="form-label">压力表量程</label>
-                            <input type="number" class="form-control" id="pressure_range" name="pressure_range" step="0.01" min="0" value="{{ task.pressure_range if task else '0' }}" required>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-primary">保存</button>
-                    <a href="{{ url_for('tasks_view.index') }}" class="btn btn-secondary">取消</a>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
@@ -116,6 +122,8 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('任务表单页面初始化');
+        
         // 当油井编号选择改变时，自动填充油井名称
         const wellCodeSelect = document.getElementById('well_code');
         const wellNameInput = document.getElementById('well_name');
@@ -131,6 +139,37 @@
             } else {
                 wellNameInput.value = '';
             }
+        });
+        
+        // 表单提交处理
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            console.log('表单提交事件触发');
+            // 表单验证
+            let isValid = true;
+            
+            // 检查必填字段
+            const requiredFields = form.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.classList.add('is-invalid');
+                    console.error(`字段 ${field.name} 是必填的`);
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                console.error('表单验证失败');
+                alert('请填写所有必填字段');
+                return false;
+            }
+            
+            console.log('表单验证通过，准备提交');
+            // 此处可以添加表单数据的序列化和手动提交，如果需要的话
+            return true;
         });
     });
 </script>

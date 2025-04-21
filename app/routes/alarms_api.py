@@ -122,7 +122,7 @@ def confirm_alarm():
         # 更新所有相关字段 - 注意保持状态不变
         alarm.confirmation_type = confirmation_type
         alarm.is_confirmed = True
-        alarm.confirmed_at = datetime.now().astimezone()
+        alarm.confirmed_at = datetime.now()
         # 只修改confirmation_type和is_confirmed，不改变is_processed
         # 业务逻辑：确认操作只设置告警确认类型，不会改变告警的处理状态
         
@@ -180,7 +180,7 @@ def batch_confirm_alarms():
         for alarm in alarms:
             alarm.is_confirmed = True
             alarm.confirmation_type = confirmation_type
-            alarm.confirmed_at = datetime.now().astimezone()
+            alarm.confirmed_at = datetime.now()
             # 不修改is_processed，只设置确认类型
         
         db.session.commit()
@@ -215,7 +215,7 @@ def batch_process_alarms():
         alarms = Alarm.query.filter(Alarm.id.in_(alarm_ids)).all()
         for alarm in alarms:
             alarm.is_processed = True
-            alarm.processed_time = datetime.now().astimezone()
+            alarm.processed_time = datetime.now()
             alarm.processed_by = current_user.username if hasattr(current_user, 'username') else '系统'
             alarm.process_notes = notes  # 现在数据库模型中已有process_notes字段
         
@@ -268,7 +268,7 @@ def process_alarm(alarm_id):
         
         # 更新告警状态为已处理
         alarm.is_processed = True
-        alarm.processed_time = datetime.now().astimezone()
+        alarm.processed_time = datetime.now()
         alarm.processed_by = user.username if hasattr(user, 'username') else '系统'
         
         # 如果有备注，添加到告警处理记录中

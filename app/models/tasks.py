@@ -1,5 +1,4 @@
 from datetime import datetime
-from sqlalchemy import TIMESTAMP
 from app import db
 import random
 import string
@@ -17,8 +16,8 @@ class Task(db.Model):
     camera_preset = db.Column(db.Integer, nullable=False, comment='摄像头预置点')
     pressure_range = db.Column(db.Float, nullable=False, comment='压力表量程')
     task_description = db.Column(db.String(500), nullable=True, comment='任务描述')
-    created_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), comment='创建时间')
-    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), onupdate=lambda: datetime.now().astimezone(), comment='修改时间')
+    created_at = db.Column(db.DateTime, default=datetime.now, comment='创建时间')
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now, comment='修改时间')
     
     # 添加与 EdgeDevice 的关系
     device_id = db.Column(db.String(64), db.ForeignKey('edge_devices.device_id'), nullable=False, index=True, comment='设备ID，关联edge_devices表')
@@ -53,7 +52,7 @@ class Task(db.Model):
         """生成任务编号，包含油井编号前缀"""
         prefix = "TASK"
         well_part = f"{well_code}_" if well_code else ""
-        timestamp = datetime.now().astimezone().strftime("%Y%m%d%H%M%S")
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         random_suffix = ''.join(random.choices(string.digits, k=4))
         return f"{prefix}_{well_part}{timestamp}_{random_suffix}"
     

@@ -20,7 +20,7 @@ def index():
         well_code = request.args.get('well_code', '')
         device_name = request.args.get('device_name', '')
         page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 15, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
         
         # 构建查询
         query = Task.query
@@ -38,8 +38,8 @@ def index():
         if device_name:
             query = query.join(Task.device).filter(EdgeDevice.device_name.ilike(f'%{device_name}%'))
             
-        # 按创建时间降序排序
-        query = query.order_by(Task.created_at.desc())
+        # 按ID升序排序
+        query = query.order_by(Task.id.asc())
             
         # 获取分页数据
         pagination = query.paginate(
@@ -136,6 +136,7 @@ def edit(task_id):
     
     if request.method == 'POST':
         try:
+            print(f"正在处理任务编辑表单提交，任务ID: {task_id}")
             well_code = request.form.get('well_code', '')
             
             # 获取油井名称
@@ -148,7 +149,7 @@ def edit(task_id):
             # 更新任务描述
             task_type = request.form.get('task_type', '')
             device_id = request.form.get('device_id', '')
-            device = EdgeDevice.query.get(device_id)
+            device = EdgeDevice.query.filter_by(device_id=device_id).first()
             device_name = device.device_name if device else ""
             task_description = f"{task_type}任务：{well_name or ''}（{well_code or ''}）- {device_name or ''}"
             
@@ -161,11 +162,17 @@ def edit(task_id):
             task.pressure_range = float(request.form['pressure_range'])
             task.device_id = device_id
             task.task_description = task_description
+            
+            print(f"更新的任务信息: 名称={task.task_name}, 类型={task.task_type}, 设备ID={task.device_id}")
+            
             db.session.commit()
+            print(f"任务更新成功，ID: {task_id}")
             flash('任务更新成功', 'success')
-            return redirect(url_for('tasks_view.index'))
+            # 使用完整路径进行重定向
+            return redirect(url_for('tasks_view.index', _external=True))
         except Exception as e:
             db.session.rollback()
+            print(f"任务更新失败，错误: {str(e)}")
             flash(f'更新任务失败: {str(e)}', 'error')
     
     # 获取设备列表供选择
@@ -179,13 +186,20 @@ def edit(task_id):
 def delete(task_id):
     """删除任务"""
     try:
+        # 直接删除任务
         task = Task.query.get_or_404(task_id)
+        
+        print(f"尝试删除任务ID: {task_id}, 名称: {task.task_name}")
+        
         db.session.delete(task)
         db.session.commit()
-        flash('任务删除成功', 'success')
+        
+        print(f"任务删除成功")
+        flash(f"任务 '{task.task_name}' 已成功删除", 'success')
     except Exception as e:
         db.session.rollback()
-        flash(f'删除任务失败: {str(e)}', 'error')
+        print(f"任务删除失败，错误: {str(e)}")
+        flash(f"删除任务失败: {str(e)}", 'danger')
     
     return redirect(url_for('tasks_view.index'))
 

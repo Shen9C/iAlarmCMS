@@ -3,181 +3,171 @@
 {% block title %}油井管理{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4">
-    <h1 class="mt-4">油井管理</h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item active">油井列表</li>
-    </ol>
-    
-    <div class="card mb-4">
-        <div class="card-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <i class="fas fa-table me-1"></i>
-                    油井列表
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">油井管理</h3>
+                    <a href="{{ url_for('oil_wells_view.create') }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> 新建油井
+                    </a>
                 </div>
-                <a href="{{ url_for('oil_wells_view.create') }}" class="btn btn-primary btn-sm">
-                    <i class="fas fa-plus me-1"></i>新建油井
-                </a>
-            </div>
-        </div>
-        <div class="card-body">
-            <!-- 筛选条件 -->
-            <div class="row mb-3">
-                <div class="col-md-12">
-                    <form method="get" class="row g-3">
-                        <div class="col-md-3">
-                            <label for="well_name" class="form-label">油井名称</label>
-                            <input type="text" class="form-control" id="well_name" name="well_name" value="{{ current_well_name }}">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="well_code" class="form-label">油井编号</label>
-                            <input type="text" class="form-control" id="well_code" name="well_code" value="{{ current_well_code }}">
-                        </div>
-                        <div class="col-md-2">
-                            <label for="status" class="form-label">状态</label>
-                            <select name="status" id="status" class="form-select">
-                                <option value="">全部状态</option>
-                                {% for status in statuses %}
-                                <option value="{{ status }}" {% if current_status == status %}selected{% endif %}>{{ status }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label for="location" class="form-label">位置</label>
-                            <select name="location" id="location" class="form-select">
-                                <option value="">全部位置</option>
-                                {% for location in locations %}
-                                <option value="{{ location }}" {% if current_location == location %}selected{% endif %}>{{ location }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary me-2">筛选</button>
-                            {% if current_well_name or current_well_code or current_status or current_location %}
-                            <a href="{{ url_for('oil_wells_view.index') }}" class="btn btn-outline-secondary">清除筛选</a>
-                            {% endif %}
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- 油井列表表格 -->
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>油井编号</th>
-                            <th>油井名称</th>
-                            <th>位置</th>
-                            <th>状态</th>
-                            <th>关联任务数</th>
-                            <th>创建时间</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for oil_well in oil_wells %}
-                        <tr>
-                            <td>{{ oil_well.id }}</td>
-                            <td>{{ oil_well.well_code }}</td>
-                            <td>{{ oil_well.well_name }}</td>
-                            <td>{{ oil_well.location }}</td>
-                            <td>
-                                <span class="badge bg-{{ 'success' if oil_well.status == '正常' else 'warning' if oil_well.status == '维护中' else 'danger' }}">
-                                    {{ oil_well.status }}
-                                </span>
-                            </td>
-                            <td>{{ oil_well.tasks.count() }}</td>
-                            <td>{{ oil_well.created_at.strftime('%Y-%m-%d %H:%M') if oil_well.created_at else '' }}</td>
-                            <td>
-                                <div class="btn-group">
-                                    <a href="{{ url_for('oil_wells_view.detail', oil_well_id=oil_well.id) }}" class="btn btn-sm btn-info">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ url_for('oil_wells_view.edit', oil_well_id=oil_well.id) }}" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <button type="button" class="btn btn-sm btn-danger" 
-                                            onclick="confirmDelete('{{ oil_well.id }}', '{{ oil_well.well_name }}')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                <div class="card-body">
+                    <!-- 筛选条件 -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <form method="get" class="row g-3">
+                                <div class="col-md-3">
+                                    <label for="well_name" class="form-label">油井名称</label>
+                                    <input type="text" class="form-control" id="well_name" name="well_name" value="{{ current_well_name }}">
                                 </div>
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="8" class="text-center">暂无油井数据</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- 分页 -->
-            {% if pagination and pagination.pages > 1 %}
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
-                        <a class="page-link" href="{{ url_for('oil_wells_view.index', page=pagination.prev_num, well_name=current_well_name, well_code=current_well_code, status=current_status, location=current_location) if pagination.has_prev else '#' }}">上一页</a>
-                    </li>
-                    
-                    {% for page in pagination.iter_pages() %}
-                    {% if page %}
-                    <li class="page-item {% if page == pagination.page %}active{% endif %}">
-                        <a class="page-link" href="{{ url_for('oil_wells_view.index', page=page, well_name=current_well_name, well_code=current_well_code, status=current_status, location=current_location) }}">{{ page }}</a>
-                    </li>
-                    {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">...</span>
-                    </li>
-                    {% endif %}
-                    {% endfor %}
-                    
-                    <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
-                        <a class="page-link" href="{{ url_for('oil_wells_view.index', page=pagination.next_num, well_name=current_well_name, well_code=current_well_code, status=current_status, location=current_location) if pagination.has_next else '#' }}">下一页</a>
-                    </li>
-                </ul>
-            </nav>
-            {% endif %}
-            
-            <!-- 每页显示数量选择器 -->
-            <div class="mt-3 text-center">
-                <form class="d-inline-flex" method="get">
-                    <input type="hidden" name="well_name" value="{{ current_well_name }}">
-                    <input type="hidden" name="well_code" value="{{ current_well_code }}">
-                    <input type="hidden" name="status" value="{{ current_status }}">
-                    <input type="hidden" name="location" value="{{ current_location }}">
-                    <label class="me-2 form-label">每页显示：</label>
-                    <select class="form-select form-select-sm me-2" name="per_page" onchange="this.form.submit()" style="width: auto;">
-                        {% for n in [10, 15, 30, 50] %}
-                        <option value="{{ n }}" {% if request.args.get('per_page', '15')|int == n %}selected{% endif %}>{{ n }}</option>
-                        {% endfor %}
-                    </select>
-                    <span class="form-text">条记录</span>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+                                <div class="col-md-3">
+                                    <label for="well_code" class="form-label">油井编号</label>
+                                    <input type="text" class="form-control" id="well_code" name="well_code" value="{{ current_well_code }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="status" class="form-label">状态</label>
+                                    <select name="status" id="status" class="form-select">
+                                        <option value="">全部状态</option>
+                                        {% for status in statuses %}
+                                        <option value="{{ status }}" {% if current_status == status %}selected{% endif %}>{{ status }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="location" class="form-label">位置</label>
+                                    <select name="location" id="location" class="form-select">
+                                        <option value="">全部位置</option>
+                                        {% for location in locations %}
+                                        <option value="{{ location }}" {% if current_location == location %}selected{% endif %}>{{ location }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary me-2">筛选</button>
+                                    {% if current_well_name or current_well_code or current_status or current_location %}
+                                    <a href="{{ url_for('oil_wells_view.index') }}" class="btn btn-outline-secondary">清除筛选</a>
+                                    {% endif %}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
 
-<!-- 删除确认模态框 -->
-<div class="modal fade" id="deleteOilWellModal" tabindex="-1" aria-labelledby="deleteOilWellModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteOilWellModalLabel">确认删除</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                确定要删除油井 <span id="oilWellToDelete"></span> 吗？此操作不可恢复。
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <form id="deleteOilWellForm" method="post" action="">
-                    <button type="submit" class="btn btn-danger">确认删除</button>
-                </form>
+                    <!-- 油井列表表格 -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>油井编号</th>
+                                    <th>油井名称</th>
+                                    <th>位置</th>
+                                    <th>状态</th>
+                                    <th>关联任务数</th>
+                                    <th>创建时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for oil_well in oil_wells %}
+                                <tr>
+                                    <td>{{ oil_well.id }}</td>
+                                    <td>{{ oil_well.well_code }}</td>
+                                    <td>{{ oil_well.well_name }}</td>
+                                    <td>{{ oil_well.location }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if oil_well.status == '正常' else 'warning' if oil_well.status == '维护中' else 'danger' }}">
+                                            {{ oil_well.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ oil_well.tasks.count() }}</td>
+                                    <td>{{ oil_well.created_at.strftime('%Y-%m-%d %H:%M') if oil_well.created_at else '' }}</td>
+                                    <td>
+                                        <a href="{{ url_for('oil_wells_view.detail', oil_well_id=oil_well.id) }}" class="btn btn-info btn-sm">
+                                            <i class="fas fa-eye"></i> 查看
+                                        </a>
+                                        <a href="{{ url_for('oil_wells_view.edit', oil_well_id=oil_well.id) }}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i> 编辑
+                                        </a>
+                                        <form method="post" action="{{ url_for('oil_wells_view.delete', oil_well_id=oil_well.id) }}" style="display:inline;" onsubmit="return confirm('确定要删除油井 {{ oil_well.well_name }} 吗？此操作不可恢复。')">
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i> 删除
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="8" class="text-center">暂无油井数据</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 分页区域 -->
+                    <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
+                        <div class="d-flex align-items-center">
+                            <!-- 每页显示数量选择器 -->
+                            <form id="searchForm" method="GET" action="{{ url_for('oil_wells_view.index') }}">
+                                <label class="me-2 form-label-sm">每页显示：</label>
+                                <select name="per_page" class="form-select form-select-sm d-inline-block" style="width: 80px;" onchange="this.form.submit()">
+                                    <option value="10" {% if request.args.get('per_page', '10')|int == 10 %}selected{% endif %}>10</option>
+                                    <option value="15" {% if request.args.get('per_page', '10')|int == 15 %}selected{% endif %}>15</option>
+                                    <option value="20" {% if request.args.get('per_page', '10')|int == 20 %}selected{% endif %}>20</option>
+                                    <option value="50" {% if request.args.get('per_page', '10')|int == 50 %}selected{% endif %}>50</option>
+                                    <option value="100" {% if request.args.get('per_page', '10')|int == 100 %}selected{% endif %}>100</option>
+                                </select>
+                                {% for key, value in request.args.items() %}
+                                    {% if key not in ['per_page', 'page'] %}
+                                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                                    {% endif %}
+                                {% endfor %}
+                            </form>
+                            <span class="ms-3 text-muted small">共 {{ pagination.total }} 条记录</span>
+                        </div>
+                        
+                        <!-- 分页导航 -->
+                        {% if pagination and pagination.pages > 1 %}
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-sm mb-0">
+                                {% if pagination.has_prev %}
+                                <li class="page-item">
+                                    {% set args = request.args.copy() %}
+                                    {% set _ = args.pop('page', None) %}
+                                    <a class="page-link" href="{{ url_for('oil_wells_view.index', page=pagination.prev_num, **args) }}">上一页</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled"><span class="page-link">上一页</span></li>
+                                {% endif %}
+                                
+                                {% for page_num in pagination.iter_pages(left_edge=1, left_current=2, right_current=3, right_edge=1) %}
+                                    {% if page_num %}
+                                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                                            {% set args = request.args.copy() %}
+                                            {% set _ = args.pop('page', None) %}
+                                            <a class="page-link" href="{{ url_for('oil_wells_view.index', page=page_num, **args) }}">{{ page_num }}</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if pagination.has_next %}
+                                <li class="page-item">
+                                    {% set args = request.args.copy() %}
+                                    {% set _ = args.pop('page', None) %}
+                                    <a class="page-link" href="{{ url_for('oil_wells_view.index', page=pagination.next_num, **args) }}">下一页</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled"><span class="page-link">下一页</span></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -186,14 +176,6 @@
 
 {% block scripts %}
 <script>
-function confirmDelete(oilWellId, oilWellName) {
-    document.getElementById('oilWellToDelete').textContent = oilWellName;
-    document.getElementById('deleteOilWellForm').action = "{{ url_for('oil_wells_view.delete', oil_well_id=0) }}".replace('0', oilWellId);
-    var deleteModal = new bootstrap.Modal(document.getElementById('deleteOilWellModal'));
-    deleteModal.show();
-}
-
-// 添加页面加载完成后的事件处理
 document.addEventListener('DOMContentLoaded', function() {
     // 为筛选表单添加自动提交功能
     const filterSelects = document.querySelectorAll('form select[name="status"], form select[name="location"]');

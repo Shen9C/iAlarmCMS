@@ -4,7 +4,6 @@ import random
 import json
 from datetime import datetime, timedelta
 import uuid
-import pytz
 
 # 添加项目根目录到 Python 路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -28,7 +27,7 @@ with open(config_path, 'r', encoding='utf-8') as f:
 def generate_task_code(well_code=None, task_type=None):
     """生成任务编号，基于油井编码和任务类型"""
     if not well_code:
-        return f"TASK_UNKNOWN_{datetime.now().astimezone().strftime('%Y%m%d%H%M%S')}"
+        return f"TASK_UNKNOWN_{datetime.now().strftime('%Y%m%d%H%M%S')}"
     
     # 任务类型的前缀映射
     prefix_map = {
@@ -44,7 +43,7 @@ def generate_task_code(well_code=None, task_type=None):
     type_prefix = prefix_map.get(task_type, "TASK")
     
     # 生成唯一标识符
-    unique_suffix = f"{datetime.now().astimezone().strftime('%m%d')}_{random.randint(1000, 9999)}"
+    unique_suffix = f"{datetime.now().strftime('%m%d')}_{random.randint(1000, 9999)}"
     
     return f"TSK_{well_code}_{type_prefix}_{unique_suffix}"
 
@@ -52,7 +51,7 @@ def generate_task_code(well_code=None, task_type=None):
 def generate_alarm_code(well_code=None, alarm_type=None):
     """生成告警编号，基于油井编码和故障类型映射"""
     if not well_code:
-        return f"ALM_UNKNOWN_{datetime.now().astimezone().strftime('%Y%m%d%H%M%S')}"
+        return f"ALM_UNKNOWN_{datetime.now().strftime('%Y%m%d%H%M%S')}"
     
     # 获取油井对应的故障码映射
     well_code_upper = well_code.upper()
@@ -221,12 +220,15 @@ def generate_test_data():
                     username=user_data['username'],
                     role=user_data['role'],
                     is_admin=user_data['is_admin'],
-                    login_count=random.randint(0, 100),
-                    last_login_time=datetime.now().astimezone() - timedelta(days=random.randint(0, 30)),
-                    last_login_ip=f"192.168.1.{random.randint(2, 254)}",
                     active=True
                 )
+                # 设置密码
                 user.set_password(user_data['password'])
+                # 设置其他属性
+                user.login_count = random.randint(0, 100)
+                user.last_login_time = datetime.now() - timedelta(days=random.randint(0, 30))
+                user.last_login_ip = f"192.168.1.{random.randint(2, 254)}"
+                
                 users.append(user)
                 db.session.add(user)
             
@@ -272,7 +274,7 @@ def generate_test_data():
                     location=f"测试区域-{chr(65 + random.randint(0, 5))}{random.randint(1, 10)}",
                     status=random.choice(['正常', '维护中', '停机']),
                     description=f"{well_name}的描述信息，这是一个测试油井。",
-                    created_at=datetime.now().astimezone() - timedelta(days=random.randint(30, 365))
+                    created_at=datetime.now() - timedelta(days=random.randint(30, 365))
                 )
                 oil_wells.append(oil_well)
                 db.session.add(oil_well)
@@ -301,7 +303,7 @@ def generate_test_data():
                     well_code=oil_well.well_code,
                     well_name=oil_well.well_name,
                     task_description=f"{oil_well.well_name}的{task_type}任务，优先级{random.choice(['高', '中', '低'])}",
-                    created_at=datetime.now().astimezone() - timedelta(days=random.randint(1, 90)),
+                    created_at=datetime.now() - timedelta(days=random.randint(1, 90)),
                     device_id=device.device_id,
                     camera_ip=f"192.168.1.{random.randint(10, 250)}",
                     camera_preset=random.randint(1, 10),
@@ -349,7 +351,7 @@ def generate_test_data():
                 # 根据状态设置相关信息
                 if processed_status == '已确认':
                     is_confirmed = True
-                    confirmed_at = datetime.now().astimezone() - timedelta(hours=random.randint(1, 48))
+                    confirmed_at = datetime.now() - timedelta(hours=random.randint(1, 48))
                     confirmed_by = random.choice(users).username
                     confirmation_type = random.choice(test_config['confirm_types'])['confirm_type']
                     description = f"确认备注：这是{confirmation_type}告警"
@@ -357,7 +359,7 @@ def generate_test_data():
                 if processed_status == '已处理':
                     is_processed = True
                     is_confirmed = True
-                    processed_time = datetime.now().astimezone() - timedelta(hours=random.randint(1, 24))
+                    processed_time = datetime.now() - timedelta(hours=random.randint(1, 24))
                     processed_by = random.choice(users).username
                     confirmed_at = processed_time - timedelta(hours=random.randint(1, 24))
                     confirmed_by = processed_by if random.random() > 0.5 else random.choice(users).username
@@ -365,7 +367,7 @@ def generate_test_data():
                     description = f"处理备注：{confirmation_type}告警已处理完成"
                 
                 # 生成告警时间
-                alarm_time = datetime.now().astimezone() - timedelta(days=random.randint(0, 30))
+                alarm_time = datetime.now() - timedelta(days=random.randint(0, 30))
                 
                 # 创建告警对象，确保包含正确的油井编码
                 alarm = Alarm(

@@ -3,35 +3,61 @@
 {% block title %}任务详情 - {{ task.task_name }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4">
-    <h1 class="mt-4">任务详情</h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ url_for('tasks_view.index') }}">任务列表</a></li>
-        <li class="breadcrumb-item active">{{ task.task_name }}</li>
-    </ol>
-    
+<div class="container-fluid">
     <div class="row">
-        <div class="col-xl-8">
-            <div class="card mb-4">
+        <div class="col-12">
+            <div class="card">
                 <div class="card-header">
-                    <i class="fas fa-info-circle me-1"></i>
-                    基本信息
+                    <h3 class="card-title">任务详情 - {{ task.task_name }}</h3>
+                    <div class="card-tools">
+                        <a href="{{ url_for('tasks_view.index') }}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> 返回列表
+                        </a>
+                        <a href="{{ url_for('tasks_view.edit', task_id=task.id) }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-edit"></i> 编辑任务
+                        </a>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete('{{ task.id }}', '{{ task.task_name }}')">
+                            <i class="fas fa-trash"></i> 删除任务
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-3">
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">基本信息</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-bordered">
+                        <table class="table table-bordered table-striped">
                             <tbody>
                                 <tr>
                                     <th style="width: 150px">任务ID</th>
                                     <td>{{ task.id }}</td>
                                 </tr>
                                 <tr>
+                                    <th>任务编号</th>
+                                    <td>{{ task.task_code }}</td>
+                                </tr>
+                                <tr>
                                     <th>任务名称</th>
                                     <td>{{ task.task_name }}</td>
                                 </tr>
                                 <tr>
+                                    <th>任务描述</th>
+                                    <td>{{ task.task_description }}</td>
+                                </tr>
+                                <tr>
                                     <th>油井名称</th>
                                     <td>{{ task.well_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>油井编号</th>
+                                    <td>{{ task.well_code }}</td>
                                 </tr>
                                 <tr>
                                     <th>任务类型</th>
@@ -60,6 +86,10 @@
                                     </td>
                                 </tr>
                                 <tr>
+                                    <th>设备编号</th>
+                                    <td>{{ task.device.device_id if task.device else '无' }}</td>
+                                </tr>
+                                <tr>
                                     <th>创建时间</th>
                                     <td>{{ task.created_at.strftime('%Y-%m-%d %H:%M:%S') if task.created_at else '未知' }}</td>
                                 </tr>
@@ -70,27 +100,14 @@
                             </tbody>
                         </table>
                     </div>
-                    
-                    <div class="mt-3">
-                        <a href="{{ url_for('tasks_view.edit', task_id=task.id) }}" class="btn btn-primary">
-                            <i class="fas fa-edit me-1"></i>编辑任务
-                        </a>
-                        <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ task.id }}', '{{ task.task_name }}')">
-                            <i class="fas fa-trash me-1"></i>删除任务
-                        </button>
-                        <a href="{{ url_for('tasks_view.index') }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left me-1"></i>返回列表
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
         
         <div class="col-xl-4">
-            <div class="card mb-4">
+            <div class="card">
                 <div class="card-header">
-                    <i class="fas fa-camera me-1"></i>
-                    监控预览
+                    <h3 class="card-title">监控预览</h3>
                 </div>
                 <div class="card-body">
                     <div class="text-center">
@@ -101,8 +118,12 @@
                             <p class="text-muted">摄像头预览位置</p>
                         </div>
                         <div class="mt-3">
-                            <button class="btn btn-sm btn-outline-primary">刷新预览</button>
-                            <button class="btn btn-sm btn-outline-secondary">调整预置点</button>
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-sync"></i> 刷新预览
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-cog"></i> 调整预置点
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -120,7 +141,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                确定要删除任务 <span id="taskToDelete"></span> 吗？此操作不可恢复。
+                <p>确定要删除任务 <span id="taskToDelete" class="font-weight-bold"></span> 吗？此操作不可恢复。</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>

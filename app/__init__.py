@@ -169,7 +169,11 @@ def create_app(config_class=Config):
     def format_datetime(value):
         if value is None:
             return ""
+        # 确保不显示时区信息，只显示年月日时分秒
         return value.strftime('%Y-%m-%d %H:%M:%S')
+    
+    # 添加内置函数到Jinja2上下文
+    app.jinja_env.globals.update(min=min, max=max)
     
     with app.app_context():
         # 清理所有用户的登录状态

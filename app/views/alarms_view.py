@@ -17,12 +17,18 @@ logger = logging.getLogger(__name__)
 @bp.route('/', methods=['GET'])
 @login_required
 def index():
-    page = request.args.get('page', 1, type=int)
-    page_size = request.args.get('page_size', 15, type=int)
-    user_token = request.args.get('user_token')
-    status = request.args.get('status', '')
+    """告警列表页面"""
+    # 获取筛选条件
     alarm_type = request.args.get('alarm_type', '')
+    status = request.args.get('status', '')
     device_name = request.args.get('device_name', '')
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    
+    # 获取当前页码和每页条数
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)  # 默认每页显示10条
+    user_token = request.args.get('user_token')
     
     # 强制刷新会话，确保获取最新数据
     db.session.expire_all()
@@ -42,8 +48,6 @@ def index():
         query = query.filter(Alarm.device_name == device_name)
         
     # 添加时间筛选条件
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
     if start_date:
         query = query.filter(Alarm.alarm_time >= datetime.strptime(start_date, '%Y-%m-%d'))
     if end_date:
@@ -62,7 +66,7 @@ def index():
     
     # 分页 - 确保不使用缓存结果
     pagination = query.order_by(Alarm.alarm_time.desc()).paginate(
-        page=page, per_page=page_size, error_out=False
+        page=page, per_page=per_page, error_out=False
     )
     
     # 获取所有结果，不使用缓存
@@ -102,7 +106,7 @@ def mark_as_handled():
         for alarm in alarms:
             # 更新状态为已处理
             alarm.is_processed = True
-            alarm.processed_time = datetime.now().astimezone()
+            alarm.processed_time = datetime.now()
             # 注意：处理操作不会影响告警的确认状态(is_confirmed)和确认类型(confirmation_type)
         
         db.session.commit()
@@ -396,7 +400,7 @@ def show_confirm_type(alarm_id):
         if confirmation_type:
             alarm.confirmation_type = confirmation_type
             alarm.is_confirmed = True
-            alarm.confirmed_at = datetime.now().astimezone()
+            alarm.confirmed_at = datetime.now()
             # 不改变processed_status，只设置确认类型
             db.session.commit()
             return redirect(url_for('alarms_view.index', user_token=user_token))
@@ -413,7 +417,7 @@ def process_alarm(alarm_id):
     
     # 更新告警状态
     alarm.is_processed = True
-    alarm.processed_time = datetime.now().astimezone()
+    alarm.processed_time = datetime.now()
     alarm.processed_by = current_user.username
     
     if description:

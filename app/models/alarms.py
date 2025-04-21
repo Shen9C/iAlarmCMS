@@ -15,21 +15,21 @@ class Alarm(db.Model):
     well_code = db.Column(db.String(50), index=True, comment='油井编号，关联oil_wells表')
     alarm_suffix_code = db.Column(db.String(10), comment='告警后缀码，用于标识具体故障类型，如QT001')
     camera_ip = db.Column(db.String(50), comment='摄像头IP地址')
-    alarm_time = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), comment='告警发生时间')
-    last_report_time = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), comment='最后一次上报时间')
+    alarm_time = db.Column(TIMESTAMP, default=lambda: datetime.now(), comment='告警发生时间')
+    last_report_time = db.Column(TIMESTAMP, default=lambda: datetime.now(), comment='最后一次上报时间')
     report_count = db.Column(db.Integer, default=1, comment='上报次数')
     alarm_image = db.Column(db.String(255), comment='告警图片URL')
     is_processed = db.Column(db.Boolean, default=False, comment='是否已处理,False表示待处理，True表示已处理')
-    processed_time = db.Column(db.TIMESTAMP(timezone=True), comment='处理完成时间')
+    processed_time = db.Column(db.TIMESTAMP, comment='处理完成时间')
     processed_by = db.Column(db.String(100), comment='处理人')
     is_confirmed = db.Column(db.Boolean, default=False, comment='是否已确认,False表示未确认，True表示已确认')
-    confirmed_at = db.Column(db.TIMESTAMP(timezone=True), comment='确认时间')
+    confirmed_at = db.Column(db.TIMESTAMP, comment='确认时间')
     confirmed_by = db.Column(db.String(100), comment='确认人')
     confirmation_type = db.Column(db.String(20), comment='确认类型，如故障、误报、测试等')
     description = db.Column(db.String(255), comment='告警描述')
     
-    created_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), comment='创建时间')
-    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), onupdate=lambda: datetime.now().astimezone(), comment='更新时间')
+    created_at = db.Column(TIMESTAMP, default=lambda: datetime.now(), comment='创建时间')
+    updated_at = db.Column(TIMESTAMP, default=lambda: datetime.now(), onupdate=lambda: datetime.now(), comment='更新时间')
     
     def __repr__(self) -> str:
         return f'<Alarm {self.alarm_code} - {self.alarm_type}>'
@@ -74,7 +74,7 @@ class Alarm(db.Model):
 
         if existing_alarm:
             # 更新最后上报时间
-            existing_alarm.last_report_time = datetime.now().astimezone()
+            existing_alarm.last_report_time = datetime.now()
             # 增加上报次数
             existing_alarm.report_count += 1
             

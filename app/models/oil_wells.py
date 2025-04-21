@@ -8,11 +8,11 @@ class OilWell(db.Model):
     id = db.Column(db.Integer, primary_key=True, comment='油井ID，自增主键')
     well_code = db.Column(db.String(50), unique=True, nullable=False, index=True, comment='油井编号，唯一标识')
     well_name = db.Column(db.String(128), nullable=False, comment='油井名称')
-    location = db.Column(db.String(255), comment='地理位置')
-    status = db.Column(db.String(50), default='正常', comment='油井状态')
-    description = db.Column(db.Text, comment='油井描述')
-    created_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), comment='创建时间')
-    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), onupdate=lambda: datetime.now().astimezone(), comment='更新时间')
+    location = db.Column(db.String(100), comment='位置')
+    status = db.Column(db.String(20), default='正常', comment='状态：正常、维护中、停机')
+    description = db.Column(db.String(500), comment='描述')
+    created_at = db.Column(TIMESTAMP, default=lambda: datetime.now(), comment='创建时间')
+    updated_at = db.Column(TIMESTAMP, default=lambda: datetime.now(), onupdate=lambda: datetime.now(), comment='更新时间')
     
     # 反向关系，一个油井有多个任务
     tasks = db.relationship('Task', backref='oil_well', lazy='dynamic')

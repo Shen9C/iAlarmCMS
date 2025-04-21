@@ -4,24 +4,15 @@
 
 {% block content %}
 <div class="card h-100">
-    <div class="card-header">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">告警列表</h5>
-            <div class="btn-group">
-                 <!-- 批量操作按钮移到这里 -->
-                <button class="btn btn-sm btn-outline-primary" id="batchConfirmBtn" disabled>
-                    <i class="bi bi-check-circle me-1"></i>批量确认
-                </button>
-                <button class="btn btn-sm btn-outline-success" id="batchProcessBtn" disabled>
-                     <i class="bi bi-gear me-1"></i>批量处理
-                </button>
-            <a href="#" class="btn btn-success btn-sm" onclick="exportAlarms(); return false;">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">告警列表</h3>
+        <button class="btn btn-sm btn-success" onclick="exportAlarms(); return false;">
                 <i class="bi bi-download"></i> 导出
-            </a>
-            </div>
-        </div>
+        </button>
+    </div>
         
         <!-- 筛选表单 -->
+    <div class="p-3 border-bottom">
             <form class="row g-3" method="get" action="{{ url_for('alarms_view.index') }}">
                 <input type="hidden" name="user_token" value="{{ request.args.get('user_token') }}">
                 <!-- 告警类型选择 -->
@@ -39,8 +30,8 @@
                 <div class="col-md-2">
                 <select name="status" class="form-select form-select-sm">
                         <option value="">告警状态</option>
-                    <option value="0" {% if current_status == '0' %}selected{% endif %}>未处理</option> <!-- 对应 is_processed = False -->
-                    <option value="1" {% if current_status == '1' %}selected{% endif %}>已处理</option> <!-- 对应 is_processed = True -->
+                    <option value="0" {% if current_status == '0' %}selected{% endif %}>未处理</option>
+                    <option value="1" {% if current_status == '1' %}selected{% endif %}>已处理</option>
                     </select>
                 </div>
                 <!-- 设备名称选择 -->
@@ -71,27 +62,16 @@
                     </a>
                 </div>
             </form>
-         <!-- 批量操作的全选放这里 -->
-         <div class="mt-2">
-            <div class="form-check">
-                 <input class="form-check-input" type="checkbox" id="selectAllAlarms">
-                 <label class="form-check-label" for="selectAllAlarms">全选当页 (已选 <span id="selectedCount">0</span> 项)</label>
-             </div>
-         </div>
         </div>
 
     <!-- 增加消息容器 -->
     <div id="messageContainer" class="p-3"></div>
 
         <!-- 表格区域 -->
-    <div class="table-container flex-grow-1"> <!-- 使用 flex-grow-1 使表格区域填满剩余空间 -->
+    <div class="table-container flex-grow-1">
             <table class="table table-hover mb-0 resizable-table">
                 <thead>
                     <tr>
-                    <th class="text-center" style="width: 40px">
-                         <!-- 表头全选 -->
-                         <input type="checkbox" id="selectAllHeader" class="form-check-input">
-                    </th>
                         <th class="resizable text-center">告警编号</th>
                         <th class="resizable text-center">告警状态</th>
                     <th class="resizable text-center">告警确认</th>
@@ -102,18 +82,11 @@
                     <th class="resizable text-center">告警处理时间</th>
                         <th class="resizable text-center">确认时间</th>
                         <th class="resizable text-center">操作</th>
-                    <!-- 移除告警图片列，可以在详情页查看 -->
                     </tr>
                 </thead>
                 <tbody class="table-group-divider">
                     {% for alarm in alarms %}
                     <tr>
-                    <td class="text-center align-middle"> <!-- 增加 align-middle -->
-                        <input type="checkbox" class="form-check-input alarm-select" 
-                              data-alarm-code="{{ alarm.alarm_code }}" 
-                              data-alarm-id="{{ alarm.id }}"
-                              {% if alarm.is_processed %}disabled{% endif %}>
-                    </td>
                     <td class="text-center align-middle">
                         <a href="{{ url_for('alarms_view.alarm_detail', alarm_id=alarm.id, user_token=request.args.get('user_token')) }}">
                             {{ alarm.alarm_code }}
@@ -130,7 +103,7 @@
                     <td class="text-center align-middle">
                         {% if alarm.is_confirmed %}
                             <span class="badge bg-secondary">{{ alarm.confirmation_type or '故障' }}</span>
-                            {% else %}
+                        {% else %}
                             <span class="text-muted">-</span>
                             {% endif %}
                         </td>
@@ -141,31 +114,31 @@
                     <td class="text-center align-middle">
                         {{ alarm.processed_time.strftime('%Y-%m-%d %H:%M:%S') if alarm.processed_time else '-' }}
                     </td>
-                     <td class="text-center align-middle">
+                    <td class="text-center align-middle">
                         {{ alarm.confirmed_at.strftime('%Y-%m-%d %H:%M:%S') if alarm.confirmed_at else '-' }}
-                    </td>
+                        </td>
                     <!-- 优化操作按钮 -->
                     <td class="text-center align-middle">
-                        <div class="btn-group btn-group-sm"> <!-- 使用 btn-group-sm -->
+                        <div class="btn-group btn-group-sm">
                             {% if not alarm.is_processed %}
                             {% if not alarm.is_confirmed %}
                             <button type="button" 
                                         class="btn btn-primary confirm-alarm-btn" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#alarmConfirmModal" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#alarmConfirmModal" 
                                         data-alarm-id="{{ alarm.id }}" title="确认">
-                                        <i class="bi bi-check-lg"></i>
-                                </button>
-                            {% endif %}
+                                        <i class="bi bi-check-lg"></i> 确认
+                                    </button>
+                                {% endif %}
                                 <button type="button" 
-                                       class="btn btn-success process-alarm-btn" 
-                                       data-bs-toggle="modal" 
-                                       data-bs-target="#alarmProcessModal" 
-                                       data-alarm-id="{{ alarm.id }}" title="处理">
-                                       <i class="bi bi-gear"></i>
+                                    class="btn btn-success process-alarm-btn" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#alarmProcessModal" 
+                                    data-alarm-id="{{ alarm.id }}" title="处理">
+                                    <i class="bi bi-gear"></i> 处理
                                 </button>
                             {% endif %}
-                         </div>
+                        </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -174,62 +147,71 @@
         </div>
 
         <!-- 分页区域 -->
-    <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light"> <!-- 使用 bg-light -->
-            <div class="d-flex align-items-center">
-                <!-- 搜索表单 -->
-                <form id="searchForm" method="GET" action="{{ url_for('alarms_view.index') }}">
-                    <input type="hidden" name="user_token" value="{{ user_token }}">
+    <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
+        <div class="d-flex align-items-center">
+            <!-- 每页显示数量选择器 -->
+            <form id="perPageForm" class="d-flex align-items-center" method="GET" action="{{ url_for('alarms_view.index') }}">
                 <label class="me-2 form-label-sm">每页显示：</label>
-                <select name="page_size" class="form-select form-select-sm d-inline-block" style="width: 80px;" onchange="this.form.submit()">
-                    <option value="15" {% if page_size == 15 %}selected{% endif %}>15</option>
-                    <option value="30" {% if page_size == 30 %}selected{% endif %}>30</option>
-                    <option value="50" {% if page_size == 50 %}selected{% endif %}>50</option>
-                    <option value="100" {% if page_size == 100 %}selected{% endif %}>100</option>
-                    </select>
-                    {% for key, value in request.args.items() %}
-                        {% if key not in ['page_size', 'page'] %}
-                        <input type="hidden" name="{{ key }}" value="{{ value }}">
-                        {% endif %}
-                    {% endfor %}
-                </form>
+                <select name="per_page" class="form-select form-select-sm d-inline-block" style="width: 80px;" onchange="this.form.submit()">
+                    <option value="10" {% if pagination.per_page == 10 %}selected{% endif %}>10</option>
+                    <option value="15" {% if pagination.per_page == 15 %}selected{% endif %}>15</option>
+                    <option value="20" {% if pagination.per_page == 20 %}selected{% endif %}>20</option>
+                    <option value="50" {% if pagination.per_page == 50 %}selected{% endif %}>50</option>
+                    <option value="100" {% if pagination.per_page == 100 %}selected{% endif %}>100</option>
+                </select>
+                <input type="hidden" name="user_token" value="{{ request.args.get('user_token') }}">
+                <input type="hidden" name="alarm_type" value="{{ request.args.get('alarm_type', '') }}">
+                <input type="hidden" name="status" value="{{ request.args.get('status', '') }}">
+                <input type="hidden" name="device_name" value="{{ request.args.get('device_name', '') }}">
+                <input type="hidden" name="start_date" value="{{ request.args.get('start_date', '') }}">
+                <input type="hidden" name="end_date" value="{{ request.args.get('end_date', '') }}">
+                {% for key, value in request.args.items() %}
+                    {% if key not in ['per_page', 'page', 'user_token', 'alarm_type', 'status', 'device_name', 'start_date', 'end_date'] %}
+                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+            </form>
             <span class="ms-3 text-muted small">共 {{ pagination.total }} 条记录</span>
-            </div>
-            
-            <nav aria-label="Page navigation">
-            <ul class="pagination pagination-sm mb-0"> <!-- 使用 pagination-sm -->
-                    {% if pagination.has_prev %}
-                    <li class="page-item">
-                        {% set args = request.args.copy() %}
-                        {% set _ = args.pop('page', None) %}
-                        <a class="page-link" href="{{ url_for('alarms_view.index', page=pagination.prev_num, **args) }}">上一页</a>
-                    </li>
+        </div>
+        
+        <!-- 分页导航 -->
+        {% if pagination and pagination.pages > 1 %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0">
+                {% if pagination.has_prev %}
+                <li class="page-item">
+                    {% set args = request.args.copy() %}
+                    {% set _ = args.pop('page', None) %}
+                    <a class="page-link" href="{{ url_for('alarms_view.index', page=pagination.prev_num, **args) }}">上一页</a>
+                </li>
                 {% else %}
-                 <li class="page-item disabled"><span class="page-link">上一页</span></li>
+                <li class="page-item disabled"><span class="page-link">上一页</span></li>
+                {% endif %}
+                
+                {% for page in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page %}
+                        <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                            {% set args = request.args.copy() %}
+                            {% set _ = args.pop('page', None) %}
+                            <a class="page-link" href="{{ url_for('alarms_view.index', page=page, **args) }}">{{ page }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
                     {% endif %}
-                    
-                {% for page_num in pagination.iter_pages(left_edge=1, left_current=2, right_current=3, right_edge=1) %} <!-- 调整分页显示 -->
-                        {% if page_num %}
-                            <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
-                                {% set args = request.args.copy() %}
-                                {% set _ = args.pop('page', None) %}
-                            <a class="page-link" href="{{ url_for('alarms_view.index', page=page_num, **args) }}">{{ page_num }}</a>
-                            </li>
-                        {% else %}
-                            <li class="page-item disabled"><span class="page-link">...</span></li>
-                        {% endif %}
-                    {% endfor %}
-                    
-                    {% if pagination.has_next %}
-                    <li class="page-item">
-                        {% set args = request.args.copy() %}
-                        {% set _ = args.pop('page', None) %}
-                        <a class="page-link" href="{{ url_for('alarms_view.index', page=pagination.next_num, **args) }}">下一页</a>
-                    </li>
-                 {% else %}
-                 <li class="page-item disabled"><span class="page-link">下一页</span></li>
-                    {% endif %}
-                </ul>
-            </nav>
+                {% endfor %}
+                
+                {% if pagination.has_next %}
+                <li class="page-item">
+                    {% set args = request.args.copy() %}
+                    {% set _ = args.pop('page', None) %}
+                    <a class="page-link" href="{{ url_for('alarms_view.index', page=pagination.next_num, **args) }}">下一页</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">下一页</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
     </div>
 </div>
 
@@ -297,51 +279,41 @@
          border-right: 2px solid #4e73df;
     }
 
-    /* Refined Modal CSS - Ensure Interactivity */
-    /* 注释掉遮罩层相关样式
+    /* 完全移除遮罩层相关样式，确保不再创建遮罩 */
     .modal-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 1040 !important;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(0, 0, 0, 0.5);
+        display: none !important;
     }
-    */
+    
+    /* 优化模态框样式，不使用全屏覆盖 */
     .modal {
         position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 1050 !important; /* 确保模态框在遮罩层之上 */
-        width: 100%;
-        height: 100%;
-        overflow-x: hidden;
-        overflow-y: auto;
-        outline: 0;
-        display: block;
-    }
-    .modal-dialog {
-        position: relative;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
         width: auto;
-        margin: 1.75rem auto;
-        pointer-events: auto;
-        z-index: 1060 !important;
+        height: auto;
+        min-width: 500px;
+        max-width: 90%;
+        background-color: transparent;
+        z-index: 1050 !important;
+        overflow: visible;
+        pointer-events: none; /* 确保模态框本身不阻止点击 */
     }
-    .modal-content {
+    
+    .modal-dialog {
+        margin: 0;
         position: relative;
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        pointer-events: auto;
-        background-color: #fff;
-        background-clip: padding-box;
-        border: 1px solid rgba(0, 0, 0, 0.2);
+        pointer-events: auto; /* 确保对话框可以交互 */
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); /* 添加阴影 */
         border-radius: 0.3rem;
-        outline: 0;
-        z-index: 1070 !important;
     }
-
+    
+    /* 确保背景页面可以正常交互 */
+    body.modal-open {
+        overflow: auto !important;
+        padding-right: 0 !important;
+    }
+    
     /* 确保下拉菜单正常工作 */
     .dropdown-menu.show {
         z-index: 1080 !important;
@@ -362,38 +334,11 @@
     .modal input, .modal textarea, .modal select, .modal button {
         pointer-events: auto !important;
         opacity: 1 !important;
-        z-index: 1070 !important; /* 确保表单元素有更高的z-index */
-    }
-
-    /* 特别确保自定义下拉菜单可交互 */
-    .dropdown-toggle, .dropdown-menu {
-        z-index: 1080 !important; 
-        pointer-events: auto !important;
-    }
-
-    .dropdown-item {
-        cursor: pointer;
-    }
-
-    /* 特别确保select元素可交互 */
-    .modal .form-select {
-        pointer-events: auto !important;
-        z-index: 1080 !important;
-    }
-
-    /* 确保下拉菜单在模态框中显示正确 */
-    .modal .dropdown-menu {
-        position: absolute !important;
-        transform: none !important;
-        top: 100% !important;
-        left: 0 !important;
-        will-change: initial !important;
-        width: 100%;
     }
 </style>
 
 <!-- 告警确认模态框 -->
-<div class="modal fade" id="alarmConfirmModal" tabindex="-1" aria-labelledby="alarmConfirmModalLabel">
+<div class="modal fade" id="alarmConfirmModal" tabindex="-1" aria-labelledby="alarmConfirmModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -401,53 +346,28 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>请选择告警确认类型：</p>
-                <form id="confirmForm" method="POST">
-                    <input type="hidden" name="alarm_id" id="alarmIdInput">
-                    <div class="form-group mb-3">
-                        <label for="confirm-type-display">确认类型</label>
-                        <!-- 替换为按钮和下拉菜单 -->
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle form-control text-start" type="button" id="confirm-type-display" data-bs-toggle="dropdown" aria-expanded="false">
-                              故障
-                            </button>
-                            <input type="hidden" id="confirm-type" name="confirmation_type" value="故障">
-                            <ul class="dropdown-menu w-100" id="confirm-type-menu">
-                                <li><a class="dropdown-item confirm-type-option" data-value="故障" href="javascript:void(0)">故障</a></li>
-                                <li><a class="dropdown-item confirm-type-option" data-value="误报" href="javascript:void(0)">误报</a></li>
-                                <li><a class="dropdown-item confirm-type-option" data-value="测试" href="javascript:void(0)">测试</a></li>
-                                <li><a class="dropdown-item confirm-type-option" data-value="其他" href="javascript:void(0)">其他</a></li>
-                            </ul>
+                <form id="alarmConfirmForm">
+                    <input type="hidden" id="alarmIdInput" name="alarm_id">
+                    <div class="mb-3">
+                        <label class="form-label">确认类型</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="confirmation_type" id="falseAlarm" value="误报" checked>
+                            <label class="form-check-label" for="falseAlarm">误报</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="confirmation_type" id="fault" value="故障">
+                            <label class="form-check-label" for="fault">故障</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="confirmation_type" id="normal" value="正常">
+                            <label class="form-check-label" for="normal">正常</label>
                         </div>
                     </div>
+                    <div class="mb-3">
+                        <label for="confirmation-notes" class="form-label">备注</label>
+                        <textarea class="form-control" id="confirmation-notes" rows="3" placeholder="可选：添加备注说明"></textarea>
+                    </div>
                 </form>
-                
-                <!-- 添加调试按钮 -->
-                <div class="mt-3">
-                    <button type="button" class="btn btn-sm btn-info" onclick="fixModal('alarmConfirmModal')">
-                        修复遮罩层
-                    </button>
-                    <button type="button" class="btn btn-sm btn-danger" onclick="/*document.querySelectorAll('.modal-backdrop').forEach(el => el.remove())*/console.log('移除遮罩层按钮点击')">
-                        移除遮罩层
-                    </button>
-                </div>
-                
-                <!-- 显示调试信息 -->
-                <div class="mt-3 small text-muted" id="debugInfo"></div>
-                <script>
-                    setTimeout(function() {
-                        const debugInfo = document.getElementById('debugInfo');
-                        if (debugInfo) {
-                            const modal = document.getElementById('alarmConfirmModal');
-                            const backdrop = document.querySelector('.modal-backdrop');
-                            let html = '调试信息:<br>';
-                            html += `模态框z-index: ${modal ? getComputedStyle(modal).zIndex : 'NA'}<br>`;
-                            html += `遮罩层z-index: ${backdrop ? getComputedStyle(backdrop).zIndex : 'NA'}<br>`;
-                            html += `遮罩层数量: ${document.querySelectorAll('.modal-backdrop').length}<br>`;
-                            debugInfo.innerHTML = html;
-                        }
-                    }, 500);
-                </script>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
@@ -458,7 +378,7 @@
             </div>
             
 <!-- 告警处理模态框 -->
-<div class="modal fade" id="alarmProcessModal" tabindex="-1" aria-labelledby="alarmProcessModalLabel">
+<div class="modal fade" id="alarmProcessModal" tabindex="-1" aria-labelledby="alarmProcessModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -466,565 +386,57 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>您确定要将此告警标记为已处理吗？</p>
-                <form id="processForm" method="POST">
-                    <input type="hidden" name="alarm_id" id="processAlarmIdInput">
-                    <div class="form-group mb-3">
-                        <label for="process-notes">处理备注（可选）</label>
-                        <textarea class="form-control" id="process-notes" name="notes" rows="3"></textarea>
+                <form id="alarmProcessForm">
+                    <input type="hidden" id="processAlarmIdInput" name="alarm_id">
+                    <div class="mb-3">
+                        <label for="processing-notes" class="form-label">处理备注</label>
+                        <textarea class="form-control" id="processing-notes" rows="3" placeholder="请输入处理备注"></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-success" id="processSubmitBtn">确认处理</button>
+                <button type="button" class="btn btn-primary" id="processSubmitBtn">处理</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 批量确认模态框 -->
-<div class="modal fade" id="batchConfirmModal" tabindex="-1" aria-labelledby="batchConfirmModalLabel">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="batchConfirmModalLabel">批量确认告警</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>您正在批量确认 <span id="batchConfirmCount">0</span> 个告警</p>
-                <form id="batchConfirmForm">
-                    <div class="form-group mb-3">
-                        <label for="batch-confirm-type-display">确认类型</label>
-                        <!-- 替换为按钮和下拉菜单 -->
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle form-control text-start" type="button" id="batch-confirm-type-display" data-bs-toggle="dropdown" aria-expanded="false">
-                              故障
-                            </button>
-                            <input type="hidden" id="batch-confirm-type" name="confirmation_type" value="故障">
-                            <ul class="dropdown-menu w-100" id="batch-confirm-type-menu">
-                                <li><a class="dropdown-item batch-confirm-type-option" data-value="故障" href="javascript:void(0)">故障</a></li>
-                                <li><a class="dropdown-item batch-confirm-type-option" data-value="误报" href="javascript:void(0)">误报</a></li>
-                                <li><a class="dropdown-item batch-confirm-type-option" data-value="测试" href="javascript:void(0)">测试</a></li>
-                                <li><a class="dropdown-item batch-confirm-type-option" data-value="其他" href="javascript:void(0)">其他</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" id="batchConfirmSubmitBtn">确认</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 批量处理模态框 -->
-<div class="modal fade" id="batchProcessModal" tabindex="-1" aria-labelledby="batchProcessModalLabel">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="batchProcessModalLabel">批量处理告警</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>您正在批量处理 <span id="batchProcessCount">0</span> 个告警</p>
-                <form id="batchProcessForm">
-                    <div class="form-group mb-3">
-                        <label for="batch-process-notes">处理备注（可选）</label>
-                        <textarea class="form-control" id="batch-process-notes" name="notes" rows="3"></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-success" id="batchProcessSubmitBtn">确认处理</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- JavaScript (移除对 api.js 的依赖，整合所有逻辑) -->
-            <script>
-// 通用API请求函数 (整合自 api.js)
-function apiRequest(url, options = {}) {
-    const userToken = new URLSearchParams(window.location.search).get('user_token');
-    if (userToken) {
-        if (url.includes('?')) {
-            url += `&user_token=${userToken}`;
-        } else {
-            url += `?user_token=${userToken}`;
-        }
-    }
-
-    const defaultOptions = {
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest' // 保持 AJAX 标识
-        },
-        credentials: 'same-origin' // 确保发送 cookies
-    };
-
-    // 合并请求头
-    const mergedOptions = {
-        ...defaultOptions,
-        ...options,
-        headers: {
-            ...defaultOptions.headers,
-            ...(options.headers || {})
-        }
-    };
-
-    // 处理非GET请求的CSRF Token (如果你的应用使用了Flask-WTF CSRF保护)
-    // const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-    // if (csrfToken && mergedOptions.method && mergedOptions.method.toUpperCase() !== 'GET') {
-    //     mergedOptions.headers['X-CSRFToken'] = csrfToken;
-    // }
-
-    return fetch(url, mergedOptions)
-        .then(response => {
-            if (!response.ok) {
-                 // 尝试解析错误信息
-                 return response.json().then(err => {
-                     throw new Error(err.message || `API请求失败: ${response.status} ${response.statusText}`);
-                 }).catch(() => {
-                    throw new Error(`API请求失败: ${response.status} ${response.statusText}`);
-                 });
-            }
-            
-            // 检查内容类型
-            const contentType = response.headers.get('content-type');
-            if (options.headers && options.headers['Accept'] && options.headers['Accept'].includes('excel')) {
-                return response.blob(); // 处理文件下载
-            } else if (contentType && contentType.includes('application/json')) {
-                return response.json();
-            } else {
-                return response.text(); // 或根据需要处理其他类型
-            }
-        })
-        .catch(error => {
-            console.error('API请求错误:', error);
-            // 使用 showMessage 显示错误
-             showMessage(`请求错误: ${error.message}`, 'danger');
-            throw error; // 继续抛出错误，以便调用者可以处理
-        });
-}
-
-// 显示消息
-function showMessage(message, type = 'info') {
-    // 创建消息元素
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-    alertDiv.style.top = '20px';
-    alertDiv.style.right = '20px';
-    alertDiv.style.zIndex = '9999';
-    alertDiv.style.maxWidth = '400px';
-    
-    // 设置消息内容
-    alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
-    
-    // 添加到页面
-    document.body.appendChild(alertDiv);
-    
-    // 创建Bootstrap alert实例并设置自动关闭
-    const bsAlert = new bootstrap.Alert(alertDiv);
-    setTimeout(() => {
-        bsAlert.close();
-    }, 3000);
-}
-
-
-// 提交确认表单
-function submitConfirmForm() {
-    console.log('提交确认表单');
-    
-    // 禁用提交按钮防止重复点击
-    const submitBtn = document.querySelector('#alarmConfirmModal .modal-footer .btn-primary');
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 处理中...';
-    }
-    
-    const alarmId = document.getElementById('alarmIdInput').value;
-    const confirmType = document.getElementById('confirm-type').value;
-    
-    console.log('告警ID:', alarmId, '确认类型:', confirmType);
-    
-    if (!alarmId || !confirmType) {
-        showMessage('请选择确认类型', 'error');
-        // 恢复按钮状态
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '确认';
-        }
-        return;
-    }
-    
-    // 准备提交数据
-    const data = {
-        alarm_id: alarmId,
-        confirmation_type: confirmType
-    };
-    
-    // 发送API请求 - 修改为正确的API端点
-    apiRequest('/api/alarms/confirm', {
-        method: 'POST',
-        body: JSON.stringify(data)
-        })
-    .then(response => {
-        return response;
-    })
-    .then(data => {
-        if (data.code === 200) {
-            showMessage('告警确认成功', 'success');
-            
-            // 使用hideModalWithoutBackdrop函数关闭模态框
-            hideModalWithoutBackdrop('alarmConfirmModal');
-            
-            // 重新加载页面或更新表格
-            setTimeout(() => {
-                location.reload();
-            }, 1000);
-        } else {
-            showMessage(data.message || '确认失败', 'error');
-            // 恢复按钮状态
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '确认';
-            }
-        }
-    })
-    .catch(error => {
-        console.error('确认请求错误:', error);
-        showMessage('确认过程发生错误: ' + error.message, 'error');
-        // 恢复按钮状态
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '确认';
-        }
-    });
-}
-
-// 处理告警
-function submitProcessForm() {
-    const alarmId = document.getElementById('processAlarmIdInput').value;
-    const notes = document.getElementById('process-notes').value;
-    
-    console.log('处理告警:', alarmId);
-    
-    if (!alarmId) {
-        showMessage('处理请求缺少必要参数', 'error');
-        return;
-    }
-    
-    // 准备提交数据
-    const data = {
-        alarm_id: alarmId,
-        notes: notes || ''
-    };
-    
-    // 发送API请求
-    apiRequest(`/api/alarms/${alarmId}/process`, {
-        method: 'POST',
-        body: JSON.stringify(data)
-    })
-    .then(response => response) // 直接返回response，apiRequest已经处理了JSON解析
-    .then(data => {
-        if (data.code === 200) {
-            showMessage('告警处理成功', 'success');
-            
-            // 使用hideModalWithoutBackdrop函数关闭模态框
-            hideModalWithoutBackdrop('alarmProcessModal');
-            
-            // 重新加载页面
-            setTimeout(() => {
-                location.reload();
-            }, 1000);
-        } else {
-            showMessage(data.message || '处理失败', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('处理请求错误:', error);
-        showMessage('处理过程发生错误', 'error');
-    });
-}
-
-// 批量确认处理
-function processBatchConfirm() {
-    console.log('执行批量确认');
-    const selectedAlarms = getSelectedAlarms();
-    const confirmType = document.getElementById('batch-confirm-type').value;
-    
-    if (selectedAlarms.length === 0) {
-        showMessage('请选择要确认的告警', 'error');
-        return;
-    }
-    
-    if (!confirmType) {
-        showMessage('请选择确认类型', 'error');
-        return;
-    }
-    
-    // 准备提交数据，修改为后端期望的格式
-    const data = {
-        alarm_ids: selectedAlarms,
-        confirmation_type: confirmType
-    };
-    
-    // 发送API请求
-    apiRequest('/api/alarms/batch-confirm', {
-        method: 'POST',
-        body: JSON.stringify(data)
-    })
-    .then(response => response)
-    .then(data => {
-        if (data.success) {
-            showMessage(`${selectedAlarms.length} 个告警已成功确认`, 'success');
-            
-            // 使用hideModalWithoutBackdrop函数关闭模态框
-            hideModalWithoutBackdrop('batchConfirmModal');
-            
-            // 清除选中状态
-            clearSelections();
-            
-            // 重新加载页面
-            setTimeout(() => {
-                location.reload();
-            }, 1000);
-        } else {
-            showMessage(data.message || '批量确认失败', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('批量确认请求错误:', error);
-        showMessage('批量确认过程发生错误', 'error');
-    });
-}
-
-// 批量处理告警
-function processBatchProcess() {
-    console.log('执行批量处理');
-    const selectedAlarms = getSelectedAlarms();
-    const notes = document.getElementById('batch-process-notes').value;
-    
-    if (selectedAlarms.length === 0) {
-        showMessage('请选择要处理的告警', 'error');
-        return;
-    }
-    
-    // 准备提交数据，修改为后端期望的格式
-    const data = {
-        alarm_ids: selectedAlarms,
-        notes: notes || ''
-    };
-    
-    // 发送API请求
-    apiRequest('/api/alarms/batch-process', {
-        method: 'POST',
-        body: JSON.stringify(data)
-    })
-    .then(response => response)
-    .then(data => {
-        if (data.success) {
-            showMessage(`${selectedAlarms.length} 个告警已成功处理`, 'success');
-            
-            // 使用hideModalWithoutBackdrop函数关闭模态框
-            hideModalWithoutBackdrop('batchProcessModal');
-            
-            // 清除选中状态
-            clearSelections();
-            
-            // 重新加载页面
-            setTimeout(() => {
-                location.reload();
-            }, 1000);
-        } else {
-            showMessage(data.message || '批量处理失败', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('批量处理请求错误:', error);
-        showMessage('批量处理过程发生错误', 'error');
-    });
-}
-
-// 获取选中的告警
-function getSelectedAlarms() {
-    const selected = [];
-    document.querySelectorAll('.alarm-select:checked').forEach(checkbox => {
-        // 获取告警ID而不是告警码
-        const alarmId = checkbox.getAttribute('data-alarm-id');
-        if (alarmId) {
-            selected.push(parseInt(alarmId)); // 转换为数字类型
-        }
-    });
-    return selected;
-}
-
-// 清除所有选中状态
-function clearSelections() {
-    document.querySelectorAll('.alarm-select').forEach(checkbox => {
-        checkbox.checked = false;
-    });
-    const selectAllHeader = document.getElementById('selectAllHeader');
-    const selectAllFooter = document.getElementById('selectAllAlarms');
-    
-    if (selectAllHeader) selectAllHeader.checked = false;
-    if (selectAllFooter) selectAllFooter.checked = false;
-    
-    // 更新批量按钮状态
-    const batchConfirmBtn = document.getElementById('batchConfirmBtn');
-    const batchProcessBtn = document.getElementById('batchProcessBtn');
-    if (batchConfirmBtn) batchConfirmBtn.disabled = true;
-    if (batchProcessBtn) batchProcessBtn.disabled = true;
-}
-
-// 导出告警列表
-function exportAlarms() {
-    // 构建包含当前筛选条件的URL
-    const params = new URLSearchParams(window.location.search);
-    params.delete('page'); // 导出时不分页
-    params.delete('page_size');
-    const exportUrl = `/api/alarms/export?${params.toString()}`; // 使用alarms_api蓝图
-
-    apiRequest(exportUrl, {
-        method: 'GET',
-        headers: {
-             'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' // 正确的 Excel MIME 类型
-        }
-    })
-    .then(blob => {
-        // 处理文件下载
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        // 生成包含日期的文件名
-        const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-        a.download = `告警列表_${dateStr}.xlsx`; 
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-         showMessage('导出请求已发送，请检查下载内容。', 'info');
-    })
-     .catch(error => {
-         // apiRequest 内部已处理 showMessage
-         console.error('导出失败:', error);
-    });
-}
-
-// 立即执行的调试代码，解决遮罩层覆盖问题
-(function() {
-    console.log("执行遮罩层修复...");
-    
-    // 直接修改CSS样式
-    const style = document.createElement('style');
-    style.textContent = `
-        /* 正确的层级顺序 */
-        /* 注释掉遮罩层相关样式
-        .modal-backdrop { z-index: 1040; }
-        */
-        .modal { z-index: 1050; }
-        .modal-dialog { z-index: auto; } /* 继承自.modal */
-        .modal-content { z-index: auto; } /* 继承自.modal-dialog */
-        
-        /* pointer-events决定元素是否响应鼠标事件 */
-        /* 注释掉遮罩层相关样式
-        .modal-backdrop { pointer-events: auto; }
-        */
-        .modal { pointer-events: none; } /* 模态框本身不应拦截点击事件 */
-        .modal-dialog, .modal-content { pointer-events: auto; } /* 内容应可点击 */
-    `;
-    document.head.appendChild(style);
-    
-    // 监听Bootstrap事件，处理模态框
-    document.addEventListener('shown.bs.modal', function(event) {
-        const modal = event.target;
-        console.log("模态框显示:", modal.id);
-        
-        // 强制设置样式确保可见
-        modal.style.display = 'block';
-        modal.style.zIndex = '1050';
-        
-        // 获取模态内容和背景
-        const dialog = modal.querySelector('.modal-dialog');
-        const content = modal.querySelector('.modal-content');
-        
-        /* 注释掉遮罩层相关代码
-        const backdrops = document.querySelectorAll('.modal-backdrop');
-        */
-        
-        if (dialog) dialog.style.zIndex = '1060';
-        if (content) content.style.zIndex = '1070';
-        
-        /* 注释掉遮罩层相关代码
-        // 确保遮罩层在模态框下方
-        backdrops.forEach(backdrop => {
-            backdrop.style.zIndex = '1040';
-        });
-        */
-        
-        // 输出调试信息
-        console.log("模态框z-index:", getComputedStyle(modal).zIndex);
-        console.log("对话框z-index:", dialog ? getComputedStyle(dialog).zIndex : 'NA');
-        console.log("内容z-index:", content ? getComputedStyle(content).zIndex : 'NA');
-        
-        /* 注释掉遮罩层相关代码
-        console.log("遮罩数量:", backdrops.length);
-        */
-    }, false);
-})();
-
-// 添加一个全局函数用于手动修复模态框
-window.fixModal = function(modalId) {
+<!-- JavaScript部分 -->
+<script>
+// 用于管理模态框显示的辅助函数
+function showModalWithoutBackdrop(modalId) {
     const modal = document.getElementById(modalId);
-    if (!modal) {
-        console.error("未找到模态框:", modalId);
-        return;
-    }
+    if (!modal) return "未找到模态框";
     
-    console.log("手动修复模态框:", modalId);
+    // 强制移除任何可能存在的遮罩层
+    document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) {
+        backdrop.remove();
+    });
     
-    /* 注释掉遮罩层相关代码
-    // 确保遮罩层存在
-    if (document.querySelectorAll('.modal-backdrop').length === 0) {
-        const backdrop = document.createElement('div');
-        backdrop.className = 'modal-backdrop fade show';
-        backdrop.style.zIndex = '1040';
-        document.body.appendChild(backdrop);
-    }
-    */
-    
-    // 显示模态框并确保z-index较高
+    // 显示模态框，不添加遮罩层
     modal.style.display = 'block';
     modal.classList.add('show');
-    modal.style.zIndex = '1050';
     
-    // 设置模态框内部元素的z-index
-    const dialog = modal.querySelector('.modal-dialog');
-    if (dialog) dialog.style.zIndex = '1060';
-    
-    const content = modal.querySelector('.modal-content');
-    if (content) content.style.zIndex = '1070';
-    
-    // 标记body
-    document.body.classList.add('modal-open');
+    // 不添加modal-open类到body，这样背景页面可以继续交互
+    // document.body.classList.add('modal-open');
     
     return "模态框修复完成";
-};
+}
 
 // 在DOMContentLoaded事件的开始位置添加代码，阻止Bootstrap的模态框自动初始化
 document.addEventListener('DOMContentLoaded', function() {
-    
     // 先删除所有已存在的遮罩层
     document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) {
         backdrop.remove();
     });
+    
+    // 添加全局事件监听器，阻止Bootstrap自动创建遮罩层
+    document.addEventListener('shown.bs.modal', function() {
+        document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) {
+            backdrop.remove();
+        });
+    }, true);
     
     // 为确认模态框中的确认按钮添加点击事件
     const confirmSubmitBtn = document.getElementById('confirmSubmitBtn');
@@ -1041,24 +453,6 @@ document.addEventListener('DOMContentLoaded', function() {
         processSubmitBtn.addEventListener('click', function(e) {
             e.preventDefault();
             submitProcessForm();
-        });
-    }
-    
-    // 为批量确认模态框中的确认按钮添加点击事件
-    const batchConfirmSubmitBtn = document.getElementById('batchConfirmSubmitBtn');
-    if (batchConfirmSubmitBtn) {
-        batchConfirmSubmitBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            processBatchConfirm();
-        });
-    }
-    
-    // 为批量处理模态框中的确认按钮添加点击事件
-    const batchProcessSubmitBtn = document.getElementById('batchProcessSubmitBtn');
-    if (batchProcessSubmitBtn) {
-        batchProcessSubmitBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            processBatchProcess();
         });
     }
     
@@ -1079,17 +473,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // 获取模态框ID
             const modalId = originalTarget ? originalTarget.replace('#', '') : null;
             if (modalId) {
-                // 如果有alarm-code属性，设置到相应的输入字段
-                if (this.hasAttribute('data-alarm-code')) {
-                    const alarmCode = this.getAttribute('data-alarm-code');
-                    
-                    if (modalId === 'alarmConfirmModal') {
-                        document.getElementById('alarmIdInput').value = alarmCode;
-                    } else if (modalId === 'alarmProcessModal') {
-                        document.getElementById('processAlarmIdInput').value = alarmCode;
-                    }
-                }
-                
                 // 如果有alarm-id属性，设置到相应的输入字段
                 if (this.hasAttribute('data-alarm-id')) {
                     const alarmId = this.getAttribute('data-alarm-id');
@@ -1101,7 +484,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 
-                // 直接调用我们的fixModal函数
+                // 直接调用我们的显示模态框函数
                 showModalWithoutBackdrop(modalId);
             }
         });
@@ -1114,48 +497,28 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // 创建自定义的显示和隐藏方法
         modalEl.showModal = function() {
-            console.log('显示模态框:', this.id);
-            
-            /* 注释掉遮罩层相关代码
-            // 创建新的backdrop
-            const backdrop = document.createElement('div');
-            backdrop.className = 'modal-backdrop fade show';
-            document.body.appendChild(backdrop);
-            */
+            // 移除所有已存在的遮罩层
+            document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) {
+                backdrop.remove();
+            });
             
             // 显示模态框
             this.style.display = 'block';
             this.classList.add('show');
-            document.body.classList.add('modal-open');
-            document.body.style.paddingRight = '17px'; // 防止页面跳动
             
-            // 确保模态框在正确的z-index层级
-            this.style.zIndex = '1050';
-            
-            /* 注释掉遮罩层相关代码
-            // backdrop在模态框之下
-            backdrop.style.zIndex = '1040';
-            
-            // 存储backdrop引用以便关闭时移除
-            this._backdrop = backdrop;
-            */
+            // 不添加body类，确保背景可以交互
+            // document.body.classList.add('modal-open');
+            // document.body.style.paddingRight = '17px';
         };
         
         modalEl.hideModal = function() {
-            console.log('隐藏模态框:', this.id);
             // 隐藏模态框
             this.style.display = 'none';
             this.classList.remove('show');
+            
+            // 移除body类
             document.body.classList.remove('modal-open');
             document.body.style.paddingRight = '';
-            
-            /* 注释掉遮罩层相关代码
-            // 移除backdrop
-            if(this._backdrop) {
-                this._backdrop.remove();
-                this._backdrop = null;
-            }
-            */
         };
         
         // 为关闭按钮添加事件
@@ -1165,291 +528,177 @@ document.addEventListener('DOMContentLoaded', function() {
                 modalEl.hideModal();
             });
         });
-        
-        console.log('初始化模态框完成:', modalEl.id);
     });
     
-    // --- 批量操作事件处理 ---
-    const selectAllHeader = document.getElementById('selectAllHeader');
-    const selectAllFooter = document.getElementById('selectAllAlarms'); // 对应底部的全选框
-    const alarmCheckboxes = document.querySelectorAll('.alarm-select:not([disabled])'); // 只选择未禁用的
-    const batchConfirmBtn = document.getElementById('batchConfirmBtn');
-    const batchProcessBtn = document.getElementById('batchProcessBtn');
-    const selectedCountSpan = document.getElementById('selectedCount');
-    
-    // 批量操作按钮的特殊处理
-    if(batchConfirmBtn) {
-        batchConfirmBtn.addEventListener('click', function() {
-            const selectedAlarms = getSelectedAlarms();
-            if(selectedAlarms.length > 0) {
-                document.getElementById('batchConfirmCount').textContent = selectedAlarms.length;
-                console.log("批量确认按钮点击，选中告警数:", selectedAlarms.length);
-                
-                // 使用新的无遮罩层函数显示模态框
-                showModalWithoutBackdrop('batchConfirmModal');
-            } else {
-                showMessage('请至少选择一个告警', 'warning');
-            }
-        });
-    }
-    
-    if(batchProcessBtn) {
-        batchProcessBtn.addEventListener('click', function() {
-            const selectedAlarms = getSelectedAlarms();
-            if(selectedAlarms.length > 0) {
-                document.getElementById('batchProcessCount').textContent = selectedAlarms.length;
-                document.getElementById('batch-process-notes').value = '';
-                console.log("批量处理按钮点击，选中告警数:", selectedAlarms.length);
-                
-                // 使用新的无遮罩层函数显示模态框
-                showModalWithoutBackdrop('batchProcessModal');
-            } else {
-                showMessage('请至少选择一个告警', 'warning');
-            }
-        });
-    }
-
-    // 更新批量按钮状态和计数
-    function updateBatchButtons() {
-        const selectedCheckboxes = document.querySelectorAll('.alarm-select:checked');
-        const count = selectedCheckboxes.length;
+    // 消息显示函数
+    window.showMessage = function(message, type = 'info') {
+        const messageContainer = document.getElementById('messageContainer');
+        if (!messageContainer) return;
         
-        if (batchConfirmBtn) batchConfirmBtn.disabled = count === 0;
-        if (batchProcessBtn) batchProcessBtn.disabled = count === 0;
-        if (selectedCountSpan) selectedCountSpan.textContent = count;
-
-        // 更新全选框状态
-        const allEnabledCount = alarmCheckboxes.length;
-        if (selectAllHeader) {
-            selectAllHeader.checked = count > 0 && count === allEnabledCount;
-            selectAllHeader.indeterminate = count > 0 && count < allEnabledCount;
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.role = 'alert';
+        
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="关闭"></button>
+        `;
+        
+        messageContainer.innerHTML = '';
+        messageContainer.appendChild(alertDiv);
+        
+        // 5秒后自动关闭
+        setTimeout(() => {
+            alertDiv.classList.remove('show');
+            setTimeout(() => alertDiv.remove(), 150);
+        }, 5000);
+    };
+    
+    // 确认告警的表单提交
+    window.submitConfirmForm = function() {
+        // 禁用提交按钮防止重复点击
+        const submitBtn = document.getElementById('confirmSubmitBtn');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 处理中...';
         }
-        if (selectAllFooter) {
-            selectAllFooter.checked = count > 0 && count === allEnabledCount;
-            selectAllFooter.indeterminate = count > 0 && count < allEnabledCount;
-        }
-    }
-
-    // 全选/取消全选 (表头)
-    if (selectAllHeader) {
-        selectAllHeader.addEventListener('change', function() {
-            const isChecked = this.checked;
-            alarmCheckboxes.forEach(checkbox => {
-                checkbox.checked = isChecked;
-            });
-            if(selectAllFooter) selectAllFooter.checked = isChecked; // 同步底部复选框
-            updateBatchButtons();
-        });
-    }
-    
-    // 全选/取消全选 (卡片头部的标签)
-    if (selectAllFooter) {
-        selectAllFooter.addEventListener('change', function() {
-            const isChecked = this.checked;
-            alarmCheckboxes.forEach(checkbox => {
-                checkbox.checked = isChecked;
-            });
-            if(selectAllHeader) selectAllHeader.checked = isChecked; // 同步表头复选框
-            updateBatchButtons();
-        });
-    }
-
-    // 单个复选框变化
-    alarmCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', updateBatchButtons);
-    });
-    
-    // 初始化批量按钮状态
-    updateBatchButtons();
-    
-    // 处理确认类型下拉菜单项点击事件
-    document.querySelectorAll('.confirm-type-option').forEach(function(option) {
-        option.addEventListener('click', function(e) {
-            e.preventDefault();
-            const value = this.getAttribute('data-value');
-            console.log('选择确认类型:', value);
+        
+        const alarmId = document.getElementById('alarmIdInput').value;
+        const confirmationType = document.querySelector('input[name="confirmation_type"]:checked').value;
+        const confirmationNote = document.getElementById('confirmation-notes').value;
+        
+        fetch(`/api/alarms/confirm`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                alarm_id: alarmId,
+                confirmation_type: confirmationType,
+                notes: confirmationNote,
+                user_token: "{{ request.args.get('user_token', '') }}"
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`请求失败: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('确认响应:', data);
+            // 恢复按钮状态
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '确认';
+            }
             
-            // 更新按钮文本和隐藏字段值
-            document.getElementById('confirm-type-display').textContent = value;
-            document.getElementById('confirm-type').value = value;
-        });
-    });
-    
-    // 处理批量确认类型下拉菜单项点击事件
-    document.querySelectorAll('.batch-confirm-type-option').forEach(function(option) {
-        option.addEventListener('click', function(e) {
-            e.preventDefault();
-            const value = this.getAttribute('data-value');
-            console.log('选择批量确认类型:', value);
+            if (data.success) {
+                // 关闭模态框
+                document.getElementById('alarmConfirmModal').hideModal();
+                
+                // 显示成功消息
+                showMessage('告警确认成功！', 'success');
+                
+                // 延迟1秒后刷新页面
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                // 显示错误消息
+                showMessage(`告警确认失败: ${data.message || '未知错误'}`, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('确认过程中出错:', error);
+            showMessage(`确认过程中出错: ${error.message}`, 'danger');
             
-            // 更新按钮文本和隐藏字段值
-            document.getElementById('batch-confirm-type-display').textContent = value;
-            document.getElementById('batch-confirm-type').value = value;
+            // 恢复按钮状态
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '确认';
+            }
         });
-    });
+    };
     
-    // --- 可调整列宽功能 ---
-    const table = document.querySelector('.resizable-table');
-    if (table) {
-        let thBeingResized = null;
-        let startX, startWidth;
-
-        table.addEventListener('mousedown', (e) => {
-            const target = e.target;
-            // 检查是否点击在可调整大小的元素上 (::after伪元素)
-            // 使用 getComputedStyle 来检查 cursor 属性
-            if (window.getComputedStyle(target).cursor === 'col-resize') {
-                thBeingResized = target.closest('th');
-                if (thBeingResized) {
-                    startX = e.pageX;
-                    startWidth = thBeingResized.offsetWidth;
-                    document.body.classList.add('resizing'); // 添加全局样式以改变鼠标指针
-                    // 阻止默认的文本选择行为
-                    document.addEventListener('selectstart', preventDefault);
-                }
-            }
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (thBeingResized) {
-                const diffX = e.pageX - startX;
-                const newWidth = startWidth + diffX;
-                // 限制最小宽度，例如 50px
-                if (newWidth > 50) { 
-                    thBeingResized.style.width = `${newWidth}px`;
-                }
-            }
-        });
-
-        document.addEventListener('mouseup', () => {
-            if (thBeingResized) {
-                thBeingResized = null;
-                document.body.classList.remove('resizing');
-                document.removeEventListener('selectstart', preventDefault);
-            }
-        });
-        
-        function preventDefault(e) {
-            e.preventDefault();
+    // 处理告警的表单提交
+    window.submitProcessForm = function() {
+        // 禁用提交按钮防止重复点击
+        const submitBtn = document.getElementById('processSubmitBtn');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 处理中...';
         }
-    }
+        
+        const alarmId = document.getElementById('processAlarmIdInput').value;
+        const processingNotes = document.getElementById('processing-notes').value;
+        
+        fetch(`/api/alarms/${alarmId}/process`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                notes: processingNotes,
+                user_token: "{{ request.args.get('user_token', '') }}"
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`请求失败: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('处理响应:', data);
+            // 恢复按钮状态
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '处理';
+            }
+            
+            if (data.success) {
+                // 关闭模态框
+                document.getElementById('alarmProcessModal').hideModal();
+                
+                // 显示成功消息
+                showMessage('告警处理成功！', 'success');
+                
+                // 延迟1秒后刷新页面
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                // 显示错误消息
+                showMessage(`告警处理失败: ${data.message || '未知错误'}`, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('处理过程中出错:', error);
+            showMessage(`处理过程中出错: ${error.message}`, 'danger');
+            
+            // 恢复按钮状态
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '处理';
+            }
+        });
+    };
+    
+    // 导出功能
+    window.exportAlarms = function() {
+        // 构建带有当前筛选条件的导出URL
+        const baseUrl = "{{ url_for('alarms_view.export_alarms') }}";
+        const params = new URLSearchParams(window.location.search);
+        
+        // 确保用户令牌被包含
+        if (!params.has('user_token') && "{{ request.args.get('user_token') }}") {
+            params.set('user_token', "{{ request.args.get('user_token') }}");
+        }
+        
+        window.location.href = `${baseUrl}?${params.toString()}`;
+    };
 });
-
-// 添加showModalWithoutBackdrop函数，用于显示模态框但不创建遮罩层
-window.showModalWithoutBackdrop = function(modalId) {
-    console.log("显示模态框(无遮罩层):", modalId);
-    const modal = document.getElementById(modalId);
-    if (!modal) {
-        console.error("未找到模态框:", modalId);
-        return;
-    }
-    
-    // 移除所有可能的遮罩层
-    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
-    
-    // 确保移除aria-hidden属性，避免可访问性问题
-    modal.removeAttribute('aria-hidden');
-    
-    // 显示模态框
-    modal.style.display = 'block';
-    modal.classList.add('show');
-    
-    // 设置透明背景（可选，如果需要灰色背景但不要实际的遮罩层）
-    modal.style.backgroundColor = 'rgba(0,0,0,0.3)';
-    
-    // 提高z-index确保在顶层
-    modal.style.zIndex = '2000';
-    
-    // 设置模态框内部元素的z-index
-    const dialog = modal.querySelector('.modal-dialog');
-    if (dialog) dialog.style.zIndex = '2001';
-    
-    const content = modal.querySelector('.modal-content');
-    if (content) content.style.zIndex = '2002';
-    
-    // 确保dropdown菜单也有更高的z-index
-    const dropdownMenus = modal.querySelectorAll('.dropdown-menu');
-    dropdownMenus.forEach(menu => {
-        menu.style.zIndex = '2003';
-    });
-    
-    // 添加ESC键关闭功能
-    const escHandler = function(e) {
-        if (e.key === 'Escape') {
-            hideModalWithoutBackdrop(modalId);
-            document.removeEventListener('keydown', escHandler);
-        }
-    };
-    document.addEventListener('keydown', escHandler);
-    
-    // 点击模态框空白区域关闭
-    modal.onclick = function(e) {
-        if (e.target === modal) {
-            hideModalWithoutBackdrop(modalId);
-        }
-    };
-    
-    // 为关闭按钮添加事件
-    const closeButtons = modal.querySelectorAll('[data-bs-dismiss="modal"]');
-    closeButtons.forEach(button => {
-        // 移除原有的data-bs-dismiss属性以防止Bootstrap的处理
-        button.removeAttribute('data-bs-dismiss');
-        button.addEventListener('click', function() {
-            hideModalWithoutBackdrop(modalId);
-        });
-    });
-    
-    // 标记body
-    document.body.classList.add('modal-open');
-};
-
-// 添加hideModalWithoutBackdrop函数，用于隐藏模态框
-window.hideModalWithoutBackdrop = function(modalId) {
-    console.log("隐藏模态框:", modalId);
-    const modal = document.getElementById(modalId);
-    if (!modal) return;
-    
-    // 如果模态框已经在关闭过程中，则不再处理
-    if (modal.dataset.closing === 'true') {
-        return;
-    }
-    
-    // 标记模态框正在关闭
-    modal.dataset.closing = 'true';
-    
-    // 隐藏模态框
-    modal.style.display = 'none';
-    modal.classList.remove('show');
-    modal.style.backgroundColor = '';
-    
-    // 移除body标记
-    document.body.classList.remove('modal-open');
-    document.body.style.paddingRight = '';
-    
-    // 移除可能的事件监听器
-    modal.onclick = null;
-    
-    // 设置定时器，在300ms后移除关闭标记，允许下次打开
-    setTimeout(() => {
-        delete modal.dataset.closing;
-    }, 300);
-};
 </script>
 
-<!-- 在页面底部添加，仅用于调试
-<div class="container mt-4 border p-3 bg-light" style="font-size: 12px;">
-    <h6>告警数据调试信息：</h6>
-    {% for alarm in alarms %}
-        {% if alarm.alarm_code == "ALM202504191602239614" %}
-        <div class="border-bottom py-2">
-            <strong>告警编号:</strong> {{ alarm.alarm_code }}<br>
-            <strong>确认状态:</strong> {{ alarm.is_confirmed }}<br>
-            <strong>确认类型:</strong> {{ alarm.confirmation_type }}<br>
-            <strong>确认时间:</strong> {{ alarm.confirmed_at }}<br>
-            <strong>处理状态:</strong> {{ alarm.is_processed }}<br>
-            <strong>告警状态:</strong> {{ alarm.processed_status }}<br>
-        </div>
-        {% endif %}
-    {% endfor %}
-</div> -->
 {% endblock %}

@@ -11,9 +11,20 @@ bp = Blueprint('edge_devices', __name__, url_prefix='/edge_devices')
 @login_required
 def index():
     """边缘设备管理页面"""
-    devices = EdgeDevice.query.all()
-    # 确保设备列表包含设备编号信息
-    return render_template('edge_devices/edge_devices_index.html', devices=devices)
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    
+    # 构建查询
+    query = EdgeDevice.query
+    
+    # 分页
+    pagination = query.paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    
+    return render_template('edge_devices/edge_devices_index.html', 
+                           devices=pagination.items,
+                           pagination=pagination)
 
 @bp.route('/detail/<string:device_id>')
 @login_required

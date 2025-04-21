@@ -5,6 +5,20 @@
 {% block content %}
 <div class="container">
     <h2>编辑用户</h2>
+    
+    <!-- 显示flash消息 -->
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    {% endwith %}
+    
     <div class="card">
         <div class="card-body">
             <!-- 不需要修改，因为它使用传统的表单提交 -->
@@ -16,6 +30,16 @@
                 <div class="mb-3">
                     <label for="password" class="form-label">密码（留空表示不修改）</label>
                     <input type="password" class="form-control" id="password" name="password">
+                    <div class="form-text text-muted mt-1">
+                        <small>密码必须满足以下要求：</small>
+                        <ul class="ps-3 mb-0">
+                            <li><small>至少8个字符</small></li>
+                            <li><small>至少包含一个大写字母</small></li>
+                            <li><small>至少包含一个小写字母</small></li>
+                            <li><small>至少包含一个数字</small></li>
+                            <li><small>至少包含一个特殊字符(!@#$%^&*)</small></li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="role" class="form-label">角色</label>

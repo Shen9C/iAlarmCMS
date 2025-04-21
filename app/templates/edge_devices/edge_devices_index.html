@@ -7,13 +7,11 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">边缘设备管理</h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addDeviceModal">
-                            <i class="fas fa-plus"></i> 添加设备
-                        </button>
-                    </div>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">边缘设备管理</h3>
+                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addDeviceModal">
+                        <i class="fas fa-plus"></i> 添加设备
+                    </button>
                 </div>
                 <div class="card-body">
                     <table class="table table-bordered table-striped" id="deviceTable">
@@ -59,7 +57,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ device.created_at }}</td>
+                                <td>{{ device.created_at|datetime }}</td>
                                 <td>
                                     <button class="btn btn-info btn-sm edit-device" data-id="{{ device.id }}" data-name="{{ device.device_name }}" data-ip="{{ device.ip_address }}" data-device-id="{{ device.device_id }}">
                                         <i class="fas fa-edit"></i> 编辑
@@ -75,6 +73,68 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                    
+                    <!-- 分页区域 -->
+                    <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
+                        <div class="d-flex align-items-center">
+                            <!-- 每页显示数量选择器 -->
+                            <form id="searchForm" method="GET" action="{{ url_for('edge_devices.index') }}">
+                                <label class="me-2 form-label-sm">每页显示：</label>
+                                <select name="per_page" class="form-select form-select-sm d-inline-block" style="width: 80px;" onchange="this.form.submit()">
+                                    <option value="10" {% if request.args.get('per_page', '10')|int == 10 %}selected{% endif %}>10</option>
+                                    <option value="15" {% if request.args.get('per_page', '10')|int == 15 %}selected{% endif %}>15</option>
+                                    <option value="20" {% if request.args.get('per_page', '10')|int == 20 %}selected{% endif %}>20</option>
+                                    <option value="50" {% if request.args.get('per_page', '10')|int == 50 %}selected{% endif %}>50</option>
+                                    <option value="100" {% if request.args.get('per_page', '10')|int == 100 %}selected{% endif %}>100</option>
+                                </select>
+                                {% for key, value in request.args.items() %}
+                                    {% if key not in ['per_page', 'page'] %}
+                                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                                    {% endif %}
+                                {% endfor %}
+                            </form>
+                            <span class="ms-3 text-muted small">共 {{ pagination.total }} 条记录</span>
+                        </div>
+                        
+                        <!-- 分页导航 -->
+                        {% if pagination and pagination.pages > 1 %}
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-sm mb-0">
+                                {% if pagination.has_prev %}
+                                <li class="page-item">
+                                    {% set args = request.args.copy() %}
+                                    {% set _ = args.pop('page', None) %}
+                                    <a class="page-link" href="{{ url_for('edge_devices.index', page=pagination.prev_num, **args) }}">上一页</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled"><span class="page-link">上一页</span></li>
+                                {% endif %}
+                                
+                                {% for page_num in pagination.iter_pages(left_edge=1, left_current=2, right_current=3, right_edge=1) %}
+                                    {% if page_num %}
+                                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                                            {% set args = request.args.copy() %}
+                                            {% set _ = args.pop('page', None) %}
+                                            <a class="page-link" href="{{ url_for('edge_devices.index', page=page_num, **args) }}">{{ page_num }}</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if pagination.has_next %}
+                                <li class="page-item">
+                                    {% set args = request.args.copy() %}
+                                    {% set _ = args.pop('page', None) %}
+                                    <a class="page-link" href="{{ url_for('edge_devices.index', page=pagination.next_num, **args) }}">下一页</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled"><span class="page-link">下一页</span></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
