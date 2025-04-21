@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}{{ '编辑油井' if oil_well else '新建油井' }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">{{ '编辑油井' if oil_well else '新建油井' }}</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ url_for('oil_wells_view.index') }}">油井管理</a></li>
+        <li class="breadcrumb-item active">{{ '编辑油井' if oil_well else '新建油井' }}</li>
+    </ol>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-{{ 'edit' if oil_well else 'plus' }} me-1"></i>
+                    {{ '编辑油井信息' if oil_well else '新建油井' }}
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('oil_wells_view.edit', oil_well_id=oil_well.id) if oil_well else url_for('oil_wells_view.create') }}">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="well_code" class="form-label">油井编号 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="well_code" name="well_code" value="{{ oil_well.well_code if oil_well else '' }}" required {% if oil_well %}readonly{% endif %}>
+                                    <div class="form-text">油井编号一旦创建不可修改，将用于关联任务和告警</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="well_name" class="form-label">油井名称 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="well_name" name="well_name" value="{{ oil_well.well_name if oil_well else '' }}" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="location" class="form-label">位置</label>
+                                    <input type="text" class="form-control" id="location" name="location" value="{{ oil_well.location if oil_well else '' }}" placeholder="例如：测试区域-A1">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="status" class="form-label">状态</label>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="正常" {% if oil_well and oil_well.status == '正常' %}selected{% endif %}>正常</option>
+                                        <option value="维护中" {% if oil_well and oil_well.status == '维护中' %}selected{% endif %}>维护中</option>
+                                        <option value="停机" {% if oil_well and oil_well.status == '停机' %}selected{% endif %}>停机</option>
+                                        <option value="其他" {% if oil_well and oil_well.status not in ['正常', '维护中', '停机'] %}selected{% endif %}>其他</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="description" class="form-label">描述</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" placeholder="请输入油井的详细描述信息...">{{ oil_well.description if oil_well else '' }}</textarea>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('oil_wells_view.index') }}" class="btn btn-secondary">取消</a>
+                            <button type="submit" class="btn btn-primary">{{ '保存修改' if oil_well else '创建油井' }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-info-circle me-1"></i>
+                    提示
+                </div>
+                <div class="card-body">
+                    <h5>油井编号规则</h5>
+                    <p>油井编号是油井的唯一标识，建议使用以下格式：</p>
+                    <ul>
+                        <li>包含字母 <code>WELL</code> 前缀</li>
+                        <li>后跟3-5位数字，例如 <code>WELL001</code></li>
+                    </ul>
+                    
+                    <h5>位置信息</h5>
+                    <p>位置信息可以包含区域、坐标等，例如：</p>
+                    <ul>
+                        <li>测试区域-A1</li>
+                        <li>东区-12号油井</li>
+                    </ul>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb me-1"></i>
+                        创建油井后，您可以为该油井添加相关任务
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 允许从其他下拉列表中选择"其他"时，显示输入框
+    const statusSelect = document.getElementById('status');
+    if (statusSelect) {
+        statusSelect.addEventListener('change', function() {
+            if (this.value === '其他') {
+                // 弹出自定义输入框
+                const customStatus = prompt('请输入自定义状态:', '');
+                if (customStatus && customStatus.trim() !== '') {
+                    // 添加新选项
+                    const newOption = new Option(customStatus, customStatus, true, true);
+                    statusSelect.add(newOption);
+                } else {
+                    // 如果取消或输入为空，恢复选择为"正常"
+                    statusSelect.value = '正常';
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

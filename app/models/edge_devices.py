@@ -9,13 +9,13 @@ import uuid
 class EdgeDevice(db.Model):
     __tablename__ = 'edge_devices'
     
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, comment='设备ID，自增主键')
     device_id = db.Column(db.String(64), nullable=False, unique=True, comment='设备唯一ID')
     device_name = db.Column(db.String(100), nullable=False, comment='设备名称')
     ip_address = db.Column(db.String(50), nullable=False, comment='设备IP地址')
     secret_key = db.Column(db.String(128), nullable=False, comment='设备密钥')
-    created_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone())
-    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), onupdate=lambda: datetime.now().astimezone())
+    created_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), comment='创建时间')
+    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), onupdate=lambda: datetime.now().astimezone(), comment='更新时间')
     
     def __init__(self, device_name, ip_address, device_id=None, secret_key=None):
         self.device_name = device_name

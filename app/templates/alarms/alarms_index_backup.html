@@ -132,7 +132,7 @@
                         </td>
                     <td class="text-center align-middle">
                         {% if alarm.is_confirmed %}
-                            <span class="badge bg-secondary">{{ alarm.confirm_type or '正常告警' }}</span>
+                            <span class="badge bg-secondary">{{ alarm.confirm_type or '故障' }}</span>
                             {% else %}
                             <span class="text-muted">-</span>
                             {% endif %}
@@ -412,11 +412,11 @@
                         <!-- 替换为按钮和下拉菜单 -->
                         <div class="dropdown">
                             <button class="btn btn-outline-secondary dropdown-toggle form-control text-start" type="button" id="confirm-type-display" data-bs-toggle="dropdown" aria-expanded="false">
-                              正常告警
+                              故障
                             </button>
-                            <input type="hidden" id="confirm-type" name="confirm_type" value="正常告警">
+                            <input type="hidden" id="confirm-type" name="confirm_type" value="故障">
                             <ul class="dropdown-menu w-100" id="confirm-type-menu">
-                                <li><a class="dropdown-item confirm-type-option" data-value="正常告警" href="javascript:void(0)">正常告警</a></li>
+                                <li><a class="dropdown-item confirm-type-option" data-value="故障" href="javascript:void(0)">故障</a></li>
                                 <li><a class="dropdown-item confirm-type-option" data-value="误报" href="javascript:void(0)">误报</a></li>
                                 <li><a class="dropdown-item confirm-type-option" data-value="测试" href="javascript:void(0)">测试</a></li>
                                 <li><a class="dropdown-item confirm-type-option" data-value="自动" href="javascript:void(0)">自动</a></li>
@@ -504,11 +504,11 @@
                         <!-- 替换为按钮和下拉菜单 -->
                         <div class="dropdown">
                             <button class="btn btn-outline-secondary dropdown-toggle form-control text-start" type="button" id="batch-confirm-type-display" data-bs-toggle="dropdown" aria-expanded="false">
-                              正常告警
+                              故障
                             </button>
-                            <input type="hidden" id="batch-confirm-type" name="confirm_type" value="正常告警">
+                            <input type="hidden" id="batch-confirm-type" name="confirm_type" value="故障">
                             <ul class="dropdown-menu w-100" id="batch-confirm-type-menu">
-                                <li><a class="dropdown-item batch-confirm-type-option" data-value="正常告警" href="javascript:void(0)">正常告警</a></li>
+                                <li><a class="dropdown-item batch-confirm-type-option" data-value="故障" href="javascript:void(0)">故障</a></li>
                                 <li><a class="dropdown-item batch-confirm-type-option" data-value="误报" href="javascript:void(0)">误报</a></li>
                                 <li><a class="dropdown-item batch-confirm-type-option" data-value="测试" href="javascript:void(0)">测试</a></li>
                                 <li><a class="dropdown-item batch-confirm-type-option" data-value="其他" href="javascript:void(0)">其他</a></li>

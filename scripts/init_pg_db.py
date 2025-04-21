@@ -55,6 +55,7 @@ from app.models.users import User
 from app.models.alarms import Alarm
 from app.models.edge_devices import EdgeDevice
 from app.models.tasks import Task
+from app.models.oil_wells import OilWell
 from app.models.settings import SystemConfig, KeyValueSetting
 from config import Config
 
@@ -163,6 +164,7 @@ def init():
                 'alarms': Alarm,
                 'edge_devices': EdgeDevice,
                 'tasks': Task,
+                'oil_wells': OilWell,  # 添加油井表
                 'system_config': SystemConfig,
                 'key_value_settings': KeyValueSetting
             }
@@ -223,344 +225,410 @@ def init():
             # 特别检查表的字段
             cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'alarms'")
             alarm_columns = {col[0] for col in cursor.fetchall()}
-            if 'alarm_code' in alarm_columns:
-                logger.info(f"{SUCCESS_MARK} 告警表包含alarm_code字段")
+            required_alarm_fields = ['alarm_code', 'is_processed', 'is_confirmed', 'well_code']
+            missing_fields = [field for field in required_alarm_fields if field not in alarm_columns]
+            
+            if not missing_fields:
+                logger.info(f"{SUCCESS_MARK} 告警表包含所有必需字段")
             else:
-                logger.error(f"{ERROR_MARK} 告警表不包含alarm_code字段")
-                if 'alarm_id' in alarm_columns:
+                logger.error(f"{ERROR_MARK} 告警表缺少字段: {', '.join(missing_fields)}")
+                if 'alarm_id' in alarm_columns and 'alarm_code' not in alarm_columns:
                     logger.warning("警告: 告警表仍然使用的是旧的alarm_id字段")
                     logger.warning("建议使用 python scripts/init_pg_db.py rebuild 命令强制重建表结构")
+                if 'processed_status' in alarm_columns:
+                    logger.warning("警告: 告警表使用了processed_status字段，应该使用is_processed和is_confirmed")
             
             cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'tasks'")
             task_columns = {col[0] for col in cursor.fetchall()}
-            if 'task_type' in task_columns:
-                logger.info(f"{SUCCESS_MARK} 任务表包含task_type字段")
+            required_task_fields = ['task_code', 'task_type', 'well_code', 'well_name', 'task_description']
+            missing_task_fields = [field for field in required_task_fields if field not in task_columns]
+            
+            if not missing_task_fields:
+                logger.info(f"{SUCCESS_MARK} 任务表包含所有必需字段")
             else:
-                logger.error(f"{ERROR_MARK} 任务表不包含task_type字段")
-                if 'detection_type' in task_columns:
+                logger.error(f"{ERROR_MARK} 任务表缺少字段: {', '.join(missing_task_fields)}")
+                if 'detection_type' in task_columns and 'task_type' not in task_columns:
                     logger.warning("警告: 任务表仍然使用的是旧的detection_type字段")
                     logger.warning("建议使用 python scripts/init_pg_db.py rebuild 命令强制重建表结构")
             
+            # 特别检查油井表
+            cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'oil_wells'")
+            oil_well_columns = {col[0] for col in cursor.fetchall()}
+            required_oil_well_fields = ['well_code', 'well_name', 'status', 'location']
+            missing_oil_well_fields = [field for field in required_oil_well_fields if field not in oil_well_columns]
+            
+            if not missing_oil_well_fields:
+                logger.info(f"{SUCCESS_MARK} 油井表包含所有必需字段")
+            else:
+                logger.error(f"{ERROR_MARK} 油井表缺少字段: {', '.join(missing_oil_well_fields)}")
+            
+            # 清理连接
             cursor.close()
             conn.close()
             
-            # 创建管理员用户
-            admin = User.query.filter_by(username='管理员').first()
-            default_password = 'admin123'
-            
-            if admin:
-                logger.info("找到现有管理员用户，将更新密码")
-                admin.set_password(default_password)
-            else:
-                logger.info("创建新的管理员用户")
-                admin = User(
-                    username='管理员',
-                    is_admin=True,
-                    role='admin',
-                    last_login_time=datetime.now(),
-                    active=True
-                )
-                admin.set_password(default_password)
-                db.session.add(admin)
-            
-            db.session.commit()
-            logger.info("管理员用户设置完成")
-            logger.info("=== 默认管理员账户信息 ===")
-            logger.info(f"用户名: 管理员")
-            logger.info(f"密码: {default_password}")
-            logger.info("========================")
-            
-            # 验证数据库状态
-            users = User.query.all()
-            logger.info(f"\n数据库中的用户列表:")
-            logger.info("------------------------")
-            for user in users:
-                logger.info(f"用户名: {user.username}")
-                logger.info(f"角色: {user.role}")
-                logger.info(f"是否管理员: {user.is_admin}")
-                logger.info("------------------------")
+            # 创建管理员账户
+            try:
+                # 检查是否已有管理员账户
+                admin = User.query.filter_by(username='管理员').first()
+                if not admin:
+                    admin = User(
+                        username='管理员',
+                        role='admin',
+                        is_admin=True,
+                        active=True
+                    )
+                    admin.set_password('admin123')
+                    db.session.add(admin)
+                    db.session.commit()
+                    logger.info(f"{SUCCESS_MARK} 管理员账户创建成功")
+                else:
+                    logger.info(f"管理员账户已存在，跳过创建")
+            except Exception as e:
+                logger.error(f"{ERROR_MARK} 创建管理员账户失败: {str(e)}")
             
             logger.info("数据库初始化完成")
-            
         except Exception as e:
-            logger.error(f"数据库初始化过程中出错: {str(e)}")
+            logger.error(f"数据库初始化失败: {str(e)}")
             logger.error(traceback.format_exc())
 
 @cli.command(name='clear-all')  # 使用连字符
 def clear_all():
-    """清空所有数据（包括管理员账户）并删除所有表"""
+    """清空所有表的数据但保留表结构"""
     with app.app_context():
         try:
-            # 先清空表中的数据
-            logger.info("清空表中的数据...")
-            try:
-                # 按照依赖关系的相反顺序删除数据
-                Alarm.query.delete()
-                Task.query.delete()
-                EdgeDevice.query.delete()
-                User.query.delete()
-                SystemConfig.query.delete()
-                KeyValueSetting.query.delete()
-                db.session.commit()
-                logger.info("表数据清空成功")
-            except Exception as e:
-                db.session.rollback()
-                logger.error(f"清空数据出错: {str(e)}")
+            # 清理会话
+            clear_user_sessions()
+            
+            # 添加风险警告
+            confirm = input("警告: 此操作将清空所有表的数据！是否继续执行? (yes/no): ").strip().lower()
+            if confirm != 'yes':
+                logger.info("操作已取消")
+                return
+            
+            # 获取所有表名
+            conn = get_connection()
+            if not conn:
+                logger.error("无法连接到数据库，请检查配置")
+                return
                 
-            # 删除所有表
-            logger.info("开始删除表结构...")
-            try:
-                # 使用原始SQL删除表，绕过外键约束
-                db.session.execute(text("DROP TABLE IF EXISTS alarms CASCADE"))
-                db.session.execute(text("DROP TABLE IF EXISTS tasks CASCADE"))
-                db.session.execute(text("DROP TABLE IF EXISTS edge_devices CASCADE"))
-                db.session.execute(text("DROP TABLE IF EXISTS users CASCADE"))
-                db.session.execute(text("DROP TABLE IF EXISTS system_config CASCADE"))
-                db.session.execute(text("DROP TABLE IF EXISTS key_value_settings CASCADE"))
-                db.session.execute(text("DROP TABLE IF EXISTS alembic_version CASCADE"))  # 删除迁移版本表
-                db.session.commit()
-                logger.info("表结构删除成功")
-            except Exception as e:
-                db.session.rollback()
-                logger.error(f"删除表结构出错: {str(e)}")
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_schema = 'public' 
+                AND table_type = 'BASE TABLE'
+                AND table_name NOT IN ('alembic_version', 'spatial_ref_sys')
+            """)
+            tables = [table[0] for table in cursor.fetchall()]
+            cursor.close()
+            conn.close()
             
-            # 重新创建表
-            logger.info("重新创建表结构...")
-            db.create_all()
-            logger.info("表结构创建成功")
+            # 清空所有表数据
+            inspector = inspect(db.engine)
+            existing_tables = inspector.get_table_names()
             
-            # 检查表的字段
-            try:
-                inspector = inspect(db.engine)
-                # 检查告警表字段
-                if 'alarms' in inspector.get_table_names():
-                    columns = [column['name'] for column in inspector.get_columns('alarms')]
-                    if 'alarm_code' in columns:
-                        logger.info(f"{SUCCESS_MARK} 告警表包含alarm_code字段")
-                    else:
-                        logger.error(f"{ERROR_MARK} 告警表不包含alarm_code字段")
-                        if 'alarm_id' in columns:
-                            logger.warning("警告: 告警表仍然使用的是旧的alarm_id字段")
-                            logger.warning("建议使用 python scripts/init_pg_db.py rebuild 命令强制重建表结构")
-                
-                # 检查任务表字段
-                if 'tasks' in inspector.get_table_names():
-                    columns = [column['name'] for column in inspector.get_columns('tasks')]
-                    if 'task_type' in columns:
-                        logger.info(f"{SUCCESS_MARK} 任务表包含task_type字段")
-                    else:
-                        logger.error(f"{ERROR_MARK} 任务表不包含task_type字段")
-                        if 'detection_type' in columns:
-                            logger.warning("警告: 任务表仍然使用的是旧的detection_type字段")
-                            logger.warning("建议使用 python scripts/init_pg_db.py rebuild 命令强制重建表结构")
-            except Exception as e:
-                logger.error(f"检查表结构出错: {str(e)}")
+            # 首先清除有外键约束的表
+            logger.info("正在清空表数据...")
             
-            logger.info("数据库重置完成")
+            # 删除顺序非常重要，需要考虑外键引用
+            deletion_order = [
+                'alarms',          # 先删除告警，因为它可能引用任务和设备
+                'tasks',           # 再删除任务，因为它可能引用设备和油井
+                'edge_devices',    # 再删除设备
+                'oil_wells',       # 再删除油井
+                'users',           # 再删除用户
+                'system_config',   # 再删除系统配置
+                'key_value_settings', # 最后删除键值设置
+            ]
             
+            # 过滤出实际存在的表
+            deletion_order = [table for table in deletion_order if table in existing_tables]
+            
+            # 添加其他没有列出的表
+            other_tables = [table for table in existing_tables if table not in deletion_order and table != 'alembic_version']
+            deletion_order.extend(other_tables)
+            
+            # 执行删除
+            for table in deletion_order:
+                try:
+                    db.session.execute(text(f'DELETE FROM "{table}"'))
+                    logger.info(f"{SUCCESS_MARK} 清空表 {table} 成功")
+                except Exception as e:
+                    logger.error(f"{ERROR_MARK} 清空表 {table} 失败: {str(e)}")
+            
+            # 提交事务
+            db.session.commit()
+            
+            # 创建管理员账户
+            admin = User(
+                username='管理员',
+                role='admin',
+                is_admin=True,
+                active=True
+            )
+            admin.set_password('admin123')
+            db.session.add(admin)
+            db.session.commit()
+            logger.info(f"{SUCCESS_MARK} 管理员账户创建成功")
+            
+            logger.info("所有表数据已清空，并重新创建了管理员账户")
         except Exception as e:
-            logger.error(f"清空数据和删除表结构出错: {str(e)}")
+            db.session.rollback()
+            logger.error(f"清空表数据失败: {str(e)}")
             logger.error(traceback.format_exc())
 
 @cli.command(name='clear-test')  # 使用连字符
 def clear_test():
-    """清空测试数据（保留管理员账户）"""
+    """清空测试数据，但保留用户账户和系统配置"""
     with app.app_context():
         try:
-            logger.info("开始清理测试数据...")
+            # 添加风险警告
+            confirm = input("警告: 此操作将清空所有测试数据！是否继续执行? (yes/no): ").strip().lower()
+            if confirm != 'yes':
+                logger.info("操作已取消")
+                return
             
-            # 按照外键依赖关系顺序清理数据
-            logger.info("清理告警数据...")
-            Alarm.query.delete()
+            # 清空测试数据表
+            test_tables = ['alarms', 'tasks', 'edge_devices', 'oil_wells']
             
-            logger.info("清理任务数据...")
-            Task.query.delete()
+            logger.info("正在清空测试数据...")
             
-            logger.info("清理边缘设备数据...")
-            EdgeDevice.query.delete()
+            # 按正确的顺序删除，考虑外键约束
+            for table in test_tables:
+                try:
+                    db.session.execute(text(f'DELETE FROM "{table}"'))
+                    logger.info(f"{SUCCESS_MARK} 清空表 {table} 成功")
+                except Exception as e:
+                    logger.error(f"{ERROR_MARK} 清空表 {table} 失败: {str(e)}")
             
-            logger.info("清理非管理员用户数据...")
-            User.query.filter(User.username != '管理员').delete()
-            
-            logger.info("清理系统配置数据...")
-            SystemConfig.query.delete()
-            
-            logger.info("清理键值设置数据...")
-            KeyValueSetting.query.delete()
-            
+            # 提交事务
             db.session.commit()
-            logger.info('测试数据清理完成')
             
-            # 验证清理结果
-            admin_count = User.query.filter_by(username='管理员').count()
-            logger.info(f"管理员账户状态: {'存在' if admin_count == 1 else '不存在'}")
-            
+            logger.info("所有测试数据已清空")
         except Exception as e:
-            logger.error(f'清理数据出错: {str(e)}')
             db.session.rollback()
+            logger.error(f"清空测试数据失败: {str(e)}")
+            logger.error(traceback.format_exc())
 
 @cli.command()
 def backup():
-    """备份PostgreSQL数据库"""
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    backup_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'backups')
-    os.makedirs(backup_dir, exist_ok=True)
-    
-    backup_file = os.path.join(backup_dir, f'{DB_NAME}_backup_{timestamp}.sql')
-    
+    """备份数据库"""
     try:
-        import subprocess
-        # 使用pg_dump进行备份
+        # 生成备份文件名（使用日期和时间）
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        backup_file = f"backup_{DB_NAME}_{timestamp}.sql"
+        
+        # 构建pg_dump命令
         cmd = f'pg_dump -h {DB_HOST} -p {DB_PORT} -U {DB_USER} -F c -b -v -f "{backup_file}" {DB_NAME}'
         
-        # 设置环境变量PGPASSWORD
-        env = os.environ.copy()
-        env['PGPASSWORD'] = DB_PASSWORD
+        # 设置环境变量，支持密码
+        os.environ['PGPASSWORD'] = DB_PASSWORD
         
-        logger.info(f"开始备份数据库到: {backup_file}")
-        process = subprocess.Popen(cmd, shell=True, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+        # 执行备份命令
+        logger.info(f"正在备份数据库到 {backup_file}...")
+        exit_code = os.system(cmd)
         
-        if process.returncode == 0:
-            logger.info(f"数据库备份成功: {backup_file}")
+        # 清除环境变量中的密码
+        os.environ.pop('PGPASSWORD', None)
+        
+        if exit_code == 0:
+            logger.info(f"{SUCCESS_MARK} 数据库备份成功: {backup_file}")
         else:
-            logger.error(f"数据库备份失败: {stderr.decode('utf-8')}")
+            logger.error(f"{ERROR_MARK} 数据库备份失败，退出代码: {exit_code}")
     except Exception as e:
-        logger.error(f"备份过程中出错: {str(e)}")
+        logger.error(f"数据库备份过程中出错: {str(e)}")
 
 @cli.command()
 @click.argument('backup_file')
 def restore(backup_file):
-    """从备份文件恢复PostgreSQL数据库"""
-    if not os.path.exists(backup_file):
-        logger.error(f"备份文件不存在: {backup_file}")
-        return
-    
+    """从备份文件恢复数据库"""
     try:
-        import subprocess
-        # 使用pg_restore进行恢复
+        # 检查备份文件是否存在
+        if not os.path.exists(backup_file):
+            logger.error(f"备份文件不存在: {backup_file}")
+            return
+        
+        # 添加风险警告
+        confirm = input(f"警告: 此操作将用备份文件 {backup_file} 覆盖现有数据库！是否继续执行? (yes/no): ").strip().lower()
+        if confirm != 'yes':
+            logger.info("操作已取消")
+            return
+        
+        # 构建pg_restore命令
         cmd = f'pg_restore -h {DB_HOST} -p {DB_PORT} -U {DB_USER} -d {DB_NAME} -c -v "{backup_file}"'
         
-        # 设置环境变量PGPASSWORD
-        env = os.environ.copy()
-        env['PGPASSWORD'] = DB_PASSWORD
+        # 设置环境变量，支持密码
+        os.environ['PGPASSWORD'] = DB_PASSWORD
         
-        logger.info(f"开始从备份文件恢复数据库: {backup_file}")
-        process = subprocess.Popen(cmd, shell=True, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+        # 执行恢复命令
+        logger.info(f"正在从 {backup_file} 恢复数据库...")
+        exit_code = os.system(cmd)
         
-        if process.returncode == 0:
-            logger.info("数据库恢复成功")
+        # 清除环境变量中的密码
+        os.environ.pop('PGPASSWORD', None)
+        
+        if exit_code == 0:
+            logger.info(f"{SUCCESS_MARK} 数据库恢复成功")
         else:
-            logger.error(f"数据库恢复失败: {stderr.decode('utf-8')}")
+            logger.error(f"{ERROR_MARK} 数据库恢复失败，退出代码: {exit_code}")
     except Exception as e:
-        logger.error(f"恢复过程中出错: {str(e)}")
+        logger.error(f"数据库恢复过程中出错: {str(e)}")
+
+def clear_user_sessions():
+    """清理所有用户会话"""
+    try:
+        logger.info("正在清理所有用户会话...")
+        from app.models.users import User
+        users = User.query.all()
+        for user in users:
+            user.current_token = None
+            user.token_timestamp = None
+        db.session.commit()
+        logger.info(f"{SUCCESS_MARK} 所有用户会话已清理")
+    except Exception as e:
+        logger.error(f"清理用户会话失败: {str(e)}")
 
 @cli.command()
 def rebuild():
-    """强制重建数据库表，确保使用最新的模型定义（所有数据将丢失）"""
-    logger.info("开始强制重建数据库表...")
-    
-    # 快速检查数据库是否存在
-    if not create_database_if_not_exists():
-        logger.error("创建数据库失败")
-        return
-    
+    """强制重建数据库表结构（警告：此操作会删除所有数据）"""
     with app.app_context():
         try:
-            # 确保在应用上下文内没有重复的日志处理器
-            for module_name in ['sqlalchemy.engine', 'alembic', 'werkzeug']:
-                module_logger = logging.getLogger(module_name)
-                module_logger.handlers.clear()
-                module_logger.addHandler(logging.NullHandler())
-                module_logger.propagate = False
+            # 清理会话
+            clear_user_sessions()
             
-            # 先删除所有表
-            logger.info("开始删除所有表...")
+            # 添加风险警告
+            confirm = input("警告: 此操作将删除所有表并重新创建，所有数据将丢失！是否继续执行? (yes/no): ").strip().lower()
+            if confirm != 'yes':
+                logger.info("操作已取消")
+                return
             
-            # 按依赖关系的反顺序删除
-            tables = [
-                'alarms',
-                'tasks',
-                'edge_devices',
-                'users',
-                'system_config',
-                'key_value_settings',
-                'alembic_version'  # 如果有使用Alembic进行迁移
-            ]
+            # 获取要删除的表名
+            logger.info("正在获取数据库表信息...")
+            inspector = inspect(db.engine)
+            tables = inspector.get_table_names()
             
-            for table in tables:
-                try:
-                    db.session.execute(text(f"DROP TABLE IF EXISTS {table} CASCADE"))
-                    logger.info(f"{SUCCESS_MARK} 表 {table} 删除成功")
-                except Exception as e:
-                    logger.error(f"{ERROR_MARK} 删除表 {table} 失败: {str(e)}")
+            # 排除alembic_version表
+            tables = [table for table in tables if table != 'alembic_version']
             
-            db.session.commit()
-            logger.info("所有表删除完成")
+            # 检查是否有表需要删除
+            if not tables:
+                logger.info("数据库中没有需要删除的表")
+            else:
+                # 首先删除表，必须考虑表之间的依赖关系
+                # 按照依赖顺序删除表
+                deletion_order = [
+                    'alarms',          # 先删除告警，因为它可能引用任务和设备
+                    'tasks',           # 再删除任务，因为它可能引用设备和油井
+                    'edge_devices',    # 再删除设备
+                    'oil_wells',       # 再删除油井
+                    'users',           # 再删除用户
+                    'system_config',   # 再删除系统配置
+                    'key_value_settings', # 最后删除键值设置
+                ]
+                
+                logger.info("正在删除表...")
+                
+                # 确保只删除存在的表，按照依赖顺序
+                for table in deletion_order:
+                    if table in tables:
+                        try:
+                            db.session.execute(text(f'DROP TABLE IF EXISTS "{table}" CASCADE'))
+                            logger.info(f"{SUCCESS_MARK} 删除表 {table} 成功")
+                        except Exception as e:
+                            logger.error(f"{ERROR_MARK} 删除表 {table} 失败: {str(e)}")
+                
+                # 删除未在列表中但存在的表
+                remaining_tables = [table for table in tables if table not in deletion_order]
+                for table in remaining_tables:
+                    try:
+                        db.session.execute(text(f'DROP TABLE IF EXISTS "{table}" CASCADE'))
+                        logger.info(f"{SUCCESS_MARK} 删除表 {table} 成功")
+                    except Exception as e:
+                        logger.error(f"{ERROR_MARK} 删除表 {table} 失败: {str(e)}")
+                
+                # 提交删除操作
+                db.session.commit()
             
             # 重新创建所有表
-            logger.info("开始创建表...")
+            logger.info("正在创建新的表结构...")
             db.create_all()
-            logger.info("表创建完成")
             
-            # 验证表结构
-            inspector = inspect(db.engine)
-            for model in ['users', 'alarms', 'edge_devices', 'tasks', 'system_config', 'key_value_settings']:
-                if model in inspector.get_table_names():
-                    logger.info(f"{SUCCESS_MARK} 表 {model} 创建成功")
-                    
-                    # 如果是告警表，检查字段
-                    if model == 'alarms':
-                        columns = [column['name'] for column in inspector.get_columns(model)]
-                        if 'alarm_code' in columns:
-                            logger.info(f"{SUCCESS_MARK} 告警表包含正确的alarm_code字段")
-                        else:
-                            logger.error(f"{ERROR_MARK} 告警表不包含alarm_code字段")
-                        
-                        if 'alarm_id' in columns:
-                            logger.warning("警告: 告警表仍然包含alarm_id字段")
-                    
-                    # 如果是任务表，检查字段
-                    if model == 'tasks':
-                        columns = [column['name'] for column in inspector.get_columns(model)]
-                        if 'task_type' in columns:
-                            logger.info(f"{SUCCESS_MARK} 任务表包含正确的task_type字段")
-                        else:
-                            logger.error(f"{ERROR_MARK} 任务表不包含task_type字段")
-                        
-                        if 'detection_type' in columns:
-                            logger.warning("警告: 任务表仍然包含detection_type字段")
+            # 验证表是否创建成功
+            conn = get_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'")
+            existing_tables = {table[0] for table in cursor.fetchall()}
+            
+            # 检查每个预期的表是否已创建
+            expected_tables = {
+                'users': User,
+                'alarms': Alarm,
+                'edge_devices': EdgeDevice,
+                'tasks': Task,
+                'oil_wells': OilWell,  # 添加油井表
+                'system_config': SystemConfig,
+                'key_value_settings': KeyValueSetting
+            }
+            
+            for table_name in expected_tables:
+                if table_name in existing_tables:
+                    logger.info(f"{SUCCESS_MARK} 表 {table_name} 创建成功")
                 else:
-                    logger.error(f"{ERROR_MARK} 表 {model} 创建失败")
+                    logger.error(f"{ERROR_MARK} 表 {table_name} 创建失败")
+                    try:
+                        model = expected_tables[table_name]
+                        model.__table__.create(db.engine)
+                        logger.info(f"{SUCCESS_MARK} 重试创建表 {table_name} 成功")
+                    except Exception as e:
+                        logger.error(f"重试创建表 {table_name} 失败: {str(e)}")
             
-            # 创建默认管理员账户
-            try:
-                admin = User(
-                    username='管理员',
-                    is_admin=True,
-                    role='admin',
-                    active=True
-                )
-                admin.set_password('admin123')
-                db.session.add(admin)
-                db.session.commit()
-                logger.info("默认管理员账户创建成功")
-                
-                logger.info("=== 默认管理员账户信息 ===")
-                logger.info(f"用户名: 管理员")
-                logger.info(f"密码: admin123")
-                logger.info("========================")
-            except Exception as e:
-                logger.error(f"创建管理员账户失败: {str(e)}")
+            # 验证告警表字段
+            cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'alarms'")
+            alarm_columns = {col[0] for col in cursor.fetchall()}
+            
+            # 检查告警表是否包含alarm_code字段
+            if 'alarm_code' in alarm_columns:
+                logger.info(f"{SUCCESS_MARK} 告警表结构正确，包含alarm_code字段")
+            else:
+                logger.error(f"{ERROR_MARK} 告警表结构不正确，不包含alarm_code字段")
+            
+            # 检查任务表字段
+            cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'tasks'")
+            task_columns = {col[0] for col in cursor.fetchall()}
+            
+            # 检查任务表是否包含task_type字段
+            if 'task_type' in task_columns:
+                logger.info(f"{SUCCESS_MARK} 任务表结构正确，包含task_type字段")
+            else:
+                logger.error(f"{ERROR_MARK} 任务表结构不正确，不包含task_type字段")
+            
+            # 关闭连接
+            cursor.close()
+            conn.close()
+            
+            # 创建管理员账户
+            admin = User(
+                username='管理员',
+                role='admin',
+                is_admin=True,
+                active=True
+            )
+            admin.set_password('admin123')
+            db.session.add(admin)
+            db.session.commit()
+            logger.info(f"{SUCCESS_MARK} 管理员账户创建成功")
             
             logger.info("数据库表重建完成")
-            
         except Exception as e:
-            logger.error(f"重建数据库表过程中出错: {str(e)}")
+            db.session.rollback()
+            logger.error(f"重建表结构失败: {str(e)}")
             logger.error(traceback.format_exc())
 
-# 删除文件末尾的重复代码块
 if __name__ == '__main__':
-    cli()
+    # 检查是否有命令行参数
+    if len(sys.argv) > 1:
+        cli()
+    else:
+        # 如果没有提供参数，打印帮助信息
+        os.system(f"{sys.executable} {__file__} --help")
 

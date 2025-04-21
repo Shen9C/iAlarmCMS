@@ -16,22 +16,21 @@ from app import db
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), unique=True, nullable=False)
-    password_hash = db.Column(db.String(512), nullable=False)
-    role = db.Column(db.String(64))
-    is_admin = db.Column(db.Boolean, default=False)
-    current_token = db.Column(db.String(512))
-    token_timestamp = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone())
-    login_count = db.Column(db.Integer, default=0)
-    last_login_time = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone())
-    last_login_ip = db.Column(db.String(64))
-    active = db.Column(db.Boolean, default=True)
+    id = db.Column(db.Integer, primary_key=True, comment='用户ID，自增主键')
+    username = db.Column(db.String(64), unique=True, nullable=False, comment='用户名，唯一')
+    password_hash = db.Column(db.String(512), nullable=False, comment='密码哈希值')
+    role = db.Column(db.String(64), comment='用户角色')
+    is_admin = db.Column(db.Boolean, default=False, comment='是否为管理员')
+    current_token = db.Column(db.String(512), comment='当前登录令牌')
+    token_timestamp = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), comment='令牌创建时间')
+    login_count = db.Column(db.Integer, default=0, comment='登录次数')
+    last_login_time = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), comment='最后登录时间')
+    last_login_ip = db.Column(db.String(64), comment='最后登录IP')
+    active = db.Column(db.Boolean, default=True, comment='账户是否激活')
     
     def update_token(self, token):
         self.current_token = token
         self.token_timestamp = datetime.now().astimezone()
-    active = db.Column(db.Boolean, default=True)
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

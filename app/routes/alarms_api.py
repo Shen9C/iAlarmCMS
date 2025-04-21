@@ -104,10 +104,10 @@ def confirm_alarm():
     try:
         data = request.get_json()
         alarm_id = data.get('alarm_id')
-        confirm_type = data.get('confirm_type')
+        confirmation_type = data.get('confirmation_type')
         
         # 记录请求信息
-        logger.info(f"接收到告警确认请求: alarm_id={alarm_id}, confirm_type={confirm_type}")
+        logger.info(f"接收到告警确认请求: alarm_id={alarm_id}, confirmation_type={confirmation_type}")
         
         # 获取告警前先记录是否存在 - 不使用缓存
         db.session.expire_all()  # 清除会话缓存
@@ -115,19 +115,19 @@ def confirm_alarm():
         logger.info(f"告警对象获取成功: id={alarm.id}, alarm_code={alarm.alarm_code}")
         
         # 详细记录告警确认前的完整状态
-        logger.info(f"告警确认前状态: id={alarm.id}, alarm_code={alarm.alarm_code}, confirm_type={alarm.confirm_type}, "
-                   f"is_confirmed={alarm.is_confirmed}, status={alarm.status}, "
-                   f"confirmed_time={alarm.confirmed_time}")
+        logger.info(f"告警确认前状态: id={alarm.id}, alarm_code={alarm.alarm_code}, confirmation_type={alarm.confirmation_type}, "
+                   f"is_confirmed={alarm.is_confirmed}, processed_status={alarm.processed_status}, "
+                   f"confirmed_at={alarm.confirmed_at}")
         
         # 更新所有相关字段 - 注意保持状态不变
-        alarm.confirm_type = confirm_type
+        alarm.confirmation_type = confirmation_type
         alarm.is_confirmed = True
-        alarm.confirmed_time = datetime.now().astimezone()
-        # 只修改confirm_type和is_confirmed，不改变status和is_processed
+        alarm.confirmed_at = datetime.now().astimezone()
+        # 只修改confirmation_type和is_confirmed，不改变processed_status和is_processed
         # 业务逻辑：确认操作只设置告警确认类型，不会改变告警的处理状态
         
         # 提交前记录字段
-        logger.info(f"提交前检查字段: confirm_type={alarm.confirm_type}, is_confirmed={alarm.is_confirmed}")
+        logger.info(f"提交前检查字段: confirmation_type={alarm.confirmation_type}, is_confirmed={alarm.is_confirmed}")
         
         # 确保提交
         db.session.commit()
@@ -135,9 +135,9 @@ def confirm_alarm():
         
         # 重新查询以验证写入成功
         alarm_after = Alarm.query.get(alarm_id)
-        logger.info(f"提交后重新查询: id={alarm_after.id}, alarm_code={alarm_after.alarm_code}, confirm_type={alarm_after.confirm_type}, "
-                   f"is_confirmed={alarm_after.is_confirmed}, status={alarm_after.status}, "
-                   f"confirmed_time={alarm_after.confirmed_time}")
+        logger.info(f"提交后重新查询: id={alarm_after.id}, alarm_code={alarm_after.alarm_code}, confirmation_type={alarm_after.confirmation_type}, "
+                   f"is_confirmed={alarm_after.is_confirmed}, processed_status={alarm_after.processed_status}, "
+                   f"confirmed_at={alarm_after.confirmed_at}")
         
         return jsonify({
             'code': 200,
@@ -146,9 +146,9 @@ def confirm_alarm():
             'data': {
                 'id': alarm_id,
                 'alarm_code': alarm_after.alarm_code,
-                'confirm_type': alarm_after.confirm_type,
+                'confirmation_type': alarm_after.confirmation_type,
                 'is_confirmed': alarm_after.is_confirmed,
-                'confirmed_time': alarm_after.confirmed_time.strftime('%Y-%m-%d %H:%M:%S') if alarm_after.confirmed_time else None
+                'confirmed_at': alarm_after.confirmed_at.strftime('%Y-%m-%d %H:%M:%S') if alarm_after.confirmed_at else None
             }
         })
     except Exception as e:
@@ -168,9 +168,9 @@ def batch_confirm_alarms():
     try:
         data = request.get_json()
         alarm_ids = data.get('alarm_ids', [])
-        confirm_type = data.get('confirm_type')
+        confirmation_type = data.get('confirmation_type')
         
-        if not alarm_ids or not confirm_type:
+        if not alarm_ids or not confirmation_type:
             return jsonify({
                 'success': False,
                 'message': '缺少必要参数'
@@ -179,9 +179,9 @@ def batch_confirm_alarms():
         alarms = Alarm.query.filter(Alarm.id.in_(alarm_ids)).all()
         for alarm in alarms:
             alarm.is_confirmed = True
-            alarm.confirm_type = confirm_type
-            alarm.confirmed_time = datetime.now().astimezone()
-            # 不修改status，只设置确认类型
+            alarm.confirmation_type = confirmation_type
+            alarm.confirmed_at = datetime.now().astimezone()
+            # 不修改processed_status，只设置确认类型
         
         db.session.commit()
         
@@ -216,9 +216,8 @@ def batch_process_alarms():
         for alarm in alarms:
             alarm.is_processed = True
             alarm.processed_time = datetime.now().astimezone()
-            alarm.status = '已处理'
-            # 如果有备注，可以在这里添加到告警处理记录中
-            # alarm.process_notes = notes  # 需要先在数据库模型中添加相应字段
+            alarm.processed_status = '已处理'
+            alarm.process_notes = notes  # 现在数据库模型中已有process_notes字段
         
         db.session.commit()
         
@@ -265,19 +264,20 @@ def process_alarm(alarm_id):
         
         # 详细记录告警处理前的完整状态
         logger.info(f"告警处理前状态: id={alarm.id}, alarm_code={alarm.alarm_code}, is_processed={alarm.is_processed}, "
-                   f"status={alarm.status}, processed_time={alarm.processed_time}")
+                   f"processed_status={alarm.processed_status}, processed_time={alarm.processed_time}")
         
         # 更新告警状态为已处理
         alarm.is_processed = True
         alarm.processed_time = datetime.now().astimezone()
-        alarm.status = '已处理'
-        # 注意：处理操作不会影响告警的确认状态(is_confirmed)和确认类型(confirm_type)
+        alarm.processed_status = '已处理'
+        alarm.processed_by = user.username if hasattr(user, 'username') else '系统'
         
-        # 如果有备注，可以在这里添加到告警处理记录中
-        # alarm.process_notes = notes  # 需要先在数据库模型中添加相应字段
+        # 如果有备注，添加到告警处理记录中
+        if notes:
+            alarm.process_notes = notes
         
         # 提交前记录字段
-        logger.info(f"提交前检查字段: is_processed={alarm.is_processed}, status={alarm.status}")
+        logger.info(f"提交前检查字段: is_processed={alarm.is_processed}, processed_status={alarm.processed_status}")
         
         # 确保提交
         db.session.commit()
@@ -286,7 +286,7 @@ def process_alarm(alarm_id):
         # 重新查询以验证写入成功
         alarm_after = Alarm.query.get(alarm_id)
         logger.info(f"提交后重新查询: id={alarm_after.id}, alarm_code={alarm_after.alarm_code}, "
-                   f"is_processed={alarm_after.is_processed}, status={alarm_after.status}, "
+                   f"is_processed={alarm_after.is_processed}, processed_status={alarm_after.processed_status}, "
                    f"processed_time={alarm_after.processed_time}")
         
         return jsonify({
@@ -297,7 +297,7 @@ def process_alarm(alarm_id):
                 'id': alarm_id,
                 'alarm_code': alarm_after.alarm_code,
                 'is_processed': alarm_after.is_processed,
-                'status': alarm_after.status,
+                'processed_status': alarm_after.processed_status,
                 'processed_time': alarm_after.processed_time.strftime('%Y-%m-%d %H:%M:%S') if alarm_after.processed_time else None
             }
         })

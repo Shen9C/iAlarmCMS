@@ -77,6 +77,12 @@ def create_app(config_class=Config):
     # 修改这行，使用正确的蓝图变量
     app.register_blueprint(tasks_view_bp)  # 修改这行
     app.register_blueprint(tasks_api_bp)
+
+    # ===================== 注册油井相关蓝图 =====================
+    from app.views.oil_wells_view import bp as oil_wells_view_bp
+    from app.routes.oil_wells_api import bp as oil_wells_api_bp
+    app.register_blueprint(oil_wells_view_bp)
+    app.register_blueprint(oil_wells_api_bp)
     
     # ===================== 注册统计相关蓝图 =====================
     from app.views.stats_view import bp as stats_view_bp

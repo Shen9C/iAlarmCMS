@@ -14,6 +14,7 @@ from app.models.users import User
 from app.models.alarms import Alarm
 from app.models.edge_devices import EdgeDevice
 from app.models.tasks import Task
+from app.models.oil_wells import OilWell
 from app.models.settings import SystemConfig, KeyValueSetting
 
 app = create_app()
@@ -22,6 +23,68 @@ app = create_app()
 config_path = os.path.join(os.path.dirname(__file__), 'test_data_config.json')
 with open(config_path, 'r', encoding='utf-8') as f:
     test_config = json.load(f)
+
+# 辅助函数：生成任务编号
+def generate_task_code(well_code=None, task_type=None):
+    """生成任务编号，基于油井编码和任务类型"""
+    if not well_code:
+        return f"TASK_UNKNOWN_{datetime.now().astimezone().strftime('%Y%m%d%H%M%S')}"
+    
+    # 任务类型的前缀映射
+    prefix_map = {
+        "启停检测": "QT",
+        "皮带检测": "PD", 
+        "毛辫子检测": "MBZ",
+        "压力表检测": "YLB",
+        "井口泄漏检测": "JK",
+        "烟火检测": "F"
+    }
+    
+    # 获取任务类型前缀
+    type_prefix = prefix_map.get(task_type, "TASK")
+    
+    # 生成唯一标识符
+    unique_suffix = f"{datetime.now().astimezone().strftime('%m%d')}_{random.randint(1000, 9999)}"
+    
+    return f"TSK_{well_code}_{type_prefix}_{unique_suffix}"
+
+# 辅助函数：生成告警编号
+def generate_alarm_code(well_code=None, alarm_type=None):
+    """生成告警编号，基于油井编码和故障类型映射"""
+    if not well_code:
+        return f"ALM_UNKNOWN_{datetime.now().astimezone().strftime('%Y%m%d%H%M%S')}"
+    
+    # 获取油井对应的故障码映射
+    well_code_upper = well_code.upper()
+    fault_codes = test_config.get('well_code_fault_mapping', {}).get(well_code_upper, [])
+    
+    # 如果没有该油井的故障码映射，使用默认格式
+    if not fault_codes:
+        return f"{well_code}_ALM"
+    
+    # 如果提供了告警类型，尝试选择与之匹配的故障码
+    if alarm_type:
+        # 根据告警类型前缀尝试匹配对应的故障码
+        prefix_map = {
+            "启停检测": "QT",
+            "皮带检测": "PD", 
+            "毛辫子检测": "MBZ",
+            "压力表检测": "YLB",
+            "井口泄漏检测": "JK",
+            "烟火检测": "F"
+        }
+        
+        prefix = prefix_map.get(alarm_type)
+        matching_codes = [code for code in fault_codes if prefix and code.startswith(prefix)]
+        
+        # 如果找到匹配的故障码，随机选择一个
+        if matching_codes:
+            selected_code = random.choice(matching_codes)
+            return f"{well_code}_{selected_code}"
+    
+    # 如果没有找到匹配的故障码或没有提供告警类型，随机选择一个故障码
+    selected_code = random.choice(fault_codes)
+    return f"{well_code}_{selected_code}"
 
 def check_database_tables():
     """检查数据库表是否存在"""
@@ -33,6 +96,7 @@ def check_database_tables():
                 'edge_devices',
                 'tasks',
                 'alarms',
+                'oil_wells',  # 添加油井表检查
                 'system_config',
                 'key_value_settings'
             ]
@@ -66,6 +130,15 @@ def check_database_tables():
                         print("警告：任务表使用了旧的detection_type字段，请先运行init_pg_db.py清空并重建表结构")
                         return False
             
+            # 检查油井表的字段
+            if 'oil_wells' in inspector.get_table_names():
+                columns = [column['name'] for column in inspector.get_columns('oil_wells')]
+                if 'well_code' in columns:
+                    print("油井表结构正确，包含well_code字段")
+                else:
+                    print("警告：油井表结构不正确，不包含well_code字段")
+                    return False
+            
             return True
         except Exception as e:
             print(f"数据库表检查失败: {str(e)}")
@@ -95,6 +168,11 @@ def generate_test_data():
             for device in existing_devices:
                 print(f"  - {device.device_name} (ID: {device.device_id})")
             
+            existing_wells = OilWell.query.limit(10).all()
+            print(f"\n油井表现有数据（前10条）:")
+            for well in existing_wells:
+                print(f"  - {well.well_name} (编号: {well.well_code})")
+            
             existing_tasks = Task.query.limit(10).all()
             print(f"\n任务表现有数据（前10条）:")
             for task in existing_tasks:
@@ -122,6 +200,7 @@ def generate_test_data():
             print("正在清理已存在的数据...")
             db.session.query(Alarm).delete()
             db.session.query(Task).delete()
+            db.session.query(OilWell).delete()  # 先删除油井表，因为任务表有外键引用
             db.session.query(EdgeDevice).delete()
             db.session.query(User).delete()  # 添加清理用户数据
             db.session.query(SystemConfig).delete()
@@ -171,140 +250,205 @@ def generate_test_data():
                 )
                 devices.append(device)
                 db.session.add(device)
+            
             db.session.commit()
             
-            # 验证设备数据是否成功写入
+            # 验证设备数据
             saved_devices = EdgeDevice.query.all()
-            if len(saved_devices) == len(devices):
-                print(f"成功生成 {len(devices)} 个测试设备")
+            if len(saved_devices) == len(test_config['device_names']):
+                print(f"成功生成 {len(saved_devices)} 个边缘设备数据")
             else:
-                print(f"设备数据写入不完整，预期 {len(devices)} 个，实际写入 {len(saved_devices)} 个")
-
-            # 生成测试任务数据
-            tasks = []
-            existing_devices = EdgeDevice.query.all()
-            if not existing_devices:
-                print("错误：没有找到边缘设备数据，请先确保设备数据已生成")
-                return
+                print(f"设备数据写入不完整，预期 {len(test_config['device_names'])} 个，实际写入 {len(saved_devices)} 个")
             
-            for device in existing_devices:
-                # 为每个设备生成1-3个不同类型的监控任务
-                for _ in range(random.randint(1, 3)):
-                    task_type = random.choice(['压力表读数', '液位计读数', '温度计读数'])
-                    task = Task(
-                        task_name=f"{device.device_name}_{random.choice(['压力', '液位', '温度'])}监控",
-                        well_name=device.device_name,
-                        task_type=task_type,
-                        camera_ip=device.ip_address,
-                        camera_preset=random.randint(1, 10),
-                        pressure_range=random.uniform(0, 100),
-                        device_id=device.device_id
-                    )
-                    tasks.append(task)
-                    db.session.add(task)
-            db.session.commit()
-
-            # 验证任务数据是否成功写入
-            saved_tasks = Task.query.all()
-            if len(saved_tasks) == len(tasks):
-                print(f"成功生成 {len(tasks)} 个测试任务")
-            else:
-                print(f"任务数据写入不完整，预期 {len(tasks)} 个，实际写入 {len(saved_tasks)} 个")
-
-            # 生成测试告警数据
-            alarms = []
-            status_choices = ['待确认', '已确认', '已处理']
+            # 生成油井数据
+            oil_wells = []
+            well_codes = [f"WELL{str(i).zfill(3)}" for i in range(1, len(test_config['oil_well_names']) + 1)]
             
-            for device in existing_devices:
-                # 获取该设备的任务列表
-                device_tasks = [t for t in tasks if t.device_id == device.device_id]  # 使用 device_id 而不是 edge_device
-                if not device_tasks:
-                    continue
-                    
-                # 每个设备生成2-5个告警
-                for _ in range(random.randint(2, 5)):
-                    alarm_time = datetime.now().astimezone() - timedelta(
-                        days=random.randint(0, 30),
-                        hours=random.randint(0, 23),
-                        minutes=random.randint(0, 59)
-                    )
-                    
-                    task = random.choice(device_tasks)
-                    alarm = Alarm(
-                        alarm_code=Alarm.generate_alarm_code(),
-                        alarm_type=random.choice(test_config['alarm_types']),
-                        device_name=device.device_name,
-                        device_id=device.device_id,  # 设备ID字段
-                        camera_ip=device.ip_address,
-                        alarm_time=alarm_time,
-                        last_report_time=alarm_time + timedelta(minutes=random.randint(1, 60)),
-                        report_count=random.randint(1, 5),
-                        alarm_image=f"/static/test_images/alarm_{device.device_id}_{random.randint(1,10)}.jpg",
-                        is_processed=random.choice([True, False]),
-                        status=random.choice(status_choices)
-                    )
-                    
-                    if alarm.is_processed:
-                        alarm.processed_time = alarm.alarm_time + timedelta(hours=random.randint(1, 24))
-                        alarm.is_confirmed = True
-                        alarm.confirmed_time = alarm.alarm_time + timedelta(minutes=random.randint(30, 120))
-                        alarm.confirm_type = random.choice(['自动', '手动'])
-                    
-                    alarms.append(alarm)
-                    db.session.add(alarm)
-            
-            db.session.commit()
-            
-            # 验证告警数据是否成功写入
-            saved_alarms = Alarm.query.all()
-            if len(saved_alarms) == len(alarms):
-                print(f"成功生成 {len(alarms)} 个测试告警")
-            else:
-                print(f"告警数据写入不完整，预期 {len(alarms)} 个，实际写入 {len(saved_alarms)} 个")
-
-            # 生成系统配置数据
-            if not SystemConfig.query.first():
-                config = SystemConfig(
-                    system_name_zh="智能告警综合管理系统",
-                    system_name_en="Intelligent Alarm Management System",
-                    company_name="测试油田公司",
-                    logo_url="/static/images/logo.png",
-                    theme_color="#1890ff"
+            for idx, well_name in enumerate(test_config['oil_well_names']):
+                well_code = well_codes[idx]
+                oil_well = OilWell(
+                    well_code=well_code,
+                    well_name=well_name,
+                    location=f"测试区域-{chr(65 + random.randint(0, 5))}{random.randint(1, 10)}",
+                    status=random.choice(['正常', '维护中', '停机']),
+                    description=f"{well_name}的描述信息，这是一个测试油井。",
+                    created_at=datetime.now().astimezone() - timedelta(days=random.randint(30, 365))
                 )
-                db.session.add(config)
-                db.session.commit()
-                print(f"成功生成系统配置数据")
+                oil_wells.append(oil_well)
+                db.session.add(oil_well)
             
-            # 生成默认设置
+            db.session.commit()
+            
+            # 验证油井数据
+            saved_wells = OilWell.query.all()
+            if len(saved_wells) == len(test_config['oil_well_names']):
+                print(f"成功生成 {len(saved_wells)} 个油井数据")
+            else:
+                print(f"油井数据写入不完整，预期 {len(test_config['oil_well_names'])} 个，实际写入 {len(saved_wells)} 个")
+            
+            # 生成任务数据
+            tasks = []
+            for _ in range(50):  # 生成50个任务
+                # 随机选择一个油井
+                oil_well = random.choice(oil_wells)
+                task_type = random.choice(test_config['task_types'])
+                device = random.choice(devices)
+                
+                task = Task(
+                    task_code=generate_task_code(oil_well.well_code, task_type),
+                    task_name=f"{oil_well.well_name}-{task_type}",
+                    task_type=task_type,
+                    well_code=oil_well.well_code,
+                    well_name=oil_well.well_name,
+                    task_description=f"{oil_well.well_name}的{task_type}任务，优先级{random.choice(['高', '中', '低'])}",
+                    created_at=datetime.now().astimezone() - timedelta(days=random.randint(1, 90)),
+                    device_id=device.device_id,
+                    camera_ip=f"192.168.1.{random.randint(10, 250)}",
+                    camera_preset=random.randint(1, 10),
+                    pressure_range=random.choice([10.0, 16.0, 25.0, 40.0])
+                )
+                tasks.append(task)
+                db.session.add(task)
+            
+            db.session.commit()
+            
+            # 验证任务数据
+            saved_tasks = Task.query.all()
+            if len(saved_tasks) == 50:
+                print(f"成功生成 {len(saved_tasks)} 个任务数据")
+            else:
+                print(f"任务数据写入不完整，预期 50 个，实际写入 {len(saved_tasks)} 个")
+            
+            # 生成告警数据
+            alarms = []
+            for _ in range(100):  # 生成100个告警
+                # 随机选择一个油井
+                oil_well = random.choice(oil_wells)
+                # 随机选择告警类型
+                alarm_type = random.choice(test_config['alarm_types'])
+                # 随机选择设备
+                device = random.choice(devices)
+                
+                # 使用新的状态字段：is_processed, is_confirmed
+                processed_status = random.choices(
+                    ['待处理', '已确认', '已处理'], 
+                    weights=[0.5, 0.3, 0.2], 
+                    k=1
+                )[0]
+                
+                is_processed = False
+                processed_time = None
+                processed_by = None
+                
+                is_confirmed = False
+                confirmed_at = None
+                confirmed_by = None
+                confirmation_type = None
+                description = None
+                
+                # 根据状态设置相关信息
+                if processed_status == '已确认':
+                    is_confirmed = True
+                    confirmed_at = datetime.now().astimezone() - timedelta(hours=random.randint(1, 48))
+                    confirmed_by = random.choice(users).username
+                    confirmation_type = random.choice(test_config['confirm_types'])['confirm_type']
+                    description = f"确认备注：这是{confirmation_type}告警"
+                
+                if processed_status == '已处理':
+                    is_processed = True
+                    is_confirmed = True
+                    processed_time = datetime.now().astimezone() - timedelta(hours=random.randint(1, 24))
+                    processed_by = random.choice(users).username
+                    confirmed_at = processed_time - timedelta(hours=random.randint(1, 24))
+                    confirmed_by = processed_by if random.random() > 0.5 else random.choice(users).username
+                    confirmation_type = random.choice(test_config['confirm_types'])['confirm_type']
+                    description = f"处理备注：{confirmation_type}告警已处理完成"
+                
+                # 生成告警时间
+                alarm_time = datetime.now().astimezone() - timedelta(days=random.randint(0, 30))
+                
+                # 创建告警对象，确保包含正确的油井编码
+                alarm = Alarm(
+                    alarm_code=generate_alarm_code(oil_well.well_code, alarm_type),
+                    alarm_type=alarm_type,
+                    device_id=device.device_id,
+                    device_name=device.device_name,
+                    well_name=oil_well.well_name,
+                    well_code=oil_well.well_code,
+                    alarm_time=alarm_time,
+                    last_report_time=alarm_time + timedelta(minutes=random.randint(5, 60)),
+                    report_count=random.randint(1, 10),
+                    alarm_image=f"/static/images/sample/alarm_{random.randint(1, 5)}.jpg" if random.random() > 0.3 else None,
+                    is_processed=is_processed,
+                    processed_time=processed_time,
+                    processed_by=processed_by,
+                    is_confirmed=is_confirmed,
+                    confirmed_at=confirmed_at,
+                    confirmed_by=confirmed_by,
+                    confirmation_type=confirmation_type,
+                    description=description,
+                    created_at=alarm_time
+                )
+                alarms.append(alarm)
+                db.session.add(alarm)
+            
+            db.session.commit()
+            
+            # 验证告警数据
+            saved_alarms = Alarm.query.all()
+            if len(saved_alarms) == 100:
+                print(f"成功生成 {len(saved_alarms)} 个告警数据")
+            else:
+                print(f"告警数据写入不完整，预期 100 个，实际写入 {len(saved_alarms)} 个")
+            
+            # 创建系统配置
+            system_config = SystemConfig(
+                system_name_zh="油田智能监控系统",
+                system_name_en="Oilfield Smart Monitoring System",
+                company_name="油田公司",
+                logo_url="/static/images/logo.png",
+                theme_color="#3498db"
+            )
+            db.session.add(system_config)
+            
+            # 创建键值设置
             settings = [
-                {'key': 'alarm_check_interval', 'value': '60', 'description': '告警检查间隔（秒）'},
-                {'key': 'auto_process_timeout', 'value': '1800', 'description': '告警自动处理超时时间（秒）'},
-                {'key': 'report_threshold', 'value': '3', 'description': '告警上报阈值'},
-                {'key': 'camera_timeout', 'value': '30', 'description': '摄像头连接超时（秒）'},
-                {'key': 'location_info', 'value': '测试油田区域', 'description': '部署位置信息'}
+                KeyValueSetting(key="alarm_refresh_interval", value="30", description="告警刷新间隔（秒）"),
+                KeyValueSetting(key="max_alarm_age_days", value="90", description="最大告警保留天数"),
+                KeyValueSetting(key="default_page_size", value="20", description="默认分页大小"),
+                KeyValueSetting(key="enable_email_notification", value="false", description="启用邮件通知"),
+                KeyValueSetting(key="smtp_server", value="smtp.example.com", description="SMTP服务器"),
+                KeyValueSetting(key="smtp_port", value="587", description="SMTP端口"),
+                KeyValueSetting(key="notification_email", value="alert@example.com", description="通知邮箱"),
+                KeyValueSetting(key="api_rate_limit", value="100", description="API速率限制（次/分钟）"),
+                KeyValueSetting(key="login_attempts", value="5", description="最大登录尝试次数"),
+                KeyValueSetting(key="session_timeout_minutes", value="120", description="会话超时时间（分钟）")
             ]
             
             for setting in settings:
-                kv = KeyValueSetting(
-                    key=setting['key'],
-                    value=setting['value'],
-                    description=setting['description']
-                )
-                db.session.add(kv)
+                db.session.add(setting)
             
             db.session.commit()
-            print(f"成功生成 {len(settings)} 个系统设置")
-                
-            return True
+            
+            print("\n=== 测试数据生成完成 ===")
+            print(f"用户: {len(saved_users)}个")
+            print(f"设备: {len(saved_devices)}个")
+            print(f"油井: {len(saved_wells)}个")
+            print(f"任务: {len(saved_tasks)}个")
+            print(f"告警: {len(saved_alarms)}个")
+            print(f"系统配置: 1个")
+            print(f"键值设置: {len(settings)}个")
+            print("======================\n")
+            
+            print("测试数据已成功生成，可以通过以下账户登录系统：")
+            for user_data in test_users:
+                print(f"用户名: {user_data['username']}, 密码: {user_data['password']}, 角色: {user_data['role']}")
+            
         except Exception as e:
-            print(f"生成测试数据时发生错误: {str(e)}")
             import traceback
+            print(f"生成测试数据失败: {str(e)}")
             print(traceback.format_exc())
-            return False
+            db.session.rollback()
 
 if __name__ == "__main__":
-    result = generate_test_data()
-    if result:
-        print("测试数据生成完成！")
-    else:
-        print("测试数据生成失败！")
+    generate_test_data()

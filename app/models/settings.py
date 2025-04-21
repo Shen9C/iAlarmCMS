@@ -5,13 +5,13 @@ from app import db
 class SystemConfig(db.Model):
     __tablename__ = 'system_config'
     """系统基本配置模型，存储预定义的系统配置项"""
-    id = db.Column(db.Integer, primary_key=True)
-    system_name_zh = db.Column(db.String(100), default="智能告警综合管理系统")
-    system_name_en = db.Column(db.String(100), default="Intelligent Alarm Management System")
-    company_name = db.Column(db.String(100), default="示例公司")
-    logo_url = db.Column(db.String(255), default="/static/images/logo.png")
-    theme_color = db.Column(db.String(20), default="#3498db")
-    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), onupdate=lambda: datetime.now().astimezone())
+    id = db.Column(db.Integer, primary_key=True, comment='配置ID，自增主键')
+    system_name_zh = db.Column(db.String(100), default="智能告警综合管理系统", comment='系统中文名称')
+    system_name_en = db.Column(db.String(100), default="Intelligent Alarm Management System", comment='系统英文名称')
+    company_name = db.Column(db.String(100), default="示例公司", comment='公司名称')
+    logo_url = db.Column(db.String(255), default="/static/images/logo.png", comment='系统logo URL')
+    theme_color = db.Column(db.String(20), default="#3498db", comment='系统主题颜色')
+    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), onupdate=lambda: datetime.now().astimezone(), comment='更新时间')
     
     @classmethod
     def get_instance(cls):
@@ -26,11 +26,11 @@ class SystemConfig(db.Model):
 class KeyValueSetting(db.Model):
     __tablename__ = 'key_value_settings'
     """键值对形式的系统设置模型，用于存储动态配置项"""
-    id = db.Column(db.Integer, primary_key=True)
-    key = db.Column(db.String(50), unique=True, nullable=False)
-    value = db.Column(db.String(500))
-    description = db.Column(db.String(200))
-    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), onupdate=lambda: datetime.now().astimezone())
+    id = db.Column(db.Integer, primary_key=True, comment='设置ID，自增主键')
+    key = db.Column(db.String(50), unique=True, nullable=False, comment='设置键名，唯一')
+    value = db.Column(db.String(500), comment='设置值')
+    description = db.Column(db.String(200), comment='设置描述')
+    updated_at = db.Column(TIMESTAMP(timezone=True), default=lambda: datetime.now().astimezone(), onupdate=lambda: datetime.now().astimezone(), comment='更新时间')
     
     @classmethod
     def get_setting(cls, key, default=None):

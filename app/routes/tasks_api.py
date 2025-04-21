@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 from app.models.tasks import Task
+from app.models.edge_devices import EdgeDevice
 from app import db
 import logging
 
@@ -10,14 +11,48 @@ bp = Blueprint('tasks_api', __name__, url_prefix='/api/tasks')
 @bp.route('', methods=['GET'])
 @login_required
 def get_tasks():
-    """获取任务列表"""
+    """获取任务列表，支持分页和筛选功能"""
     try:
-        tasks = Task.query.all()
-        return jsonify({
+        # 获取查询参数
+        task_type = request.args.get('task_type', '')
+        well_name = request.args.get('well_name', '')
+        device_name = request.args.get('device_name', '')
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 15, type=int)
+        
+        # 构建查询
+        query = Task.query
+        
+        # 应用筛选条件
+        if task_type:
+            query = query.filter(Task.task_type == task_type)
+            
+        if well_name:
+            query = query.filter(Task.well_name.ilike(f'%{well_name}%'))
+            
+        if device_name:
+            query = query.join(Task.device).filter(EdgeDevice.device_name.ilike(f'%{device_name}%'))
+        
+        # 按创建时间降序排序
+        query = query.order_by(Task.created_at.desc())
+            
+        # 执行分页查询
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        
+        # 构建响应数据
+        response = {
             'code': 200,
-            'data': [task.to_dict() for task in tasks]
-        })
+            'data': {
+                'items': [task.to_dict() for task in pagination.items],
+                'total': pagination.total,
+                'pages': pagination.pages,
+                'current_page': pagination.page
+            }
+        }
+        
+        return jsonify(response)
     except Exception as e:
+        logger.error(f"获取任务列表失败: {str(e)}")
         return jsonify({
             'code': 500,
             'message': f'获取任务列表失败: {str(e)}'

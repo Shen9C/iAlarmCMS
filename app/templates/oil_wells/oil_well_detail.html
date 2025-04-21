@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}油井详情 - {{ oil_well.well_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">油井详情</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ url_for('oil_wells_view.index') }}">油井管理</a></li>
+        <li class="breadcrumb-item active">油井详情</li>
+    </ol>
+    
+    <div class="row">
+        <div class="col-lg-6">
+            <!-- 油井基本信息卡片 -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-info-circle me-1"></i>
+                            油井基本信息
+                        </div>
+                        <a href="{{ url_for('oil_wells_view.edit', oil_well_id=oil_well.id) }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-edit me-1"></i>编辑
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th style="width: 150px;">油井ID</th>
+                                <td>{{ oil_well.id }}</td>
+                            </tr>
+                            <tr>
+                                <th>油井编号</th>
+                                <td>{{ oil_well.well_code }}</td>
+                            </tr>
+                            <tr>
+                                <th>油井名称</th>
+                                <td>{{ oil_well.well_name }}</td>
+                            </tr>
+                            <tr>
+                                <th>位置</th>
+                                <td>{{ oil_well.location or '未指定' }}</td>
+                            </tr>
+                            <tr>
+                                <th>状态</th>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if oil_well.status == '正常' else 'warning' if oil_well.status == '维护中' else 'danger' }}">
+                                        {{ oil_well.status or '未知' }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>描述</th>
+                                <td>{{ oil_well.description or '无' }}</td>
+                            </tr>
+                            <tr>
+                                <th>创建时间</th>
+                                <td>{{ oil_well.created_at.strftime('%Y-%m-%d %H:%M:%S') if oil_well.created_at else '未知' }}</td>
+                            </tr>
+                            <tr>
+                                <th>最后更新时间</th>
+                                <td>{{ oil_well.updated_at.strftime('%Y-%m-%d %H:%M:%S') if oil_well.updated_at else '未知' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <a href="{{ url_for('oil_wells_view.index') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>返回列表
+                    </a>
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ oil_well.id }}', '{{ oil_well.well_name }}')">
+                        <i class="fas fa-trash me-1"></i>删除油井
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <!-- 关联任务卡片 -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-tasks me-1"></i>
+                            关联任务 ({{ tasks|length }})
+                        </div>
+                        <a href="{{ url_for('tasks_view.create') }}?well_code={{ oil_well.well_code }}&well_name={{ oil_well.well_name }}" class="btn btn-success btn-sm">
+                            <i class="fas fa-plus me-1"></i>新建任务
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if tasks %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>任务编号</th>
+                                    <th>任务名称</th>
+                                    <th>任务类型</th>
+                                    <th>创建时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for task in tasks %}
+                                <tr>
+                                    <td>{{ task.task_code }}</td>
+                                    <td>{{ task.task_name }}</td>
+                                    <td>{{ task.task_type }}</td>
+                                    <td>{{ task.created_at.strftime('%Y-%m-%d') if task.created_at else '' }}</td>
+                                    <td>
+                                        <a href="{{ url_for('tasks_view.detail', task_id=task.id) }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        该油井暂无关联的任务。
+                        <a href="{{ url_for('tasks_view.create') }}?well_code={{ oil_well.well_code }}&well_name={{ oil_well.well_name }}" class="alert-link">点击此处为该油井创建新任务</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- 相关告警卡片 -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    相关告警
+                </div>
+                <div class="card-body">
+                    <a href="{{ url_for('alarms_view.index') }}?well_code={{ oil_well.well_code }}" class="btn btn-outline-primary">
+                        <i class="fas fa-search me-1"></i>查看该油井的相关告警
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 删除确认模态框 -->
+<div class="modal fade" id="deleteOilWellModal" tabindex="-1" aria-labelledby="deleteOilWellModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteOilWellModalLabel">确认删除</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                确定要删除油井 <strong>{{ oil_well.well_name }}</strong> ({{ oil_well.well_code }}) 吗？此操作不可恢复。
+                
+                <div class="alert alert-warning mt-3">
+                    {% if tasks|length > 0 %}
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    此油井关联了 <strong>{{ tasks|length }}</strong> 个任务，删除前请先移除关联任务。
+                    {% else %}
+                    <i class="fas fa-info-circle me-1"></i>
+                    此油井没有关联任务，可以安全删除。
+                    {% endif %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <form action="{{ url_for('oil_wells_view.delete', oil_well_id=oil_well.id) }}" method="post">
+                    <button type="submit" class="btn btn-danger" {% if tasks|length > 0 %}disabled{% endif %}>确认删除</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmDelete(oilWellId, oilWellName) {
+    var deleteModal = new bootstrap.Modal(document.getElementById('deleteOilWellModal'));
+    deleteModal.show();
+}
+</script>
+{% endblock %} 
