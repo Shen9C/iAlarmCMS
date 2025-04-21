@@ -375,6 +375,7 @@ def generate_test_data():
                     device_name=device.device_name,
                     well_name=oil_well.well_name,
                     well_code=oil_well.well_code,
+                    camera_ip=f"192.168.1.{random.randint(10, 250)}",
                     alarm_time=alarm_time,
                     last_report_time=alarm_time + timedelta(minutes=random.randint(5, 60)),
                     report_count=random.randint(1, 10),

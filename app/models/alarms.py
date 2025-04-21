@@ -120,7 +120,10 @@ class Alarm(db.Model):
     @classmethod
     def get_by_status(cls, status):
         """根据状态获取告警列表"""
-        return cls.query.filter_by(processed_status=status).all()
+        if status == "已处理":
+            return cls.query.filter_by(is_processed=True).all()
+        else:
+            return cls.query.filter_by(is_processed=False).all()
     
     @classmethod
     def get_unprocessed(cls):

@@ -116,14 +116,14 @@ def confirm_alarm():
         
         # 详细记录告警确认前的完整状态
         logger.info(f"告警确认前状态: id={alarm.id}, alarm_code={alarm.alarm_code}, confirmation_type={alarm.confirmation_type}, "
-                   f"is_confirmed={alarm.is_confirmed}, processed_status={alarm.processed_status}, "
+                   f"is_confirmed={alarm.is_confirmed}, is_processed={alarm.is_processed}, "
                    f"confirmed_at={alarm.confirmed_at}")
         
         # 更新所有相关字段 - 注意保持状态不变
         alarm.confirmation_type = confirmation_type
         alarm.is_confirmed = True
         alarm.confirmed_at = datetime.now().astimezone()
-        # 只修改confirmation_type和is_confirmed，不改变processed_status和is_processed
+        # 只修改confirmation_type和is_confirmed，不改变is_processed
         # 业务逻辑：确认操作只设置告警确认类型，不会改变告警的处理状态
         
         # 提交前记录字段
@@ -136,7 +136,7 @@ def confirm_alarm():
         # 重新查询以验证写入成功
         alarm_after = Alarm.query.get(alarm_id)
         logger.info(f"提交后重新查询: id={alarm_after.id}, alarm_code={alarm_after.alarm_code}, confirmation_type={alarm_after.confirmation_type}, "
-                   f"is_confirmed={alarm_after.is_confirmed}, processed_status={alarm_after.processed_status}, "
+                   f"is_confirmed={alarm_after.is_confirmed}, is_processed={alarm_after.is_processed}, "
                    f"confirmed_at={alarm_after.confirmed_at}")
         
         return jsonify({
@@ -181,7 +181,7 @@ def batch_confirm_alarms():
             alarm.is_confirmed = True
             alarm.confirmation_type = confirmation_type
             alarm.confirmed_at = datetime.now().astimezone()
-            # 不修改processed_status，只设置确认类型
+            # 不修改is_processed，只设置确认类型
         
         db.session.commit()
         
@@ -216,7 +216,7 @@ def batch_process_alarms():
         for alarm in alarms:
             alarm.is_processed = True
             alarm.processed_time = datetime.now().astimezone()
-            alarm.processed_status = '已处理'
+            alarm.processed_by = current_user.username if hasattr(current_user, 'username') else '系统'
             alarm.process_notes = notes  # 现在数据库模型中已有process_notes字段
         
         db.session.commit()
@@ -264,12 +264,11 @@ def process_alarm(alarm_id):
         
         # 详细记录告警处理前的完整状态
         logger.info(f"告警处理前状态: id={alarm.id}, alarm_code={alarm.alarm_code}, is_processed={alarm.is_processed}, "
-                   f"processed_status={alarm.processed_status}, processed_time={alarm.processed_time}")
+                   f"processed_time={alarm.processed_time}")
         
         # 更新告警状态为已处理
         alarm.is_processed = True
         alarm.processed_time = datetime.now().astimezone()
-        alarm.processed_status = '已处理'
         alarm.processed_by = user.username if hasattr(user, 'username') else '系统'
         
         # 如果有备注，添加到告警处理记录中
@@ -277,7 +276,7 @@ def process_alarm(alarm_id):
             alarm.process_notes = notes
         
         # 提交前记录字段
-        logger.info(f"提交前检查字段: is_processed={alarm.is_processed}, processed_status={alarm.processed_status}")
+        logger.info(f"提交前检查字段: is_processed={alarm.is_processed}")
         
         # 确保提交
         db.session.commit()
@@ -286,8 +285,7 @@ def process_alarm(alarm_id):
         # 重新查询以验证写入成功
         alarm_after = Alarm.query.get(alarm_id)
         logger.info(f"提交后重新查询: id={alarm_after.id}, alarm_code={alarm_after.alarm_code}, "
-                   f"is_processed={alarm_after.is_processed}, processed_status={alarm_after.processed_status}, "
-                   f"processed_time={alarm_after.processed_time}")
+                   f"is_processed={alarm_after.is_processed}, processed_time={alarm_after.processed_time}")
         
         return jsonify({
             'code': 200,
@@ -297,7 +295,6 @@ def process_alarm(alarm_id):
                 'id': alarm_id,
                 'alarm_code': alarm_after.alarm_code,
                 'is_processed': alarm_after.is_processed,
-                'processed_status': alarm_after.processed_status,
                 'processed_time': alarm_after.processed_time.strftime('%Y-%m-%d %H:%M:%S') if alarm_after.processed_time else None
             }
         })

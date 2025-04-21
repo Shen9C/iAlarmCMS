@@ -76,7 +76,7 @@ def index():
         if alarm.alarm_code == "ALM202504191602239614":
             logger.info(f"视图中的告警对象(刷新后): alarm_code={alarm.alarm_code}, "
                       f"is_confirmed={alarm.is_confirmed}, confirmation_type={alarm.confirmation_type}, "
-                      f"processed_status={alarm.processed_status}")
+                      f"is_processed={alarm.is_processed}")
         test_alarms.append(alarm)
 
     # 使用刷新后的对象列表渲染模板
@@ -102,7 +102,6 @@ def mark_as_handled():
         for alarm in alarms:
             # 更新状态为已处理
             alarm.is_processed = True
-            alarm.processed_status = '已处理'
             alarm.processed_time = datetime.now().astimezone()
             # 注意：处理操作不会影响告警的确认状态(is_confirmed)和确认类型(confirmation_type)
         
@@ -143,7 +142,7 @@ def export():
         for alarm in alarms:
             writer.writerow([
                 alarm.alarm_code,
-                alarm.processed_status or '待处理',
+                '已处理' if alarm.is_processed else '待处理',
                 '已确认' if alarm.is_confirmed else '未确认',
                 alarm.alarm_type,
                 alarm.device_name or '',
@@ -285,7 +284,7 @@ def export_alarms():
         for alarm in alarms:
             writer.writerow([
                 alarm.alarm_code,
-                alarm.processed_status or '待处理',
+                '已处理' if alarm.is_processed else '待处理',
                 '已确认' if alarm.is_confirmed else '未确认',
                 alarm.alarm_type,
                 alarm.device_name,
@@ -408,22 +407,19 @@ def show_confirm_type(alarm_id):
 @bp.route('/process/<int:alarm_id>', methods=['POST'])
 @web_auth_required
 def process_alarm(alarm_id):
-    user_token = request.args.get('user_token')
-    try:
-        # 获取处理备注
-        notes = request.form.get('notes', '')
-        
-        # 更新告警状态
-        alarm = Alarm.query.get_or_404(alarm_id)
-        alarm.is_processed = True
-        alarm.processed_time = datetime.now().astimezone()
-        alarm.processed_status = '已处理'
-        # 注意：处理操作不会影响告警的确认状态(is_confirmed)和确认类型(confirmation_type)
-        
-        db.session.commit()
-        flash('告警已成功处理！', 'success')
-    except Exception as e:
-        flash(f'处理告警失败：{str(e)}', 'danger')
+    """处理告警"""
+    alarm = Alarm.query.get_or_404(alarm_id)
+    description = request.form.get('description', '')
     
-    return redirect(url_for('alarms_view.index', user_token=user_token))
+    # 更新告警状态
+    alarm.is_processed = True
+    alarm.processed_time = datetime.now().astimezone()
+    alarm.processed_by = current_user.username
+    
+    if description:
+        alarm.description = description
+    
+    db.session.commit()
+    flash('告警已成功处理', 'success')
+    return redirect(url_for('alarms_view.index'))
 
