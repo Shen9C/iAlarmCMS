@@ -3,6 +3,225 @@
 {% block title %}边缘设备管理{% endblock %}
 
 {% block content %}
+<!-- 移除调试信息 -->
+<script>
+// 全局定义togglePassword函数，确保它在DOM加载前就可用
+window.togglePassword = function(button) {
+    console.log('调用togglePassword函数');
+    var inputField = button.closest('.input-group').querySelector('input');
+    var icon = button.querySelector('i');
+    
+    console.log('当前密码框类型:', inputField.type);
+    
+    if (inputField.type === 'password') {
+        // 显示密码
+        inputField.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+        console.log('密码已显示');
+    } else {
+        // 隐藏密码
+        inputField.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+        console.log('密码已隐藏');
+    }
+}
+
+// 确认重新生成密钥函数 - 全局定义为window属性
+window.confirmRegenerate = function(deviceId) {
+    console.log('调用confirmRegenerate，设备ID:', deviceId);
+    if (confirm('确定要重新生成该设备的密钥吗？这将使原有密钥失效，正在使用旧密钥的设备将无法连接。')) {
+        window.regenerateKeysDirectly(deviceId);
+    }
+}
+
+// 重新生成密钥直接方法 - 全局定义为window属性
+window.regenerateKeysDirectly = function(deviceId) {
+    console.log('直接调用API重新生成密钥，设备ID:', deviceId);
+    
+    if (!deviceId) {
+        console.error('设备ID为空');
+        alert('设备ID不能为空');
+        return;
+    }
+    
+    // 显示处理状态
+    var button = document.querySelector(`.regenerate-keys[data-id="${deviceId}"]`);
+    if (button) {
+        var originalText = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 处理中...';
+    }
+    
+    // 直接发送重新生成密钥请求
+    const apiUrl = `/api/edge_devices/${deviceId}/regenerate_keys`;
+    console.log('发送请求到:', apiUrl);
+    
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => {
+        console.log('重新生成密钥响应状态:', response.status);
+        
+        // 输出原始响应
+        response.clone().text().then(text => {
+            console.log('原始响应:', text);
+            try {
+                // 尝试解析为JSON
+                const jsonData = JSON.parse(text);
+                console.log('解析的JSON数据:', jsonData);
+            } catch (e) {
+                console.log('响应不是有效的JSON');
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`请求失败: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('重新生成密钥成功:', data);
+        alert('密钥重新生成成功！');
+        
+        // 恢复按钮状态
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = originalText;
+        }
+        
+        // 刷新页面以显示新密钥
+        setTimeout(() => location.reload(), 1000);
+    })
+    .catch(error => {
+        console.error('重新生成密钥错误:', error);
+        alert('重新生成密钥失败: ' + error.message);
+        
+        // 恢复按钮状态
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = originalText;
+        }
+    });
+}
+
+// 添加全局密码复制函数
+window.copyPassword = function(button) {
+    console.log('调用copyPassword函数');
+    var inputField = button.closest('.input-group').querySelector('input');
+    
+    // 记住原始类型
+    var originalType = inputField.type;
+    console.log('当前密码类型:', originalType);
+    
+    // 临时改为text类型以便复制
+    inputField.type = 'text';
+    
+    try {
+        // 选择文本
+        inputField.select();
+        inputField.setSelectionRange(0, 99999); // 兼容移动设备
+        
+        // 尝试使用现代Clipboard API
+        if (navigator.clipboard) {
+            console.log('使用现代Clipboard API');
+            navigator.clipboard.writeText(inputField.value)
+                .then(function() {
+                    console.log('复制成功 - 现代API');
+                    alert('密码已复制到剪贴板');
+                })
+                .catch(function(err) {
+                    console.error('Clipboard API错误:', err);
+                    // 如果现代API失败，回退到传统方法
+                    fallbackCopy();
+                });
+        } else {
+            // 使用传统方法
+            fallbackCopy();
+        }
+        
+        // 传统复制方法
+        function fallbackCopy() {
+            console.log('使用传统execCommand复制方法');
+            var success = document.execCommand('copy');
+            if (success) {
+                console.log('复制成功 - 传统方法');
+                alert('密码已复制到剪贴板');
+            } else {
+                console.error('复制失败');
+                alert('复制失败，请手动复制密码');
+            }
+        }
+    } catch (err) {
+        console.error('复制过程中出错:', err);
+        alert('复制出错: ' + err.message);
+    } finally {
+        // 恢复原始类型
+        inputField.type = originalType;
+        // 取消选择
+        window.getSelection().removeAllRanges();
+        console.log('已恢复密码字段类型');
+    }
+}
+
+// 添加普通文本复制函数
+window.copyText = function(button) {
+    console.log('调用copyText函数');
+    var inputField = button.closest('.input-group').querySelector('input');
+    
+    try {
+        // 选择文本
+        inputField.select();
+        inputField.setSelectionRange(0, 99999); // 兼容移动设备
+        
+        // 尝试使用现代Clipboard API
+        if (navigator.clipboard) {
+            console.log('使用现代Clipboard API复制普通文本');
+            navigator.clipboard.writeText(inputField.value)
+                .then(function() {
+                    console.log('文本复制成功 - 现代API');
+                    alert('密钥已复制到剪贴板');
+                })
+                .catch(function(err) {
+                    console.error('文本复制API错误:', err);
+                    // 如果现代API失败，回退到传统方法
+                    fallbackCopy();
+                });
+        } else {
+            // 使用传统方法
+            fallbackCopy();
+        }
+        
+        // 传统复制方法
+        function fallbackCopy() {
+            console.log('使用传统方法复制普通文本');
+            var success = document.execCommand('copy');
+            if (success) {
+                console.log('文本复制成功 - 传统方法');
+                alert('密钥已复制到剪贴板');
+            } else {
+                console.error('文本复制失败');
+                alert('复制失败，请手动复制密钥');
+            }
+        }
+    } catch (err) {
+        console.error('文本复制过程中出错:', err);
+        alert('复制出错: ' + err.message);
+    } finally {
+        // 取消选择
+        window.getSelection().removeAllRanges();
+    }
+}
+
+var editDeviceData = null;
+</script>
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -21,7 +240,6 @@
                                 <th>设备编号</th>  <!-- 新增设备编号列 -->
                                 <th>设备名称</th>
                                 <th>IP地址</th>
-                                <th>访问密钥</th>
                                 <th>密钥</th>
                                 <th>创建时间</th>
                                 <th>操作</th>
@@ -36,22 +254,12 @@
                                 <td>{{ device.ip_address }}</td>
                                 <td>
                                     <div class="input-group">
-                                        <input type="text" class="form-control form-control-sm" value="{{ device.access_key }}" readonly>
-                                        <div class="input-group-append">
-                                            <button class="btn btn-outline-secondary btn-sm copy-btn" data-clipboard-text="{{ device.access_key }}" type="button">
-                                                <i class="fas fa-copy"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="input-group">
                                         <input type="password" class="form-control form-control-sm secret-key" value="{{ device.secret_key }}" readonly>
                                         <div class="input-group-append">
-                                            <button class="btn btn-outline-secondary btn-sm toggle-password" type="button">
+                                            <button class="btn btn-outline-secondary btn-sm toggle-password" type="button" onclick="togglePassword(this)">
                                                 <i class="fas fa-eye"></i>
                                             </button>
-                                            <button class="btn btn-outline-secondary btn-sm copy-btn" data-clipboard-text="{{ device.secret_key }}" type="button">
+                                            <button class="btn btn-outline-secondary btn-sm password-copy-btn" type="button" onclick="copyPassword(this)">
                                                 <i class="fas fa-copy"></i>
                                             </button>
                                         </div>
@@ -59,15 +267,15 @@
                                 </td>
                                 <td>{{ device.created_at|datetime }}</td>
                                 <td>
-                                    <button class="btn btn-info btn-sm edit-device" data-id="{{ device.id }}" data-name="{{ device.device_name }}" data-ip="{{ device.ip_address }}" data-device-id="{{ device.device_id }}">
-                                        <i class="fas fa-edit"></i> 编辑
-                                    </button>
-                                    <button class="btn btn-warning btn-sm regenerate-keys" data-id="{{ device.id }}">
+                                    <button class="btn btn-warning btn-sm regenerate-keys" data-id="{{ device.id }}" onclick="confirmRegenerate('{{ device.id }}')">
                                         <i class="fas fa-key"></i> 重新生成密钥
                                     </button>
-                                    <button class="btn btn-danger btn-sm delete-device" data-id="{{ device.id }}" data-name="{{ device.device_name }}">
-                                        <i class="fas fa-trash"></i> 删除
-                                    </button>
+                                    <form action="{{ url_for('edge_devices_api.delete_device') }}" method="POST" style="display: inline-block;">
+                                        <input type="hidden" name="device_id" value="{{ device.id }}">
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除设备 {{ device.device_name }} 吗？');">
+                                            <i class="fas fa-trash"></i> 删除
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -150,7 +358,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="addDeviceForm">
+                <form id="addDeviceForm" action="{{ url_for('edge_devices_api.create_device') }}" method="POST">
                     <div class="form-group mb-3">
                         <label for="deviceId" class="form-label">设备编号</label>
                         <input type="text" class="form-control" id="deviceId" name="device_id">
@@ -171,42 +379,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                 <button type="button" class="btn btn-info" id="testApiBtn">测试API</button>
-                <button type="button" class="btn btn-primary" id="saveDeviceBtn">保存</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 编辑设备模态框 -->
-<div class="modal fade" id="editDeviceModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editDeviceModalLabel">编辑边缘设备</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="editDeviceForm">
-                    <input type="hidden" id="editDeviceId">
-                    <div class="form-group mb-3">
-                        <label for="editDeviceIdField" class="form-label">设备编号</label>
-                        <input type="text" class="form-control" id="editDeviceIdField">
-                        <small class="form-text text-muted">设备的唯一标识符</small>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="editDeviceName" class="form-label">设备名称</label>
-                        <input type="text" class="form-control" id="editDeviceName" required>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="editDeviceIp" class="form-label">IP地址</label>
-                        <input type="text" class="form-control" id="editDeviceIp" required pattern="^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$">
-                        <small class="form-text text-muted">请输入有效的IPv4地址，例如：192.168.1.1</small>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" id="updateDeviceBtn">更新</button>
+                <button type="submit" class="btn btn-primary" form="addDeviceForm">保存</button>
             </div>
         </div>
     </div>
@@ -222,11 +395,13 @@
             </div>
             <div class="modal-body">
                 <p>您确定要删除设备 <span id="deleteDeviceName" class="font-weight-bold"></span> 吗？此操作不可逆。</p>
-                <input type="hidden" id="deleteDeviceId">
+                <form id="deleteDeviceForm" method="POST">
+                    <input type="hidden" id="deleteDeviceId" name="device_id">
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">确认删除</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn" onclick="confirmDeleteDevice()">确认删除</button>
             </div>
         </div>
     </div>
@@ -241,9 +416,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>您确定要为此设备重新生成访问密钥(AK)和密钥(SK)吗？</p>
+                <p>您确定要为此设备重新生成密钥(SK)吗？</p>
                 <p class="text-danger">注意：重新生成后，使用旧密钥的设备将无法连接，需要更新配置。</p>
-                <input type="hidden" id="regenerateDeviceId">
+                <form id="regenerateKeysForm" method="POST">
+                    <input type="hidden" id="regenerateDeviceId" name="device_id">
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
@@ -261,9 +438,7 @@
 <style>
 /* 统一的模态框CSS样式 */
 .modal-backdrop {
-    /* Standard BS5 z-index */
-    z-index: 1050; 
-    opacity: 0.5 !important; /* 调整透明度，确保背景有适当的暗化效果 */
+    display: none !important; /* 完全禁用模态框背景遮罩 */
 }
 .modal {
     /* Standard BS5 z-index, ensures it's above backdrop */
@@ -273,7 +448,7 @@
 }
 .modal-dialog {
     /* Allow interaction with content */
-    pointer-events: auto !important;
+    pointer-events: auto !important; 
     /* 增加z-index确保在遮罩层之上 */
     z-index: 1060;
     /* 添加阴影增强视觉效果 */
@@ -303,6 +478,320 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
 <script>
+// 确保在页面加载完成后初始化所有密码字段为隐藏状态
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('初始化所有密码字段为隐藏状态');
+    // 使用原生JavaScript初始化
+    document.querySelectorAll('.secret-key').forEach(function(input) {
+        input.type = 'password';
+    });
+    // 同时使用jQuery初始化以确保兼容性
+    $('.secret-key').attr('type', 'password');
+    
+    // 检查初始化结果
+    var passwordFields = document.querySelectorAll('.secret-key');
+    console.log('找到密码字段数量:', passwordFields.length);
+    passwordFields.forEach(function(field, index) {
+        console.log(`密码字段${index+1}类型:`, field.type);
+    });
+    
+    // 检查复制按钮是否存在
+    var passwordCopyBtns = document.querySelectorAll('.password-copy-btn');
+    var textCopyBtns = document.querySelectorAll('.text-copy-btn');
+    console.log('找到密码复制按钮数量:', passwordCopyBtns.length);
+    console.log('找到文本复制按钮数量:', textCopyBtns.length);
+});
+
+// DOM加载完成后执行的调试代码
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('==================== DOM加载完成 ====================');
+    
+    // 检查按钮是否存在
+    var regenerateButtons = document.querySelectorAll('.regenerate-keys');
+    console.log('找到重新生成密钥按钮数量:', regenerateButtons.length);
+    
+    // 输出每个按钮的详细信息
+    regenerateButtons.forEach(function(btn, index) {
+        console.log(`按钮${index+1}信息:`, {
+            'data-id': btn.getAttribute('data-id'),
+            'class': btn.className,
+            'html': btn.outerHTML
+        });
+        
+        // 直接添加原生点击事件
+        btn.addEventListener('click', function(e) {
+            console.log('原生点击事件触发 - 重新生成密钥按钮', this.getAttribute('data-id'));
+            var deviceId = this.getAttribute('data-id');
+            
+            if (deviceId) {
+                // 确保页面上有元素来存储设备ID
+                var hiddenInput = document.getElementById('regenerateDeviceId');
+                if (!hiddenInput) {
+                    hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.id = 'regenerateDeviceId';
+                    document.body.appendChild(hiddenInput);
+                }
+                
+                hiddenInput.value = deviceId;
+                console.log('已设置设备ID:', deviceId);
+                
+                // 尝试显示模态框
+                var modalEl = document.getElementById('regenerateKeysModal');
+                if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    try {
+                        var modal = new bootstrap.Modal(modalEl);
+                        modal.show();
+                    } catch (err) {
+                        console.error('显示模态框失败:', err);
+                        // 回退方案：直接调用API
+                        if (confirm('确定要重新生成设备密钥吗？此操作无法撤销。')) {
+                            regenerateKeysDirectly(deviceId);
+                        }
+                    }
+                } else {
+                    console.warn('模态框不可用，使用confirm代替');
+                    if (confirm('确定要重新生成设备密钥吗？此操作无法撤销。')) {
+                        regenerateKeysDirectly(deviceId);
+                    }
+                }
+            } else {
+                console.error('未找到设备ID');
+                alert('错误：未找到设备ID');
+            }
+        });
+    });
+    
+    // 检查确认按钮
+    var confirmBtn = document.getElementById('confirmRegenerateBtn');
+    if (confirmBtn) {
+        console.log('找到确认重新生成按钮:', confirmBtn.outerHTML);
+        
+        // 直接添加原生点击事件
+        confirmBtn.addEventListener('click', function(e) {
+            console.log('原生点击事件触发 - 确认重新生成按钮');
+            var deviceId = document.getElementById('regenerateDeviceId').value;
+            console.log('设备ID值:', deviceId);
+            
+            if (deviceId) {
+                regenerateKeysDirectly(deviceId);
+            } else {
+                console.error('未找到设备ID');
+                alert('错误：未找到设备ID');
+            }
+        });
+    } else {
+        console.error('未找到确认重新生成按钮!');
+    }
+    
+    // 全局点击监听
+    document.body.addEventListener('click', function(e) {
+        var target = e.target;
+        var targetStr = target.tagName + '.' + target.className;
+        console.log('全局点击:', targetStr);
+        
+        // 检查是否匹配按钮
+        if (target.classList.contains('regenerate-keys') || 
+            target.closest('.regenerate-keys')) {
+            console.log('全局监听 - 检测到重新生成密钥按钮点击');
+        }
+    });
+});
+
+// 全局删除函数，确保可以直接从HTML调用
+function showDeleteModal(deviceId, deviceName) {
+    console.log('显示删除确认框:', deviceId, deviceName);
+    
+    // 设置模态框中的值
+    document.getElementById('deleteDeviceId').value = deviceId;
+    document.getElementById('deleteDeviceName').textContent = deviceName;
+    
+    try {
+        // 显示模态框
+        var modalEl = document.getElementById('deleteDeviceModal');
+        if (!modalEl) {
+            console.error('未找到删除模态框元素');
+            alert('系统错误：未找到删除确认对话框');
+            return false;
+        }
+        
+        if (typeof bootstrap === 'undefined') {
+            console.error('Bootstrap未定义');
+            alert('系统错误：Bootstrap库未加载');
+            return false;
+        }
+        
+        console.log('Bootstrap版本:', bootstrap.Modal ? '已加载' : '未加载Modal组件');
+        
+        var modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    } catch (err) {
+        console.error('显示模态框错误:', err);
+        alert('无法显示删除确认对话框: ' + err.message);
+    }
+    
+    return false; // 阻止默认行为
+}
+
+// 确认删除函数
+function confirmDeleteDevice() {
+    var deviceId = document.getElementById('deleteDeviceId').value;
+    
+    console.log('确认删除设备:', deviceId);
+    
+    if (!deviceId) {
+        console.error('设备ID为空');
+        alert('无法删除：设备ID未找到');
+        return;
+    }
+    
+    // 禁用按钮防止重复提交
+    var confirmBtn = document.getElementById('confirmDeleteBtn');
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = '删除中...';
+    
+    // 发送删除请求
+    fetch('/api/edge_devices/' + deviceId, {
+        method: 'DELETE',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(function(response) {
+        console.log('删除响应状态:', response.status);
+        if (!response.ok) {
+            throw new Error('删除请求失败: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        console.log('删除响应数据:', data);
+        
+        if (data.code === 200) {
+            // 成功提示
+            alert('设备删除成功');
+            
+            // 关闭模态框
+            var modalEl = document.getElementById('deleteDeviceModal');
+            var modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) {
+                modal.hide();
+            }
+            
+            // 刷新页面
+            setTimeout(function() {
+                location.reload();
+            }, 1000);
+        } else {
+            alert('删除失败: ' + (data.message || '未知错误'));
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = '确认删除';
+        }
+    })
+    .catch(function(error) {
+        console.error('删除请求错误:', error);
+        alert('删除失败: ' + error.message);
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = '确认删除';
+    });
+}
+
+// 全局配置Bootstrap模态框，禁用遮罩层
+window.addEventListener('DOMContentLoaded', function() {
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        // 修改Bootstrap模态框默认选项
+        bootstrap.Modal.Default.backdrop = false;
+        console.log('已全局禁用Bootstrap模态框遮罩层');
+    }
+    
+    // 添加对表格的调试输出
+    console.log('页面上的删除按钮数量:', document.querySelectorAll('.delete-device').length);
+    
+    // 直接使用原生JavaScript绑定删除按钮事件
+    document.querySelectorAll('.delete-device').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('删除按钮点击 - 原生事件');
+            
+            // 获取设备数据
+            var deviceId = this.getAttribute('data-id');
+            var deviceName = this.getAttribute('data-name');
+            
+            console.log('删除设备数据:', deviceId, deviceName);
+            
+            // 设置模态框中的值
+            document.getElementById('deleteDeviceId').value = deviceId;
+            document.getElementById('deleteDeviceName').textContent = deviceName;
+            
+            // 显示模态框
+            var modalEl = document.getElementById('deleteDeviceModal');
+            var modal = new bootstrap.Modal(modalEl, {
+                backdrop: false,
+                keyboard: true
+            });
+            modal.show();
+        });
+    });
+    
+    // 确认删除按钮事件
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+        var deviceId = document.getElementById('deleteDeviceId').value;
+        
+        console.log('确认删除设备:', deviceId);
+        
+        // 禁用按钮防止重复提交
+        this.disabled = true;
+        this.textContent = '删除中...';
+        
+        // 发送删除请求
+        fetch('/api/edge_devices/' + deviceId, {
+            method: 'DELETE',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(function(response) {
+            console.log('删除响应状态:', response.status);
+            if (!response.ok) {
+                throw new Error('删除请求失败: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(function(data) {
+            console.log('删除响应数据:', data);
+            
+            if (data.code === 200) {
+                // 成功提示
+                alert('设备删除成功');
+                
+                // 关闭模态框
+                var modalEl = document.getElementById('deleteDeviceModal');
+                var bsModal = bootstrap.Modal.getInstance(modalEl);
+                if (bsModal) {
+                    bsModal.hide();
+                }
+                
+                // 刷新页面
+                setTimeout(function() {
+                    location.reload();
+                }, 1000);
+            } else {
+                alert('删除失败: ' + (data.message || '未知错误'));
+                document.getElementById('confirmDeleteBtn').disabled = false;
+                document.getElementById('confirmDeleteBtn').textContent = '确认删除';
+            }
+        })
+        .catch(function(error) {
+            console.error('删除请求错误:', error);
+            alert('删除失败: ' + error.message);
+            document.getElementById('confirmDeleteBtn').disabled = false;
+            document.getElementById('confirmDeleteBtn').textContent = '确认删除';
+        });
+    });
+});
+
 console.log('脚本开始加载...');
 console.log('jQuery版本:', typeof $ !== 'undefined' ? $.fn.jquery : '未加载');
 console.log('Bootstrap对象:', typeof bootstrap !== 'undefined' ? '已加载' : '未加载');
@@ -329,6 +818,15 @@ $(document).ready(function() {
     console.log('页面上是否有Bootstrap 5的CSS:', $('link[href*="bootstrap@5"]').length > 0);
     console.log('页面上是否有Bootstrap 5的JS:', $('script[src*="bootstrap@5"]').length > 0);
     
+    // 全局监听模态框显示事件，移除遮罩层
+    document.body.addEventListener('shown.bs.modal', function() {
+        var backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(function(backdrop) {
+            backdrop.parentNode.removeChild(backdrop);
+        });
+        console.log('全局处理器：移除了模态框遮罩层');
+    }, true);
+    
     // 手动初始化所有模态框
     var modals = document.querySelectorAll('.modal');
     modals.forEach(function(modalEl) {
@@ -339,10 +837,19 @@ $(document).ready(function() {
         
         // 存储modal实例到DOM元素
         modalEl._bsModal = modal;
+        
+        // 移除关联的任何backdrop元素
+        modalEl.addEventListener('shown.bs.modal', function() {
+            var backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(function(backdrop) {
+                backdrop.parentNode.removeChild(backdrop);
+            });
+        });
     });
     
     // 添加设备按钮点击事件 - 手动触发模态框
-    $('#addDeviceBtn').on('click', function() {
+    $(document).on('click', '[data-bs-toggle="modal"][data-bs-target="#addDeviceModal"]', function(e) {
+        e.preventDefault();
         console.log('点击添加设备按钮');
         var modalEl = document.getElementById('addDeviceModal');
         if (modalEl && modalEl._bsModal) {
@@ -354,6 +861,14 @@ $(document).ready(function() {
                 keyboard: true
             });
             modal.show();
+            
+            // 移除任何backdrop元素
+            setTimeout(function() {
+                var backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(function(backdrop) {
+                    backdrop.parentNode.removeChild(backdrop);
+                });
+            }, 100);
         }
         
         // 确保输入框可编辑
@@ -364,7 +879,7 @@ $(document).ready(function() {
     });
     
     // 添加测试API按钮的事件处理
-    $('#testApiBtn').click(function() {
+    $(document).on('click', '#testApiBtn', function() {
         console.log('测试API按钮点击');
         
         // 发送一个简单的测试请求
@@ -388,8 +903,8 @@ $(document).ready(function() {
         });
     });
     
-    // 修改前端AJAX请求代码：
-    $('#saveDeviceBtn').click(function() {
+    // 修改前端AJAX请求代码，使用事件委托方式绑定
+    $(document).on('click', '#saveDeviceBtn', function() {
         console.log('点击保存按钮');
         var device_id = $('#deviceId').val();
         var name = $('#deviceName').val();
@@ -425,6 +940,9 @@ $(document).ready(function() {
         };
         console.log('发送的数据:', JSON.stringify(requestData));
         
+        // 禁用保存按钮，防止重复提交
+        $('#saveDeviceBtn').prop('disabled', true).text('保存中...');
+        
         // 使用fetch API替代jQuery AJAX，避免可能的兼容性问题
         fetch('/api/edge_devices', {
             method: 'POST',
@@ -443,6 +961,7 @@ $(document).ready(function() {
         })
         .then(data => {
             console.log('解析的响应数据:', data);
+            $('#saveDeviceBtn').prop('disabled', false).text('保存');
             if (data.code === 200) {
                 toastr.success('设备添加成功');
                 // 关闭模态框
@@ -465,11 +984,43 @@ $(document).ready(function() {
         })
         .catch(error => {
             console.error('请求错误:', error);
+            $('#saveDeviceBtn').prop('disabled', false).text('保存');
             toastr.error('添加设备失败: ' + error.message);
         });
     });
     
-    // 其他代码保持不变
+    // 在页面加载时检查删除按钮
+    console.log('jQuery找到的删除按钮数量:', $('.delete-device').length);
+    $('.delete-device').each(function(index) {
+        console.log(`删除按钮${index}:`, $(this).data('id'), $(this).data('name'));
+    });
+    
+    // 检查表格内容
+    console.log('设备表格行数:', $('#deviceTable tbody tr').length);
+    
+    // 尝试使用原生方法绑定点击事件
+    document.querySelectorAll('.delete-device').forEach(function(btn) {
+        btn.onclick = function(e) {
+            console.log('原生点击事件触发，设备ID:', this.getAttribute('data-id'));
+        };
+    });
+    
+    // 全局点击监听器
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('.delete-device') || e.target.closest('.delete-device')) {
+            console.log('全局监听到删除按钮点击，目标:', e.target);
+        }
+    });
+    
+    // 为表格添加点击委托事件
+    $('#deviceTable').on('click', '.delete-device', function(e) {
+        console.log('表格委托的删除按钮点击，设备ID:', $(this).data('id'));
+    });
+    
+    // 测试点击事件处理是否可用
+    $(document).on('click', '.test-element', function() {
+        console.log('测试元素点击事件触发');
+    });
 });
 </script>
 {% endblock %}

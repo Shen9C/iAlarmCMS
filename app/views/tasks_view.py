@@ -110,6 +110,8 @@ def create():
                 task_type=task_type,
                 camera_ip=request.form['camera_ip'],
                 camera_preset=int(request.form['camera_preset']),
+                camera_username=request.form.get('camera_username', ''),
+                camera_password=request.form.get('camera_password', ''),
                 pressure_range=float(request.form['pressure_range']),
                 device_id=device_id,
                 task_description=task_description
@@ -159,6 +161,8 @@ def edit(task_id):
             task.task_type = task_type
             task.camera_ip = request.form['camera_ip']
             task.camera_preset = int(request.form['camera_preset'])
+            task.camera_username = request.form.get('camera_username', '')
+            task.camera_password = request.form.get('camera_password', '')
             task.pressure_range = float(request.form['pressure_range'])
             task.device_id = device_id
             task.task_description = task_description

@@ -288,26 +288,47 @@ def generate_test_data():
             else:
                 print(f"油井数据写入不完整，预期 {len(test_config['oil_well_names'])} 个，实际写入 {len(saved_wells)} 个")
             
-            # 生成任务数据
+            # 生成测试任务数据
             tasks = []
-            for _ in range(50):  # 生成50个任务
+            for i in range(int(test_config['task_count'])):
+                # 随机选择一个设备
+                device = random.choice(devices)
                 # 随机选择一个油井
                 oil_well = random.choice(oil_wells)
-                task_type = random.choice(test_config['task_types'])
-                device = random.choice(devices)
                 
+                # 随机选择一个任务类型
+                task_type = random.choice(test_config['task_types'])
+                
+                # 生成摄像头相关信息
+                camera_ip = f"192.168.1.{random.randint(2, 254)}"
+                camera_preset = random.randint(1, 8)
+                # 添加摄像头用户名和密码的随机数据
+                camera_username = random.choice(test_config.get('camera_usernames', ["admin", "operator", "hikvision"]))
+                camera_password = random.choice(test_config.get('camera_passwords', ["admin123", "Admin@123", "123456"]))
+                
+                # 生成压力表量程
+                pressure_range = random.choice([10.0, 16.0, 25.0, 40.0, 60.0])
+                
+                # 生成任务描述
+                task_description = f"{task_type}任务：{oil_well.well_name}（{oil_well.well_code}）- {device.device_name}"
+                
+                # 生成任务编码
+                task_code = generate_task_code(oil_well.well_code, task_type)
+                
+                # 创建任务对象
                 task = Task(
-                    task_code=generate_task_code(oil_well.well_code, task_type),
-                    task_name=f"{oil_well.well_name}-{task_type}",
-                    task_type=task_type,
-                    well_code=oil_well.well_code,
+                    task_code=task_code,
+                    task_name=f"{oil_well.well_name}-{oil_well.well_code}-{task_type}",
                     well_name=oil_well.well_name,
-                    task_description=f"{oil_well.well_name}的{task_type}任务，优先级{random.choice(['高', '中', '低'])}",
-                    created_at=datetime.now() - timedelta(days=random.randint(1, 90)),
-                    device_id=device.device_id,
-                    camera_ip=f"192.168.1.{random.randint(10, 250)}",
-                    camera_preset=random.randint(1, 10),
-                    pressure_range=random.choice([10.0, 16.0, 25.0, 40.0])
+                    well_code=oil_well.well_code,
+                    task_type=task_type,
+                    camera_ip=camera_ip,
+                    camera_preset=camera_preset,
+                    camera_username=camera_username,
+                    camera_password=camera_password,
+                    pressure_range=pressure_range,
+                    task_description=task_description,
+                    device_id=device.device_id
                 )
                 tasks.append(task)
                 db.session.add(task)
@@ -316,10 +337,10 @@ def generate_test_data():
             
             # 验证任务数据
             saved_tasks = Task.query.all()
-            if len(saved_tasks) == 50:
+            if len(saved_tasks) == int(test_config['task_count']):
                 print(f"成功生成 {len(saved_tasks)} 个任务数据")
             else:
-                print(f"任务数据写入不完整，预期 50 个，实际写入 {len(saved_tasks)} 个")
+                print(f"任务数据写入不完整，预期 {int(test_config['task_count'])} 个，实际写入 {len(saved_tasks)} 个")
             
             # 生成告警数据
             alarms = []

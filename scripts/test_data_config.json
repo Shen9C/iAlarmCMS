@@ -110,6 +110,23 @@
     },
     "api_url": "http://localhost:5000/api",
     "access_key": "test_access_key",
-    "secret_key": "test_secret_key"
+    "secret_key": "test_secret_key",
+    "task_count": 50,
+    "camera_usernames": [
+        "admin",
+        "operator",
+        "hikvision",
+        "dahua",
+        "user",
+        "root"
+    ],
+    "camera_passwords": [
+        "admin123",
+        "Admin@123",
+        "Passw0rd",
+        "123456",
+        "Hikvision@123",
+        "Dahua@2023"
+    ]
 }
 

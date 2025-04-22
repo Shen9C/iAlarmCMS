@@ -14,6 +14,8 @@ class Task(db.Model):
     task_type = db.Column(db.String(50), nullable=False, comment='任务类型')
     camera_ip = db.Column(db.String(50), nullable=False, comment='摄像头IP')
     camera_preset = db.Column(db.Integer, nullable=False, comment='摄像头预置点')
+    camera_username = db.Column(db.String(50), nullable=True, comment='摄像头登录用户名')
+    camera_password = db.Column(db.String(100), nullable=True, comment='摄像头登录密码')
     pressure_range = db.Column(db.Float, nullable=False, comment='压力表量程')
     task_description = db.Column(db.String(500), nullable=True, comment='任务描述')
     created_at = db.Column(db.DateTime, default=datetime.now, comment='创建时间')
@@ -39,6 +41,8 @@ class Task(db.Model):
             'task_type': self.task_type,
             'camera_ip': self.camera_ip,
             'camera_preset': self.camera_preset,
+            'camera_username': self.camera_username,
+            'camera_password': self.camera_password,
             'pressure_range': self.pressure_range,
             'task_description': self.task_description,
             'device_id': self.device_id,

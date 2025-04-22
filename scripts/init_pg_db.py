@@ -240,16 +240,22 @@ def init():
             
             cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'tasks'")
             task_columns = {col[0] for col in cursor.fetchall()}
-            required_task_fields = ['task_code', 'task_type', 'well_code', 'well_name', 'task_description']
+            required_task_fields = ['task_code', 'task_type', 'well_code', 'well_name', 'camera_ip', 'camera_preset', 'camera_username', 'camera_password']
             missing_task_fields = [field for field in required_task_fields if field not in task_columns]
             
             if not missing_task_fields:
                 logger.info(f"{SUCCESS_MARK} 任务表包含所有必需字段")
             else:
-                logger.error(f"{ERROR_MARK} 任务表缺少字段: {', '.join(missing_task_fields)}")
-                if 'detection_type' in task_columns and 'task_type' not in task_columns:
-                    logger.warning("警告: 任务表仍然使用的是旧的detection_type字段")
-                    logger.warning("建议使用 python scripts/init_pg_db.py rebuild 命令强制重建表结构")
+                logger.warning(f"警告: 任务表缺少字段: {', '.join(missing_task_fields)}")
+                if 'camera_username' not in task_columns or 'camera_password' not in task_columns:
+                    logger.warning("警告: 任务表缺少摄像头用户名或密码字段，请运行数据库迁移")
+            
+            if 'task_type' in task_columns:
+                logger.info(f"{SUCCESS_MARK} 任务表结构正确，包含task_type字段")
+            else:
+                logger.error(f"{ERROR_MARK} 任务表结构不正确，不包含task_type字段")
+                if 'detection_type' in task_columns:
+                    logger.warning("警告：任务表使用了旧的detection_type字段，请先运行init_pg_db.py清空并重建表结构")
             
             # 特别检查油井表
             cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'oil_wells'")

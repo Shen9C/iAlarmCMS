@@ -72,6 +72,29 @@
                                     <td>{{ task.camera_preset }}</td>
                                 </tr>
                                 <tr>
+                                    <th>摄像头用户名</th>
+                                    <td>{{ task.camera_username or '未设置' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>摄像头密码</th>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if task.camera_password %}
+                                            <div id="passwordContainer" class="me-2">
+                                                <span id="passwordDots" style="display:inline;">••••••••</span>
+                                                <span id="passwordText" style="display:none;">{{ task.camera_password }}</span>
+                                            </div>
+                                            <button type="button" id="togglePasswordBtn" class="btn btn-sm btn-outline-secondary" 
+                                                    onclick="document.getElementById('passwordDots').style.display=document.getElementById('passwordDots').style.display==='none'?'inline':'none';document.getElementById('passwordText').style.display=document.getElementById('passwordText').style.display==='none'?'inline':'none';this.querySelector('i').classList.toggle('fa-eye');this.querySelector('i').classList.toggle('fa-eye-slash');">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            {% else %}
+                                            <span>未设置</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
                                     <th>压力表量程</th>
                                     <td>{{ task.pressure_range }}</td>
                                 </tr>

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}编辑边缘设备{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">编辑边缘设备</h3>
+                    <a href="{{ url_for('edge_devices.index') }}" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-arrow-left"></i> 返回列表
+                    </a>
+                </div>
+                <div class="card-body">
+                    <form id="editDeviceForm" action="{{ url_for('edge_devices_api.update_edge_device', device_id=device.id) }}" method="POST">
+                        <input type="hidden" name="_method" value="PUT">
+                        <input type="hidden" name="id" value="{{ device.id }}">
+                        
+                        <div class="form-group mb-3">
+                            <label for="deviceIdField" class="form-label">设备编号</label>
+                            <input type="text" class="form-control" id="deviceIdField" name="device_id" value="{{ device.device_id }}">
+                            <small class="form-text text-muted">设备的唯一标识符</small>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="deviceName" class="form-label">设备名称</label>
+                            <input type="text" class="form-control" id="deviceName" name="device_name" value="{{ device.device_name }}" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="deviceIp" class="form-label">IP地址</label>
+                            <input type="text" class="form-control" id="deviceIp" name="ip_address" value="{{ device.ip_address }}" required pattern="^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$">
+                            <small class="form-text text-muted">请输入有效的IPv4地址，例如：192.168.1.1</small>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">保存</button>
+                            <a href="{{ url_for('edge_devices.index') }}" class="btn btn-secondary ms-2">取消</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// 表单验证
+document.getElementById('editDeviceForm').addEventListener('submit', function(e) {
+    var deviceName = document.getElementById('deviceName').value;
+    var deviceIp = document.getElementById('deviceIp').value;
+    
+    if (!deviceName || !deviceIp) {
+        e.preventDefault();
+        alert('请填写所有必填字段');
+        return false;
+    }
+    
+    // 验证IP地址格式
+    var ipPattern = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    if (!ipPattern.test(deviceIp)) {
+        e.preventDefault();
+        alert('请输入有效的IPv4地址');
+        return false;
+    }
+    
+    return true;
+});
+</script>
+{% endblock %} 
