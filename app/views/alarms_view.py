@@ -27,7 +27,7 @@ def index():
     
     # 获取当前页码和每页条数
     page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 10, type=int)  # 默认每页显示10条
+    per_page = request.args.get('per_page', 15, type=int)  # 默认每页显示15条
     user_token = request.args.get('user_token')
     
     # 强制刷新会话，确保获取最新数据

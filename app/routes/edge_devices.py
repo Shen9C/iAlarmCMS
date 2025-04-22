@@ -3,6 +3,7 @@ from flask_login import login_required
 from app.models.edge_devices import EdgeDevice
 from app.utils.decorators import admin_required
 from app import db
+from datetime import datetime
 
 bp = Blueprint('edge_devices', __name__, url_prefix='/edge_devices')
 
@@ -15,7 +16,7 @@ def index():
         session.pop('edit_device')
         
     page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 10, type=int)
+    per_page = request.args.get('per_page', 15, type=int)
     
     # 构建查询
     query = EdgeDevice.query
@@ -25,9 +26,13 @@ def index():
         page=page, per_page=per_page, error_out=False
     )
     
+    # 获取当前时间，用于计算设备状态
+    current_time = datetime.now()
+    
     return render_template('edge_devices/edge_devices_index.html', 
                            devices=pagination.items,
-                           pagination=pagination)
+                           pagination=pagination,
+                           now=current_time)
 
 @bp.route('/detail/<string:device_id>')
 @login_required

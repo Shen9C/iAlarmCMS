@@ -222,7 +222,7 @@ def init():
                     except Exception as e:
                         logger.error(f"重试创建表 {table_name} 失败: {str(e)}")
             
-            # 特别检查表的字段
+            # 特别检查告警表
             cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'alarms'")
             alarm_columns = {col[0] for col in cursor.fetchall()}
             required_alarm_fields = ['alarm_code', 'is_processed', 'is_confirmed', 'well_code']
@@ -238,15 +238,26 @@ def init():
                 if 'processed_status' in alarm_columns:
                     logger.warning("警告: 告警表使用了processed_status字段，应该使用is_processed和is_confirmed")
             
+            # 特别检查边缘设备表
+            cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'edge_devices'")
+            edge_device_columns = {col[0] for col in cursor.fetchall()}
+            required_edge_device_fields = ['device_id', 'device_name', 'ip_address', 'secret_key', 'last_auth_time', 'status']
+            missing_edge_device_fields = [field for field in required_edge_device_fields if field not in edge_device_columns]
+            
+            if not missing_edge_device_fields:
+                logger.info(f"{SUCCESS_MARK} 边缘设备表包含所有必需字段")
+            else:
+                logger.warning(f"边缘设备表缺少字段: {', '.join(missing_edge_device_fields)}")
+                logger.warning("请运行数据库迁移或执行rebuild命令添加缺少的字段")
+
+            # 特别检查任务表
             cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'tasks'")
             task_columns = {col[0] for col in cursor.fetchall()}
-            required_task_fields = ['task_code', 'task_type', 'well_code', 'well_name', 'camera_ip', 'camera_preset', 'camera_username', 'camera_password']
-            missing_task_fields = [field for field in required_task_fields if field not in task_columns]
             
-            if not missing_task_fields:
-                logger.info(f"{SUCCESS_MARK} 任务表包含所有必需字段")
+            # 检查摄像头字段
+            if 'camera_username' in task_columns and 'camera_password' in task_columns:
+                logger.info(f"{SUCCESS_MARK} 任务表包含摄像头用户名和密码字段")
             else:
-                logger.warning(f"警告: 任务表缺少字段: {', '.join(missing_task_fields)}")
                 if 'camera_username' not in task_columns or 'camera_password' not in task_columns:
                     logger.warning("警告: 任务表缺少摄像头用户名或密码字段，请运行数据库迁移")
             

@@ -233,15 +233,54 @@ var editDeviceData = null;
                     </button>
                 </div>
                 <div class="card-body">
+                    <!-- 添加筛选表单 -->
+                    <form method="GET" action="{{ url_for('edge_devices.index') }}" class="mb-4">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="device_name" class="form-label">设备名称</label>
+                                    <input type="text" class="form-control" id="device_name" name="device_name" value="{{ filter_params.device_name }}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="ip_address" class="form-label">IP地址</label>
+                                    <input type="text" class="form-control" id="ip_address" name="ip_address" value="{{ filter_params.ip_address }}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="status" class="form-label">设备状态</label>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="" {% if filter_params.status == '' %}selected{% endif %}>全部</option>
+                                        <option value="online" {% if filter_params.status == 'online' %}selected{% endif %}>在线</option>
+                                        <option value="offline" {% if filter_params.status == 'offline' %}selected{% endif %}>离线</option>
+                                        <option value="error" {% if filter_params.status == 'error' %}selected{% endif %}>异常</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> 筛选
+                                </button>
+                                <a href="{{ url_for('edge_devices.index') }}" class="btn btn-secondary ms-2">
+                                    <i class="fas fa-redo"></i> 重置
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                    
                     <table class="table table-bordered table-striped" id="deviceTable">
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>设备编号</th>  <!-- 新增设备编号列 -->
+                                <th>设备编号</th>
                                 <th>设备名称</th>
                                 <th>IP地址</th>
                                 <th>密钥</th>
                                 <th>创建时间</th>
+                                <th>最后登录时间</th>
+                                <th>状态</th>
                                 <th>操作</th>
                             </tr>
                         </thead>
@@ -266,6 +305,27 @@ var editDeviceData = null;
                                     </div>
                                 </td>
                                 <td>{{ device.created_at|datetime }}</td>
+                                <td class="last-login-time" data-last-login="{{ device.last_auth_time|datetime if device.last_auth_time else '未登录' }}">
+                                    {{ device.last_auth_time|datetime if device.last_auth_time else '未登录' }}
+                                </td>
+                                <td class="device-status" data-device-id="{{ device.id }}" data-last-login="{{ device.last_auth_time|datetime if device.last_auth_time }}" data-status="{{ device.status }}">
+                                    <span class="badge rounded-pill 
+                                        {% if device.status == 'online' %}
+                                            bg-success
+                                        {% elif device.status == 'error' %}
+                                            bg-danger
+                                        {% else %}
+                                            bg-secondary
+                                        {% endif %}">
+                                        {% if device.status == 'online' %}
+                                            在线
+                                        {% elif device.status == 'error' %}
+                                            异常
+                                        {% else %}
+                                            离线
+                                        {% endif %}
+                                    </span>
+                                </td>
                                 <td>
                                     <button class="btn btn-warning btn-sm regenerate-keys" data-id="{{ device.id }}" onclick="confirmRegenerate('{{ device.id }}')">
                                         <i class="fas fa-key"></i> 重新生成密钥
@@ -289,17 +349,22 @@ var editDeviceData = null;
                             <form id="searchForm" method="GET" action="{{ url_for('edge_devices.index') }}">
                                 <label class="me-2 form-label-sm">每页显示：</label>
                                 <select name="per_page" class="form-select form-select-sm d-inline-block" style="width: 80px;" onchange="this.form.submit()">
-                                    <option value="10" {% if request.args.get('per_page', '10')|int == 10 %}selected{% endif %}>10</option>
-                                    <option value="15" {% if request.args.get('per_page', '10')|int == 15 %}selected{% endif %}>15</option>
-                                    <option value="20" {% if request.args.get('per_page', '10')|int == 20 %}selected{% endif %}>20</option>
-                                    <option value="50" {% if request.args.get('per_page', '10')|int == 50 %}selected{% endif %}>50</option>
-                                    <option value="100" {% if request.args.get('per_page', '10')|int == 100 %}selected{% endif %}>100</option>
+                                    <option value="10" {% if request.args.get('per_page', '15')|int == 10 %}selected{% endif %}>10</option>
+                                    <option value="15" {% if request.args.get('per_page', '15')|int == 15 %}selected{% endif %}>15</option>
+                                    <option value="20" {% if request.args.get('per_page', '15')|int == 20 %}selected{% endif %}>20</option>
+                                    <option value="50" {% if request.args.get('per_page', '15')|int == 50 %}selected{% endif %}>50</option>
+                                    <option value="100" {% if request.args.get('per_page', '15')|int == 100 %}selected{% endif %}>100</option>
                                 </select>
-                                {% for key, value in request.args.items() %}
-                                    {% if key not in ['per_page', 'page'] %}
-                                    <input type="hidden" name="{{ key }}" value="{{ value }}">
-                                    {% endif %}
-                                {% endfor %}
+                                <!-- 保留筛选参数 -->
+                                {% if filter_params.device_name %}
+                                <input type="hidden" name="device_name" value="{{ filter_params.device_name }}">
+                                {% endif %}
+                                {% if filter_params.ip_address %}
+                                <input type="hidden" name="ip_address" value="{{ filter_params.ip_address }}">
+                                {% endif %}
+                                {% if filter_params.status %}
+                                <input type="hidden" name="status" value="{{ filter_params.status }}">
+                                {% endif %}
                             </form>
                             <span class="ms-3 text-muted small">共 {{ pagination.total }} 条记录</span>
                         </div>
@@ -469,6 +534,19 @@ var editDeviceData = null;
     pointer-events: auto !important;
     opacity: 1 !important;
 }
+
+/* 设备状态样式 */
+.device-status {
+    text-align: center;
+}
+.badge.bg-success {
+    padding: 0.5em 0.8em;
+    font-weight: 500;
+}
+.badge.bg-danger {
+    padding: 0.5em 0.8em;
+    font-weight: 500;
+}
 </style>
 {% endblock %}
 
@@ -500,7 +578,49 @@ document.addEventListener('DOMContentLoaded', function() {
     var textCopyBtns = document.querySelectorAll('.text-copy-btn');
     console.log('找到密码复制按钮数量:', passwordCopyBtns.length);
     console.log('找到文本复制按钮数量:', textCopyBtns.length);
+    
+    // 初始化设备状态
+    updateDeviceStatus();
+    
+    // 每分钟更新一次设备状态
+    setInterval(updateDeviceStatus, 60000);
 });
+
+// 设备状态检查函数 - 根据最后登录时间判断设备状态
+function updateDeviceStatus() {
+    console.log('更新设备状态...');
+    const statusCells = document.querySelectorAll('.device-status');
+    const now = new Date();
+    
+    statusCells.forEach(cell => {
+        const lastLoginStr = cell.getAttribute('data-last-login');
+        
+        // 如果没有最后登录记录，设为离线
+        if (!lastLoginStr || lastLoginStr === '未登录') {
+            cell.innerHTML = '<span class="badge rounded-pill bg-secondary">离线</span>';
+            return;
+        }
+        
+        // 解析最后登录时间
+        try {
+            const lastLogin = new Date(lastLoginStr);
+            
+            // 计算时间差（毫秒）
+            const diffMs = now - lastLogin;
+            const diffHours = diffMs / (1000 * 60 * 60);
+            
+            // 更新状态标签：如果在1小时内登录过则为在线，否则为离线
+            if (diffHours < 1) {
+                cell.innerHTML = '<span class="badge rounded-pill bg-success">在线</span>';
+            } else {
+                cell.innerHTML = '<span class="badge rounded-pill bg-secondary">离线</span>';
+            }
+        } catch (e) {
+            console.error('解析日期时出错:', e);
+            cell.innerHTML = '<span class="badge rounded-pill bg-secondary">离线</span>';
+        }
+    });
+}
 
 // DOM加载完成后执行的调试代码
 document.addEventListener('DOMContentLoaded', function() {
@@ -1021,6 +1141,8 @@ $(document).ready(function() {
     $(document).on('click', '.test-element', function() {
         console.log('测试元素点击事件触发');
     });
+
+    // 移除排序相关代码（原ID列表排序功能）
 });
 </script>
 {% endblock %}

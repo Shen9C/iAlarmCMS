@@ -19,7 +19,7 @@ def index():
         status = request.args.get('status', '')
         location = request.args.get('location', '')
         page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 10, type=int)
+        per_page = request.args.get('per_page', 15, type=int)
         
         # 构建查询
         query = OilWell.query

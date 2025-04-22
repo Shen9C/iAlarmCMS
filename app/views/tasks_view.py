@@ -20,7 +20,7 @@ def index():
         well_code = request.args.get('well_code', '')
         device_name = request.args.get('device_name', '')
         page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 10, type=int)
+        per_page = request.args.get('per_page', 15, type=int)
         
         # 构建查询
         query = Task.query

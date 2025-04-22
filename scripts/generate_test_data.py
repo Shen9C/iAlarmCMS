@@ -244,23 +244,35 @@ def generate_test_data():
             # 生成测试设备数据
             devices = []
             for device_name in test_config['device_names']:
+                # 生成一个1-5内的随机数来决定设备状态
+                status_num = random.randint(1, 5)
+                if status_num == 1:
+                    status = 'error'  # 20%的设备处于错误状态
+                elif status_num <= 3:
+                    status = 'offline'  # 40%的设备处于离线状态
+                else:
+                    status = 'online'  # 40%的设备处于在线状态
+                
                 device = EdgeDevice(
                     device_name=device_name,
                     ip_address=f"192.168.1.{random.randint(10, 250)}",
                     device_id=str(uuid.uuid4())[:8],
-                    secret_key=str(uuid.uuid4())
+                    status=status
                 )
+                
+                # 如果设备是在线状态，设置一个最近的认证时间
+                if status == 'online':
+                    device.last_auth_time = datetime.now() - timedelta(minutes=random.randint(5, 55))
+                elif status == 'offline':
+                    # 离线设备可能在过去有认证记录
+                    if random.random() > 0.3:  # 70%的离线设备有历史认证记录
+                        device.last_auth_time = datetime.now() - timedelta(days=random.randint(1, 30))
+                
                 devices.append(device)
                 db.session.add(device)
             
             db.session.commit()
-            
-            # 验证设备数据
-            saved_devices = EdgeDevice.query.all()
-            if len(saved_devices) == len(test_config['device_names']):
-                print(f"成功生成 {len(saved_devices)} 个边缘设备数据")
-            else:
-                print(f"设备数据写入不完整，预期 {len(test_config['device_names'])} 个，实际写入 {len(saved_devices)} 个")
+            print(f"成功生成 {len(devices)} 个测试设备")
             
             # 生成油井数据
             oil_wells = []
@@ -456,7 +468,7 @@ def generate_test_data():
             
             print("\n=== 测试数据生成完成 ===")
             print(f"用户: {len(saved_users)}个")
-            print(f"设备: {len(saved_devices)}个")
+            print(f"设备: {len(devices)}个")
             print(f"油井: {len(saved_wells)}个")
             print(f"任务: {len(saved_tasks)}个")
             print(f"告警: {len(saved_alarms)}个")

@@ -12,10 +12,26 @@ bp = Blueprint('edge_devices', __name__, url_prefix='/edge_devices')
 def index():
     """边缘设备管理页面"""
     page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 10, type=int)
+    per_page = request.args.get('per_page', 15, type=int)
+    
+    # 获取筛选参数
+    device_name = request.args.get('device_name', '')
+    ip_address = request.args.get('ip_address', '')
+    status = request.args.get('status', '')
     
     # 构建查询
     query = EdgeDevice.query
+    
+    # 根据筛选参数进行过滤
+    if device_name:
+        query = query.filter(EdgeDevice.device_name.like(f'%{device_name}%'))
+    if ip_address:
+        query = query.filter(EdgeDevice.ip_address.like(f'%{ip_address}%'))
+    if status in ['online', 'error', 'offline']:
+        query = query.filter(EdgeDevice.status == status)
+    
+    # 添加默认排序（按ID升序）
+    query = query.order_by(EdgeDevice.id.asc())
     
     # 分页
     pagination = query.paginate(
@@ -24,7 +40,12 @@ def index():
     
     return render_template('edge_devices/edge_devices_index.html', 
                            devices=pagination.items,
-                           pagination=pagination)
+                           pagination=pagination,
+                           filter_params={
+                               'device_name': device_name,
+                               'ip_address': ip_address,
+                               'status': status
+                           })
 
 @bp.route('/detail/<string:device_id>')
 @login_required

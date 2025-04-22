@@ -279,7 +279,6 @@ def regenerate_keys(device_id):
         }), 500
 
 @bp.route('/auth/verify', methods=['POST'])
-# 在文件的第196行附近，有一个使用了 device_auth_required 装饰器的函数
 @device_auth_required  # 现在这个装饰器已经被正确导入
 def some_function():
     """验证边缘设备认证"""
@@ -292,12 +291,19 @@ def some_function():
                 'message': '设备不存在'
             }), 404
 
+        # 更新设备最后一次登录时间和状态
+        device.last_auth_time = datetime.now()
+        device.status = 'online'  # 设置设备状态为在线
+        db.session.commit()
+        logger.info(f"设备 {device.device_name} (ID: {device.id}) 认证成功，已更新最后登录时间: {device.last_auth_time}")
+
         return jsonify({
             'code': 200,
             'message': '认证成功',
             'data': {
                 'device_id': device_id,
                 'device_name': device.device_name,
+                'status': device.status,
                 'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             }
         })

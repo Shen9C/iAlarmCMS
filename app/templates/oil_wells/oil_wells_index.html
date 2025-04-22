@@ -113,11 +113,11 @@
                             <form id="searchForm" method="GET" action="{{ url_for('oil_wells_view.index') }}">
                                 <label class="me-2 form-label-sm">每页显示：</label>
                                 <select name="per_page" class="form-select form-select-sm d-inline-block" style="width: 80px;" onchange="this.form.submit()">
-                                    <option value="10" {% if request.args.get('per_page', '10')|int == 10 %}selected{% endif %}>10</option>
-                                    <option value="15" {% if request.args.get('per_page', '10')|int == 15 %}selected{% endif %}>15</option>
-                                    <option value="20" {% if request.args.get('per_page', '10')|int == 20 %}selected{% endif %}>20</option>
-                                    <option value="50" {% if request.args.get('per_page', '10')|int == 50 %}selected{% endif %}>50</option>
-                                    <option value="100" {% if request.args.get('per_page', '10')|int == 100 %}selected{% endif %}>100</option>
+                                    <option value="10" {% if request.args.get('per_page', '15')|int == 10 %}selected{% endif %}>10</option>
+                                    <option value="15" {% if request.args.get('per_page', '15')|int == 15 %}selected{% endif %}>15</option>
+                                    <option value="20" {% if request.args.get('per_page', '15')|int == 20 %}selected{% endif %}>20</option>
+                                    <option value="50" {% if request.args.get('per_page', '15')|int == 50 %}selected{% endif %}>50</option>
+                                    <option value="100" {% if request.args.get('per_page', '15')|int == 100 %}selected{% endif %}>100</option>
                                 </select>
                                 {% for key, value in request.args.items() %}
                                     {% if key not in ['per_page', 'page'] %}
