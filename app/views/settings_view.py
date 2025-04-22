@@ -14,13 +14,11 @@ def index():
         return redirect(url_for('alarms_view.index', user_token=request.args.get('user_token')))
     
     try:
-        # 获取系统配置和键值对设置
-        system_config = SystemConfig.get_instance()
+        # 获取键值对设置
         settings = KeyValueSetting.get_all_settings()
         
         return render_template('settings/settings_index.html',
                              settings=settings,
-                             system_config=system_config,
                              user_token=request.args.get('user_token'))
     except Exception as e:
         return render_template('settings/settings_index.html',

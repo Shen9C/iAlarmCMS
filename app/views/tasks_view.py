@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app.models.tasks import Task
-from app.models.settings import SystemConfig
 from app.models.edge_devices import EdgeDevice
 from app.models.oil_wells import OilWell
 from app import db
@@ -59,9 +58,6 @@ def index():
         device_names = EdgeDevice.query.with_entities(EdgeDevice.device_name).distinct().all()
         device_names = [d[0] for d in device_names if d[0]]
         
-        # 获取系统配置
-        system_config = SystemConfig.query.first()
-        
         return render_template('tasks/tasks_index.html',
                              tasks=pagination.items,
                              pagination=pagination,
@@ -72,8 +68,7 @@ def index():
                              current_type=task_type,
                              current_well=well_name,
                              current_well_code=well_code,
-                             current_device=device_name,
-                             system_config=system_config)
+                             current_device=device_name)
     except Exception as e:
         flash(f'获取任务列表失败: {str(e)}', 'error')
         return render_template('tasks/tasks_index.html', tasks=[], pagination=None)

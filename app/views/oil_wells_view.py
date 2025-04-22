@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from app.models.oil_wells import OilWell
-from app.models.settings import SystemConfig
 from app.models.tasks import Task
 from app import db
 from sqlalchemy import or_
@@ -52,9 +51,6 @@ def index():
         locations = OilWell.query.with_entities(OilWell.location).distinct().all()
         locations = [l[0] for l in locations if l[0]]
         
-        # 获取系统配置
-        system_config = SystemConfig.query.first()
-        
         return render_template('oil_wells/oil_wells_index.html',
                              oil_wells=pagination.items,
                              pagination=pagination,
@@ -63,8 +59,7 @@ def index():
                              current_well_name=well_name,
                              current_well_code=well_code,
                              current_status=status,
-                             current_location=location,
-                             system_config=system_config)
+                             current_location=location)
     except Exception as e:
         flash(f'获取油井列表失败: {str(e)}', 'error')
         return render_template('oil_wells/oil_wells_index.html', oil_wells=[], pagination=None)

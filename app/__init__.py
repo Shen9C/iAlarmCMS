@@ -96,6 +96,16 @@ def create_app(config_class=Config):
     app.register_blueprint(settings_view_bp)
     app.register_blueprint(settings_api_bp)
     
+    # ===================== 注册边缘设备API蓝图 =====================
+    # from app.routes.edge_device_api import device_api as device_api_bp
+    # app.register_blueprint(device_api_bp)
+    # # 为边缘设备API路由添加路由豁免，跳过认证检查
+    # device_api_exempt_endpoints = [
+    #     'device_api.get_device_token',
+    #     'device_api.create_alarm',
+    #     'device_api.api_status'
+    # ]
+    
     # 删除这部分，因为已经不需要了
     # ===================== 注册机机接口蓝图 =====================
     # from app.routes.machine_api import bp as machine_api_bp
@@ -127,6 +137,10 @@ def create_app(config_class=Config):
             'edge_device_api.create_alarm',
             'edge_device_api.create_batch_alarms',
             'edge_device_api.get_alarm_status'
+            # 删除以下注释中的端点，因为它们不再是主应用的一部分
+            # 'device_api.get_device_token',
+            # 'device_api.create_alarm',
+            # 'device_api.api_status'
         ]
         
         if request.endpoint and not any(request.endpoint.startswith(ep) for ep in public_endpoints):
@@ -174,6 +188,14 @@ def create_app(config_class=Config):
     
     # 添加内置函数到Jinja2上下文
     app.jinja_env.globals.update(min=min, max=max)
+    
+    # 添加全局上下文处理器，确保所有模板都能访问系统配置
+    from app.models.settings import SystemConfig
+    @app.context_processor
+    def inject_system_config():
+        """向所有模板注入系统配置信息"""
+        system_config = SystemConfig.get_instance()
+        return {'system_config': system_config}
     
     with app.app_context():
         # 清理所有用户的登录状态

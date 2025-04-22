@@ -107,16 +107,24 @@ document.addEventListener('DOMContentLoaded', function() {
             system_name_en: this.querySelector('[name="system_name_en"]').value
         };
         
-        apiRequest('/api/settings/basic', {
+        fetch(`/api/settings/basic?user_token={{ request.args.get('user_token') }}`, {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(formData)
         })
+        .then(response => response.json())
         .then(data => {
             if (data.code === 200) {
                 alert('基本设置更新成功');
+                window.location.reload();
             } else {
                 alert('设置更新失败：' + data.message);
             }
+        })
+        .catch(error => {
+            alert('设置更新失败：' + error);
         });
     });
 
@@ -140,6 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.code === 200) {
                 alert('告警设置更新成功');
+                window.location.reload();
             } else {
                 alert('设置更新失败：' + data.message);
             }
@@ -172,6 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.code === 200) {
                 alert('邮件设置更新成功');
+                window.location.reload();
             } else {
                 alert('设置更新失败：' + data.message);
             }
