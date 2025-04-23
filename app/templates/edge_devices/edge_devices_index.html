@@ -234,7 +234,7 @@ var editDeviceData = null;
                 </div>
                 <div class="card-body">
                     <!-- 添加筛选表单 -->
-                    <form method="GET" action="{{ url_for('edge_devices.index') }}" class="mb-4">
+                    <form method="GET" action="{{ url_for('edge_devices_mngt.index') }}" class="mb-4">
                         <div class="row g-3 align-items-center">
                             <div class="col-md-3">
                                 <div class="form-group">
@@ -263,7 +263,7 @@ var editDeviceData = null;
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-search"></i> 筛选
                                 </button>
-                                <a href="{{ url_for('edge_devices.index') }}" class="btn btn-secondary ms-2">
+                                <a href="{{ url_for('edge_devices_mngt.index') }}" class="btn btn-secondary ms-2">
                                     <i class="fas fa-redo"></i> 重置
                                 </a>
                             </div>
@@ -330,7 +330,7 @@ var editDeviceData = null;
                                     <button class="btn btn-warning btn-sm regenerate-keys" data-id="{{ device.id }}" onclick="confirmRegenerate('{{ device.id }}')">
                                         <i class="fas fa-key"></i> 重新生成密钥
                                     </button>
-                                    <form action="{{ url_for('edge_devices_api.delete_device') }}" method="POST" style="display: inline-block;">
+                                    <form action="{{ url_for('edge_devices_mngt.delete_device', device_id=device.id) }}" method="POST" style="display: inline-block;">
                                         <input type="hidden" name="device_id" value="{{ device.id }}">
                                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除设备 {{ device.device_name }} 吗？');">
                                             <i class="fas fa-trash"></i> 删除
@@ -346,7 +346,7 @@ var editDeviceData = null;
                     <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
                         <div class="d-flex align-items-center">
                             <!-- 每页显示数量选择器 -->
-                            <form id="searchForm" method="GET" action="{{ url_for('edge_devices.index') }}">
+                            <form id="searchForm" method="GET" action="{{ url_for('edge_devices_mngt.index') }}">
                                 <label class="me-2 form-label-sm">每页显示：</label>
                                 <select name="per_page" class="form-select form-select-sm d-inline-block" style="width: 80px;" onchange="this.form.submit()">
                                     <option value="10" {% if request.args.get('per_page', '15')|int == 10 %}selected{% endif %}>10</option>
@@ -377,7 +377,7 @@ var editDeviceData = null;
                                 <li class="page-item">
                                     {% set args = request.args.copy() %}
                                     {% set _ = args.pop('page', None) %}
-                                    <a class="page-link" href="{{ url_for('edge_devices.index', page=pagination.prev_num, **args) }}">上一页</a>
+                                    <a class="page-link" href="{{ url_for('edge_devices_mngt.index', page=pagination.prev_num, **args) }}">上一页</a>
                                 </li>
                                 {% else %}
                                 <li class="page-item disabled"><span class="page-link">上一页</span></li>
@@ -388,7 +388,7 @@ var editDeviceData = null;
                                         <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
                                             {% set args = request.args.copy() %}
                                             {% set _ = args.pop('page', None) %}
-                                            <a class="page-link" href="{{ url_for('edge_devices.index', page=page_num, **args) }}">{{ page_num }}</a>
+                                            <a class="page-link" href="{{ url_for('edge_devices_mngt.index', page=page_num, **args) }}">{{ page_num }}</a>
                                         </li>
                                     {% else %}
                                         <li class="page-item disabled"><span class="page-link">...</span></li>
@@ -399,7 +399,7 @@ var editDeviceData = null;
                                 <li class="page-item">
                                     {% set args = request.args.copy() %}
                                     {% set _ = args.pop('page', None) %}
-                                    <a class="page-link" href="{{ url_for('edge_devices.index', page=pagination.next_num, **args) }}">下一页</a>
+                                    <a class="page-link" href="{{ url_for('edge_devices_mngt.index', page=pagination.next_num, **args) }}">下一页</a>
                                 </li>
                                 {% else %}
                                 <li class="page-item disabled"><span class="page-link">下一页</span></li>
@@ -423,7 +423,7 @@ var editDeviceData = null;
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="addDeviceForm" action="{{ url_for('edge_devices_api.create_device') }}" method="POST">
+                <form id="addDeviceForm" action="{{ url_for('edge_devices_mngt.add_device') }}" method="POST">
                     <div class="form-group mb-3">
                         <label for="deviceId" class="form-label">设备编号</label>
                         <input type="text" class="form-control" id="deviceId" name="device_id">

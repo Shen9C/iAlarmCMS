@@ -81,11 +81,11 @@
             <a href="{{ url_for('alarms_view.index') }}" class="list-group-item list-group-item-action {% if request.endpoint == 'alarms_view.index' %}active{% endif %}">
                 <i class="bi bi-bell"></i> 告警管理
             </a>
-            <a href="{{ url_for('edge_devices.index') }}" class="list-group-item list-group-item-action {% if request.endpoint and request.endpoint.startswith('edge_devices') %}active{% endif %}">
-                <i class="bi bi-hdd-network"></i> 边缘设备
-            </a>
             <a href="{{ url_for('tasks_view.index') }}" class="list-group-item list-group-item-action {% if request.endpoint and request.endpoint.startswith('tasks') %}active{% endif %}">
-                <i class="bi bi-list-task"></i> 作业任务
+                <i class="bi bi-list-task"></i> 任务管理
+            </a>
+            <a href="{{ url_for('edge_devices_mngt.index') }}" class="list-group-item list-group-item-action {% if request.endpoint and request.endpoint.startswith('edge_devices_mngt') %}active{% endif %}">
+                <i class="fas fa-server me-2"></i> 设备管理
             </a>
             <a href="{{ url_for('oil_wells_view.index') }}" class="list-group-item list-group-item-action {% if request.endpoint and request.endpoint.startswith('oil_wells_view') %}active{% endif %}">
                 <i class="bi bi-droplet-fill"></i> 油井管理

@@ -97,3 +97,56 @@ function showAlert(type, message) {
         alertDiv.remove();
     }, 3000);
 }
+
+// 重新生成设备认证密钥
+function regenerateKeys(deviceId) {
+    if (!confirm('确定要重新生成该设备的认证密钥吗？这将使当前的密钥失效。')) {
+        return;
+    }
+    
+    // 添加调试信息
+    console.log(`正在重新生成设备ID为${deviceId}的密钥...`);
+    
+    fetch(`/api/edge_devices/${deviceId}/regenerate_keys`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        console.log('接口响应状态:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('接口响应数据:', data);
+        if (data.code === 200) {
+            showAlert('success', '认证密钥重新生成成功');
+            // 显示新生成的密钥
+            const keysHtml = `
+                <div class="alert alert-info">
+                    <p><strong>新生成的密钥:</strong> ${data.data.secret_key}</p>
+                    <p class="text-warning">请立即保存这个信息，它不会再次显示！</p>
+                </div>
+            `;
+            const keysContainer = document.getElementById(`keys-container-${deviceId}`);
+            if (keysContainer) {
+                keysContainer.innerHTML = keysHtml;
+            } else {
+                const container = document.createElement('div');
+                container.id = `keys-container-${deviceId}`;
+                container.innerHTML = keysHtml;
+                const deviceRow = document.querySelector(`[data-device-id="${deviceId}"]`);
+                if (deviceRow) {
+                    deviceRow.after(container);
+                }
+            }
+        } else {
+            showAlert('danger', data.message || '重新生成密钥失败');
+        }
+    })
+    .catch(error => {
+        console.error('请求错误:', error);
+        showAlert('danger', '服务器错误，请稍后再试');
+    });
+}

@@ -12,6 +12,7 @@ import time
 import logging
 import argparse
 import threading
+import multiprocessing
 from pathlib import Path
 
 from flask import Flask, has_request_context, request
@@ -168,10 +169,11 @@ def run_web_app(host=None, port=None, debug=False, use_ssl=True, use_keep_alive=
     else:
         logging.info("Web应用服务器将使用长连接模式")
     
-    # 打印当前的路由
-    logging.info("Web应用服务器路由:")
-    for rule in app.url_map.iter_rules():
-        logging.info(f"{rule.endpoint}: {rule.rule}")
+    # 打印当前的路由，改为DEBUG级别
+    if debug:
+        logging.debug("Web应用服务器路由:")
+        for rule in app.url_map.iter_rules():
+            logging.debug(f"{rule.endpoint}: {rule.rule}")
     
     # 准备SSL选项
     ssl_context = None
@@ -255,7 +257,22 @@ def run_device_api(host=None, port=None, debug=False, use_ssl=True, use_keep_ali
     from start_api_server import run_api_server
     run_api_server(host, port, debug, use_ssl, use_keep_alive=use_keep_alive)
 
+def run_with_debug_wrapper(target_func, func_args, service_name):
+    """在调试模式下运行服务，提供手动重载功能"""
+    import logging
+    debug_mode = func_args[2] if len(func_args) > 2 else False
+    
+    if debug_mode:
+        logging.debug(f"调试模式下启动{service_name}")
+        target_func(*func_args)
+    else:
+        logging.info(f"正常模式下启动{service_name}")
+        target_func(*func_args)
+
 if __name__ == "__main__":
+    # Windows系统下多进程支持
+    multiprocessing.freeze_support()
+    
     parser = argparse.ArgumentParser(description='运行Web应用或API服务器')
     parser.add_argument('--host', help='主机地址，默认使用配置中的值')
     parser.add_argument('--port', type=int, help='端口号，默认使用配置中的值')
@@ -268,12 +285,82 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     
-    # 运行Web应用
-    if not args.api_only:
-        run_web_app(host=args.host, port=args.port, debug=args.debug, 
-                    use_ssl=not args.no_ssl, use_keep_alive=args.use_keep_alive)
+    # 设置日志级别
+    if args.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.info("调试日志已启用")
     
-    # 运行API服务器
+    # 确保子进程跳过Flask的自动重载器
+    web_args = (args.host, args.port, False, not args.no_ssl, args.use_keep_alive) 
+    api_args = (args.host, args.port, False, not args.no_ssl, args.use_keep_alive)
+    
+    # 使用多进程同时启动Web应用和API服务器
+    processes = []
+    
+    # 运行Web应用的进程
+    if not args.api_only:
+        web_process = multiprocessing.Process(
+            target=run_with_debug_wrapper,
+            args=(run_web_app, web_args, "Web应用服务器"),
+            name="WebAppProcess"
+        )
+        web_process.daemon = True  # 设置为守护进程，主进程结束时自动结束
+        processes.append(web_process)
+        logging.info("创建Web应用进程")
+    
+    # 运行API服务器的进程
     if not args.web_only:
-        run_device_api(host=args.host, port=args.port, debug=args.debug, 
-                      use_ssl=not args.no_ssl, use_keep_alive=args.use_keep_alive)
+        # 确保主机和端口不冲突
+        if not args.api_only and not args.web_only:
+            # 如果同时运行两个服务且没有指定不同端口，使用配置文件中的不同端口
+            api_host = args.host if args.host else config.API_HOST
+            api_port = args.port if args.port else config.API_PORT
+            api_args = (api_host, api_port, False, not args.no_ssl, args.use_keep_alive)
+        
+        api_process = multiprocessing.Process(
+            target=run_with_debug_wrapper,
+            args=(run_device_api, api_args, "API服务器"),
+            name="APIServerProcess"
+        )
+        api_process.daemon = True  # 设置为守护进程，主进程结束时自动结束
+        processes.append(api_process)
+        logging.info("创建API服务器进程")
+    
+    # 启动所有进程
+    for process in processes:
+        process.start()
+        logging.info(f"进程 {process.name} 已启动 (PID: {process.pid})")
+    
+    if args.debug:
+        logging.info("调试模式下运行，注意Flask的自动重载器已被禁用")
+    
+    # 主进程等待所有子进程
+    try:
+        # 使用简单的循环等待，这样可以响应键盘中断
+        while any(p.is_alive() for p in processes):
+            time.sleep(0.5)
+    except KeyboardInterrupt:
+        logging.info("收到键盘中断信号，正在关闭服务...")
+        # 尝试正常终止所有进程
+        for process in processes:
+            if process.is_alive():
+                process.terminate()
+                logging.info(f"进程 {process.name} (PID: {process.pid}) 已终止")
+    except Exception as e:
+        logging.error(f"发生错误: {str(e)}")
+    finally:
+        # 确保所有进程都已终止
+        for process in processes:
+            if process.is_alive():
+                process.terminate()
+                # 给进程一些时间来终止
+                process.join(1)
+                if process.is_alive():
+                    logging.warning(f"进程 {process.name} (PID: {process.pid}) 无法正常终止，尝试强制结束")
+                    if hasattr(process, 'kill'):  # Python 3.7+
+                        process.kill()
+                    elif sys.platform == 'win32':
+                        # Windows上使用taskkill强制终止进程
+                        os.system(f"taskkill /F /PID {process.pid} /T")
+        
+        logging.info("程序退出")

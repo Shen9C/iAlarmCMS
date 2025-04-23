@@ -3,18 +3,24 @@
 {% block title %}编辑边缘设备{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between mb-3">
+        <h2>编辑设备</h2>
+        <a href="{{ url_for('edge_devices_mngt.index') }}" class="btn btn-sm btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> 返回设备列表
+        </a>
+    </div>
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="card-title mb-0">编辑边缘设备</h3>
-                    <a href="{{ url_for('edge_devices.index') }}" class="btn btn-sm btn-secondary">
+                    <a href="{{ url_for('edge_devices_mngt.index') }}" class="btn btn-sm btn-secondary">
                         <i class="fas fa-arrow-left"></i> 返回列表
                     </a>
                 </div>
                 <div class="card-body">
-                    <form id="editDeviceForm" action="{{ url_for('edge_devices_api.update_edge_device', device_id=device.id) }}" method="POST">
+                    <form id="editDeviceForm" action="{{ url_for('edge_devices_mngt.update_device', device_id=device.id) }}" method="POST">
                         <input type="hidden" name="_method" value="PUT">
                         <input type="hidden" name="id" value="{{ device.id }}">
                         
@@ -36,8 +42,8 @@
                         </div>
                         
                         <div class="mt-4">
-                            <button type="submit" class="btn btn-primary">保存</button>
-                            <a href="{{ url_for('edge_devices.index') }}" class="btn btn-secondary ms-2">取消</a>
+                            <button type="submit" class="btn btn-primary">保存更改</button>
+                            <a href="{{ url_for('edge_devices_mngt.index') }}" class="btn btn-secondary ms-2">取消</a>
                         </div>
                     </form>
                 </div>

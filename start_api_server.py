@@ -61,10 +61,11 @@ def run_api_server(host=None, port=None, debug=False, use_ssl=False, use_keep_al
     else:
         logging.info("API服务器将使用长连接模式")
     
-    # 打印当前的路由
-    logging.info("API服务器路由:")
-    for rule in app.url_map.iter_rules():
-        logging.info(f"{rule.endpoint}: {rule.rule}")
+    # 打印当前的路由 - 改为DEBUG级别，并仅在debug模式下打印
+    if debug:
+        logging.debug("API服务器路由:")
+        for rule in app.url_map.iter_rules():
+            logging.debug(f"{rule.endpoint}: {rule.rule}")
     
     # 准备SSL选项
     ssl_context = None

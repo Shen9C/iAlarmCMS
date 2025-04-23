@@ -244,15 +244,21 @@ def create_web_app(config_class=None):
     app.register_blueprint(users_api_bp)
     
     # ===================== 注册边缘设备相关蓝图 =====================
-    from app.views.edge_devices_view import bp as edge_devices_view_bp
-    app.register_blueprint(edge_devices_view_bp)
-    
-    # 注册边缘设备API蓝图 - 确保只注册一次且使用安全的导入方式
-    # 在Web应用中必须注册此蓝图，因为模板中使用了其端点
-    # 注册边缘设备API蓝图，从edge_devices_view.py中获取
-    from app.views.edge_devices_view import api_bp as edge_devices_api_bp
+    # 注册视图版本的边缘设备蓝图，提供API端点
+    from app.views.edge_devices_view import bp as edge_devices_api_bp
     app.register_blueprint(edge_devices_api_bp)
-    logger.info("成功注册edge_devices_api蓝图 (从edge_devices_view.py导入)")
+    logger.info("成功注册edge_devices_view蓝图 (从views/edge_devices_view.py导入)")
+    
+    # 注册api_bp蓝图，该蓝图包含重新生成密钥等API功能
+    from app.views.edge_devices_view import api_bp as edge_devices_view_api_bp
+    app.register_blueprint(edge_devices_view_api_bp)
+    logger.info("成功注册edge_devices_view中的api_bp蓝图 (从views/edge_devices_view.py导入)")
+    
+    # 注册路由版本的边缘设备管理蓝图，提供页面管理功能
+    from app.routes.edge_devices import bp as edge_devices_mngt_bp
+    app.register_blueprint(edge_devices_mngt_bp)
+    logger.info("成功注册edge_devices_mngt蓝图 (从routes/edge_devices.py导入)")
+    
     
     # ===================== 注册任务相关蓝图 =====================
     from app.views.tasks_view import bp as tasks_view_bp
@@ -401,15 +407,14 @@ def create_web_app(config_class=None):
     with app.app_context():
         # 清理所有用户的登录状态
         try:
-            # 防止在应用初始化时执行数据库查询，只有当显式请求清理会话时才执行
-            if 'clear_sessions' in sys.argv:
-                from app.models.users import User
-                users = User.query.all()
-                for user in users:
-                    user.current_token = None
-                    user.token_timestamp = None
-                db.session.commit()
-                logger.info("所有用户会话已清理")
+            # 不再检查命令行参数，每次应用启动时都清除所有用户的token
+            from app.models.users import User
+            users = User.query.all()
+            for user in users:
+                user.current_token = None
+                user.token_timestamp = None
+            db.session.commit()
+            logger.info("所有用户会话已清理")
         except Exception as e:
             logger.error(f"清理用户会话时出错: {str(e)}")
             logger.exception("详细错误信息：")
