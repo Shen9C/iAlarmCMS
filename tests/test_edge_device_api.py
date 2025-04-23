@@ -13,11 +13,11 @@ from datetime import datetime
 # 预置默认配置
 DEFAULT_CONFIG = {
     'url': 'https://localhost:5566',  # 默认使用HTTPS
-    'device_id': '6647dd44',  # 默认测试设备ID
-    'secret_key': 'SKzyvw5xwWOrPzWn3BkFQaKg1QvijNcCMbzZh8rwtd',  # 默认测试密钥
+    'device_id': '9c5aff66',  # 默认测试设备ID
+    'secret_key': 'SKBeY26X6DwcAoIiQj3v7bLNGcLclKTxIQUw7a0edy',  # 默认测试密钥
     'alarm_type': '设备异常',  # 默认告警类型
-    'well_code': 'WELL001_QT001',  # 默认油井编号
-    'well_name': '测试油井',  # 默认油井名称
+    'well_code': 'JK003',  # 默认油井编号
+    'well_name': '测试油井3',  # 默认油井名称
     'verify_ssl': False  # 默认不验证SSL证书（自签名证书）
 }
 
@@ -47,7 +47,7 @@ class EdgeDeviceApiTester:
     def get_token(self):
         """获取设备认证令牌"""
         print("\n===== 测试设备认证获取Token =====")
-        url = f"{self.base_url}/api/devices/auth/token"
+        url = f"{self.base_url}/api/edge_devices/auth/token"
         payload = {
             "device_id": self.device_id,
             "secret_key": self.secret_key
@@ -95,7 +95,7 @@ class EdgeDeviceApiTester:
             print("错误: 未获取Token，请先调用get_token()")
             return False
         
-        url = f"{self.base_url}/api/devices/direct_test"
+        url = f"{self.base_url}/api/edge_devices/direct_test"
         
         # 构建告警数据
         payload = {

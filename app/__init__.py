@@ -8,6 +8,7 @@ import os
 import importlib.util
 from pathlib import Path
 import sys
+from datetime import datetime
 
 # 设置日志
 logger = logging.getLogger(__name__)
@@ -27,37 +28,144 @@ except ImportError:
     logger.warning("无法导入自定义SSL模块，请确保app/utils/custom_ssl.py文件存在")
     # 系统将使用默认HTTP模式
 
-def create_api_app():
-    """创建边缘设备API服务器应用实例"""
+def create_api_app(config_class=None):
+    """创建边缘设备API服务器应用实例
+    
+    Args:
+        config_class: 配置类，如果为None则使用默认配置
+        
+    Returns:
+        Flask API服务器应用实例
+    """
+    # 导入Flask，以避免未定义的变量错误
+    from flask import Flask, jsonify, Blueprint
+    import importlib
+
+    logger.info("创建API服务器应用实例 - 极简模式")
     try:
-        # 获取项目根目录
-        project_root = Path(__file__).resolve().parent.parent
+        # 创建一个纯净的API应用实例
+        api_app = Flask("api_server", template_folder=None, static_folder=None)
         
-        # 使用importlib动态加载API服务器模块，避免循环引用
-        api_server_path = os.path.join(project_root, "app", "routes", "edge_device_api_server.py")
+        # 应用配置
+        if config_class is None:
+            api_app.config.from_object(config)
+        else:
+            api_app.config.from_object(Config(config_class))
         
-        if not os.path.exists(api_server_path):
-            logger.error(f"边缘设备API服务器模块不存在: {api_server_path}")
-            raise FileNotFoundError(f"找不到文件: {api_server_path}")
+        # 确保设置数据库URI
+        if hasattr(config, 'SQLALCHEMY_DATABASE_URI'):
+            api_app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_DATABASE_URI
+        else:
+            # 如果配置对象没有URI，则手动构建
+            db_cfg = config.database
+            api_app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{db_cfg.user}:{db_cfg.password}@{db_cfg.host}:{db_cfg.port}/{db_cfg.name}"
+        
+        # 禁用严格传输安全，避免HTTPS自签名证书问题
+        api_app.config['PREFERRED_URL_SCHEME'] = 'https'
+        # 数据库配置
+        api_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        
+        # 初始化数据库
+        db.init_app(api_app)
+        
+        # 添加错误处理器，确保所有错误返回JSON而不是HTML
+        @api_app.errorhandler(404)
+        def api_not_found(error):
+            return jsonify({
+                'code': 404,
+                'message': '请求的API端点不存在'
+            }), 404
+        
+        @api_app.errorhandler(500)
+        def api_server_error(error):
+            return jsonify({
+                'code': 500,
+                'message': '服务器内部错误: ' + str(error)
+            }), 500
+        
+        # 添加日志中间件
+        @api_app.before_request
+        def log_api_request():
+            """记录API请求信息"""
+            logger.debug(f"API请求: {request.method} {request.path}")
+            logger.debug(f"请求数据: {request.get_json(silent=True)}")
+        
+        # 导入API路由 - 直接使用edge_device_api_server.py中的device_api_server蓝图
+        # 而不是尝试从其他模块导入，避免命名冲突
+        
+        # 首先尝试直接导入边缘设备API蓝图
+        try:
+            from app.routes.edge_device_api_server import device_api_server
+            api_app.register_blueprint(device_api_server)
+            logger.info(f"成功注册边缘设备API蓝图: device_api_server ({device_api_server.name})")
+        except ImportError as e:
+            logger.error(f"导入edge_device_api_server模块失败: {str(e)}")
+            # 创建一个全新名称的蓝图，避免与Web应用冲突
+            empty_bp = Blueprint('api_device_server', __name__, url_prefix='/api/edge_devices')
             
-        spec = importlib.util.spec_from_file_location("edge_device_api_server", api_server_path)
-        api_module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(api_module)
-        
-        # 获取模块中的Flask应用实例
-        if not hasattr(api_module, 'app'):
-            logger.error("API服务器模块中找不到app实例")
-            raise AttributeError("API服务器模块中缺少app实例")
+            @empty_bp.route('/')
+            def api_root():
+                return jsonify({
+                    'message': '边缘设备API服务器',
+                    'status': 'error',
+                    'error': '无法加载完整的API路由',
+                    'detail': str(e)
+                })
             
-        logger.info("边缘设备API服务器初始化完成")
-        return api_module.app
+            api_app.register_blueprint(empty_bp)
+            logger.warning("已注册临时API蓝图替代")
+        except Exception as e:
+            logger.error(f"注册API蓝图时发生未知错误: {str(e)}")
+            import traceback
+            logger.error(traceback.format_exc())
+            # 创建一个错误处理蓝图
+            error_bp = Blueprint('api_error', __name__, url_prefix='/api')
+            
+            @error_bp.route('/')
+            def api_error():
+                return jsonify({
+                    'message': '边缘设备API服务器',
+                    'status': 'error',
+                    'error': '服务器初始化失败',
+                    'detail': str(e)
+                })
+            
+            api_app.register_blueprint(error_bp)
+        
+        # 添加一个状态检查端点
+        @api_app.route('/status')
+        def api_status():
+            """服务器状态检查端点"""
+            from datetime import datetime
+            return jsonify({
+                'status': 'ok',
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'message': 'API服务器运行正常'
+            })
+        
+        logger.info("API服务器应用实例创建成功")
+        return api_app
     except Exception as e:
-        logger.error(f"创建边缘设备API服务器应用失败: {str(e)}")
-        import traceback
-        logger.error(traceback.format_exc())
+        logger.error(f"无法创建API应用实例: {str(e)}")
+        logger.exception("详细错误信息:")
         raise
 
-def create_app(config_class=None):
+def create_web_app(config_class=None):
+    """
+    创建Web应用实例
+    
+    Args:
+        config_class: 配置类，如果为None则使用默认配置
+    
+    Returns:
+        Flask Web应用实例
+    """
+    # 导入Flask，以避免未定义的变量错误
+    from flask import Flask, jsonify, Blueprint
+    import importlib
+
+    # 创建Web应用
+    logger.info("创建Web应用实例")
     app = Flask(__name__)
     
     # 使用YAML配置加载器
@@ -139,13 +247,12 @@ def create_app(config_class=None):
     from app.views.edge_devices_view import bp as edge_devices_view_bp
     app.register_blueprint(edge_devices_view_bp)
     
-    # 注册边缘设备API蓝图 - 确保只注册一次
-    from app.routes.edge_devices_api import bp as edge_devices_api_bp
+    # 注册边缘设备API蓝图 - 确保只注册一次且使用安全的导入方式
+    # 在Web应用中必须注册此蓝图，因为模板中使用了其端点
+    # 注册边缘设备API蓝图，从edge_devices_view.py中获取
+    from app.views.edge_devices_view import api_bp as edge_devices_api_bp
     app.register_blueprint(edge_devices_api_bp)
-    
-    # 注释掉这两行，避免重复注册
-    # from app.views.edge_devices_view import api_bp as edge_devices_api_bp
-    # app.register_blueprint(edge_devices_api_bp)
+    logger.info("成功注册edge_devices_api蓝图 (从edge_devices_view.py导入)")
     
     # ===================== 注册任务相关蓝图 =====================
     from app.views.tasks_view import bp as tasks_view_bp
@@ -171,21 +278,6 @@ def create_app(config_class=None):
     from app.routes.settings_api import bp as settings_api_bp
     app.register_blueprint(settings_view_bp)
     app.register_blueprint(settings_api_bp)
-    
-    # ===================== 注册边缘设备API蓝图 =====================
-    # from app.routes.edge_device_api import device_api as device_api_bp
-    # app.register_blueprint(device_api_bp)
-    # # 为边缘设备API路由添加路由豁免，跳过认证检查
-    # device_api_exempt_endpoints = [
-    #     'device_api.get_device_token',
-    #     'device_api.create_alarm',
-    #     'device_api.api_status'
-    # ]
-    
-    # 删除这部分，因为已经不需要了
-    # ===================== 注册机机接口蓝图 =====================
-    # from app.routes.machine_api import bp as machine_api_bp
-    # app.register_blueprint(machine_api_bp)
     
     @app.before_request
     def check_auth():

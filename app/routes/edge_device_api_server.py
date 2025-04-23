@@ -11,6 +11,7 @@ from flask import Flask, Blueprint, jsonify, request
 import os
 import sys
 from pathlib import Path
+import importlib
 
 # 将项目根目录添加到系统路径
 project_root = Path(__file__).resolve().parent.parent.parent
@@ -30,16 +31,12 @@ from functools import wraps
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# 创建一个独立的Flask应用实例
-app = Flask(__name__)
-app.config.from_object(Config)
+# 创建一个仅包含设备API路由的Blueprint，避免命名冲突
+device_api_server = Blueprint('device_api_server', __name__, url_prefix='/api/edge_devices')
 
-# 初始化数据库
-with app.app_context():
-    db.init_app(app)
-
-# 创建一个仅包含设备API路由的Blueprint
-device_api_server = Blueprint('device_api_server', __name__, url_prefix='/api/devices')
+# 全局Flask应用实例仅在直接运行此文件时创建
+# 当此模块被导入时不创建应用实例，避免与create_api_app冲突
+standalone_app = None
 
 # 设备认证装饰器
 def device_auth_required(f):
@@ -94,9 +91,19 @@ def device_token_auth_required(f):
         try:
             # 尝试解码令牌 - 简化为直接调用jwt库解码
             try:
+                # 获取密钥 - 这里不应该使用request.app
+                # 可以从当前应用或全局配置获取secret_key
+                from flask import current_app
+                try:
+                    # 尝试从当前应用获取密钥
+                    secret_key = current_app.config.get('SECRET_KEY')
+                except RuntimeError:
+                    # 如果不在应用上下文中，使用配置中的密钥
+                    secret_key = config.secret_key
+                
                 payload = jwt.decode(
                     token, 
-                    app.config['SECRET_KEY'], 
+                    secret_key, 
                     algorithms=['HS256'],
                     options={
                         "verify_signature": True,
@@ -191,10 +198,20 @@ def get_device_token():
         # 记录用于调试的信息
         logger.debug(f"生成令牌的payload: {payload}")
         
+        # 获取密钥 - 这里不应该使用request.app
+        # 可以从当前应用或全局配置获取secret_key
+        from flask import current_app
+        try:
+            # 尝试从当前应用获取密钥
+            secret_key = current_app.config.get('SECRET_KEY')
+        except RuntimeError:
+            # 如果不在应用上下文中，使用配置中的密钥
+            secret_key = config.secret_key
+        
         # 生成令牌
         token = jwt.encode(
             payload, 
-            app.config['SECRET_KEY'], 
+            secret_key, 
             algorithm='HS256'
         )
         
@@ -356,12 +373,44 @@ def direct_test():
             'message': f'直接认证测试失败: {str(e)}'
         }), 500
 
-# 注册Blueprint
-app.register_blueprint(device_api_server)
-
+# 仅当作为独立脚本运行时才创建Flask应用
 if __name__ == '__main__':
     import argparse
     
+    # 创建独立的Flask应用实例
+    standalone_app = Flask(__name__, template_folder=None, static_folder=None)
+    standalone_app.config.from_object(Config)
+    
+    # 初始化数据库
+    db.init_app(standalone_app)
+    
+    # 添加日志记录中间件
+    @standalone_app.before_request
+    def log_request_info():
+        """记录所有接收到的请求信息，用于调试"""
+        logger.debug('请求头: %s', dict(request.headers))
+        logger.debug('请求URL: %s %s', request.method, request.url)
+        logger.debug('请求数据: %s', request.get_json(silent=True))
+    
+    # 添加错误处理器，确保所有错误返回JSON而不是HTML
+    @standalone_app.errorhandler(404)
+    def not_found(error):
+        return jsonify({
+            'code': 404,
+            'message': '请求的API端点不存在'
+        }), 404
+    
+    @standalone_app.errorhandler(500)
+    def server_error(error):
+        return jsonify({
+            'code': 500,
+            'message': '服务器内部错误: ' + str(error)
+        }), 500
+    
+    # 注册Blueprint
+    standalone_app.register_blueprint(device_api_server)
+    
+    # 命令行参数
     parser = argparse.ArgumentParser(description='边缘设备API服务器')
     parser.add_argument('--host', default='0.0.0.0', help='监听地址')
     parser.add_argument('--port', type=int, default=5566, help='监听端口')
@@ -370,4 +419,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     logger.info(f"边缘设备API服务器正在启动，监听 {args.host}:{args.port}")
-    app.run(host=args.host, port=args.port, debug=args.debug) 
+    standalone_app.run(host=args.host, port=args.port, debug=args.debug) 

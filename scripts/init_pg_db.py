@@ -444,8 +444,8 @@ def create_ssl_certs(force=False):
         
         # 返回Web证书路径作为默认证书
         return cert_paths.get('web', (None, None))
-        
-    except Exception as e:
+            
+        except Exception as e:
         logger.error(f"生成SSL证书时出错: {str(e)}")
         logger.error(traceback.format_exc())
         logger.error("请确保已安装相关依赖库: pip install pyOpenSSL cryptography")
@@ -605,7 +605,7 @@ if __name__ == "__main__":
             sys.argv[1] = cmd_map[sys.argv[1]]
             # 对于click命令的兼容
             if sys.argv[1] == 'init':
-                cli()
+    cli()
                 sys.exit(0)
         # 其他情况继续执行main()
         main()

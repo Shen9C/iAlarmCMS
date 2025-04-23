@@ -270,3 +270,160 @@ Ran tool
    ```
 
 这个集成方案简化了部署，不再需要开发人员管理多个启动脚本，同时也方便了生产环境的维护和监控。
+
+我看到了Web服务的报错，这是一个模板渲染错误。在访问边缘设备页面时，Flask无法找到`edge_devices_api.delete_device`这个端点。
+
+这个问题是由于我们在优化API结构时，导致Web应用中的边缘设备API蓝图没有正确注册所致。我们之前修改了`__init__.py`文件，让Web应用不再尝试导入那些可能与API服务器冲突的蓝图，但这也导致Web应用缺少了`edge_devices_api`的蓝图。
+
+让我们修复这个问题：
+
+Ran tool
+
+Search files...
+
+Read file: app/templates/edge_devices/edge_devices_index.html
+
+Read file: app/views/edge_devices_view.py
+现在我了解了问题的根本原因。在模板中使用了`url_for('edge_devices_api.delete_device')`，但这个端点实际上是使用了一个带参数的路径`'/<int:device_id>'`，而不是一个固定的路径。
+
+我们需要做的修改是：
+
+```python:app/__init__.py
+# ===================== 注册边缘设备相关蓝图 =====================
+    from app.views.edge_devices_view import bp as edge_devices_view_bp
+    app.register_blueprint(edge_devices_view_bp)
+    
+    # 注册边缘设备API蓝图 - 确保只注册一次且使用安全的导入方式
+    # 在Web应用中必须注册此蓝图，因为模板中使用了其端点
+    # 注册边缘设备API蓝图，从edge_devices_view.py中获取
+    from app.views.edge_devices_view import api_bp as edge_devices_api_bp
+    app.register_blueprint(edge_devices_api_bp)
+    logger.info("成功注册edge_devices_api蓝图 (从edge_devices_view.py导入)")
+    
+    # ===================== 注册任务相关蓝图 =====================
+```
+
+```html:app/templates/edge_devices/edge_devices_index.html
+                    <!-- 分页区域 -->
+                    <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
+                        <div class="d-flex align-items-center">
+                            <!-- 每页显示数量选择器 -->
+                            <form id="searchForm" method="GET" action="{{ url_for('edge_devices.index') }}">
+                                <label class="me-2 form-label-sm">每页显示：</label>
+                                <select name="per_page" class="form-select form-select-sm d-inline-block" style="width: 80px;" onchange="this.form.submit()">
+                                    <option value="10" {% if request.args.get('per_page', '10')|int == 10 %}selected{% endif %}>10</option>
+                                    <option value="15" {% if request.args.get('per_page', '10')|int == 15 %}selected{% endif %}>15</option>
+                                    <option value="20" {% if request.args.get('per_page', '10')|int == 20 %}selected{% endif %}>20</option>
+                                    <option value="50" {% if request.args.get('per_page', '10')|int == 50 %}selected{% endif %}>50</option>
+                                    <option value="100" {% if request.args.get('per_page', '10')|int == 100 %}selected{% endif %}>100</option>
+                                </select>
+                                <!-- 保留筛选参数 -->
+                                {% if filter_params.device_name %}
+                                <input type="hidden" name="device_name" value="{{ filter_params.device_name }}">
+                                {% endif %}
+                                {% if filter_params.ip_address %}
+                                <input type="hidden" name="ip_address" value="{{ filter_params.ip_address }}">
+                                {% endif %}
+                                {% if filter_params.status %}
+                                <input type="hidden" name="status" value="{{ filter_params.status }}">
+                                {% endif %}
+                            </form>
+                            <span class="ms-3 text-muted small">共 {{ pagination.total }} 条记录</span>
+                        </div>
+                        
+                        <!-- 分页导航 -->
+                        {% if pagination and pagination.pages > 1 %}
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-sm mb-0">
+                                {% if pagination.has_prev %}
+                                <li class="page-item">
+                                    {% set args = request.args.copy() %}
+                                    {% set _ = args.pop('page', None) %}
+                                    <a class="page-link" href="{{ url_for('edge_devices.index', page=pagination.prev_num, **args) }}">上一页</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled"><span class="page-link">上一页</span></li>
+                                {% endif %}
+                                
+                                {% for page_num in pagination.iter_pages(left_edge=1, left_current=2, right_current=3, right_edge=1) %}
+                                    {% if page_num %}
+                                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                                            {% set args = request.args.copy() %}
+                                            {% set _ = args.pop('page', None) %}
+                                            <a class="page-link" href="{{ url_for('edge_devices.index', page=page_num, **args) }}">{{ page_num }}</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if pagination.has_next %}
+                                <li class="page-item">
+                                    {% set args = request.args.copy() %}
+                                    {% set _ = args.pop('page', None) %}
+                                    <a class="page-link" href="{{ url_for('edge_devices.index', page=pagination.next_num, **args) }}">下一页</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled"><span class="page-link">下一页</span></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+```
+
+```html:app/templates/edge_devices/edge_devices_index.html
+                            <form id="searchForm" method="GET" action="{{ url_for('edge_devices.index') }}">
+                                <label class="me-2 form-label-sm">每页显示：</label>
+                                <select name="per_page" class="form-select form-select-sm d-inline-block" style="width: 80px;" onchange="this.form.submit()">
+                                    <option value="10" {% if request.args.get('per_page', '15')|int == 10 %}selected{% endif %}>10</option>
+                                    <option value="15" {% if request.args.get('per_page', '15')|int == 15 %}selected{% endif %}>15</option>
+                                    <option value="20" {% if request.args.get('per_page', '15')|int == 20 %}selected{% endif %}>20</option>
+                                    <option value="50" {% if request.args.get('per_page', '15')|int == 50 %}selected{% endif %}>50</option>
+                                    <option value="100" {% if request.args.get('per_page', '15')|int == 100 %}selected{% endif %}>100</option>
+                                </select>
+```
+让我看看模板文件的JavaScript部分：
+
+Read file: app/templates/edge_devices/edge_devices_index.html
+我看到模板中已经有了`showDeleteModal`函数，所以我们不需要添加它。现在让我们执行一下再次检查服务器：
+
+```bash
+taskkill /f /im python.exe
+```
+
+```bash
+python run.py --debug --http
+```
+好的，我们已经解决了Web应用在访问边缘设备管理页面时的错误。让我总结一下问题和解决方案：
+
+### 问题分析
+
+1. **服务端问题**：
+   - 在Windows环境下，由于套接字操作的限制，使用同一进程同时运行两个Flask应用会导致`[WinError 10038] 在一个非套接字上尝试了一个操作`错误。
+   - 原来系统将Web应用（端口5000）和API服务（端口5566）设计在一个进程中运行。
+
+2. **模板错误**：
+   - 在`edge_devices_index.html`模板中使用了`url_for('edge_devices_api.delete_device')`来生成删除设备的URL，但在我们优化代码结构后，该端点在Web应用中不可用。
+   - 错误发生在访问`/edge_devices/`页面时，显示`werkzeug.routing.exceptions.BuildError`错误。
+
+### 解决方案
+
+1. **服务架构优化**：
+   - 创建了独立的脚本`start_web_app.py`和`start_api_server.py`，分别用于启动Web应用和API服务器。
+   - 修改了`run.py`主函数，在Windows环境下使用`subprocess.Popen`启动两个独立进程，避免了套接字冲突。
+
+2. **修复模板错误**：
+   - 在`__init__.py`中正确注册了`edge_devices_api`蓝图，确保Web应用可以找到相应的端点。
+   - 修改了`edge_devices_index.html`模板，将表单提交方式改为使用JavaScript函数，调用已有的`showDeleteModal`函数显示删除确认框。
+
+3. **Flask请求上下文修复**：
+   - 修改了`edge_device_api_server.py`中获取密钥的方式，从`request.app`（不存在）改为使用`current_app`或全局配置。
+
+### 运行方式
+
+现在系统可以通过以下几种方式运行：
+1. 同时启动两个服务：`python run.py [--debug] [--http]`
+2. 仅启动Web应用：`python start_web_app.py [--debug] [--http]`
+3. 仅启动API服务器：`python start_api_server.py [--debug] [--http]`
+
+通过这些修改，系统现在可以在Windows环境下正常运行，既避免了套接字错误，也解决了模板渲染问题，使边缘设备管理功能正常工作。

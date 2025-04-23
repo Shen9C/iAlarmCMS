@@ -1,11 +1,11 @@
 import pytest
-from app import create_app, db
+from app import create_web_app, db
 from app.models.users import User
 from app.models.alarms import Alarm
 
 @pytest.fixture
 def app():
-    app = create_app()
+    app = create_web_app()
     app.config.update({
         'TESTING': True,
         'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:'

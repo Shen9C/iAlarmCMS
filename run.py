@@ -24,7 +24,7 @@ project_root = Path(__file__).resolve().parent
 sys.path.insert(0, str(project_root))
 
 # 导入应用和配置
-from app import create_app, db, models
+from app import create_web_app, create_api_app, db, models
 from app.utils.yaml_config_loader import config
 
 # 导入模型类，从正确的子模块导入
@@ -137,15 +137,36 @@ def get_ssl_context(is_api=False):
         # 否则使用简单的元组
         return (cert_path, key_path)
 
-def run_web_app(host=None, port=None, debug=False, use_ssl=True):
-    """运行Web应用服务器"""
+def run_web_app(host=None, port=None, debug=False, use_ssl=True, use_keep_alive=False):
+    """
+    运行Web应用服务器
+    
+    Args:
+        host: 主机地址，默认使用配置中的WEB_HOST
+        port: 端口号，默认使用配置中的WEB_PORT
+        debug: 是否启用调试模式
+        use_ssl: 是否使用SSL
+        use_keep_alive: 是否使用长连接，默认False表示使用短连接
+    """
     # 使用配置中的值作为默认值
     if host is None:
         host = config.WEB_HOST
     if port is None:
         port = config.WEB_PORT
     
-    app = create_app('web')
+    logging.info("正在创建Web应用实例...")
+    app = create_web_app()
+    logging.info("Web应用实例创建成功")
+    
+    # 如果不使用长连接，添加全局中间件，设置短连接
+    if not use_keep_alive:
+        @app.after_request
+        def set_connection_close(response):
+            response.headers["Connection"] = "close"
+            return response
+        logging.info("Web应用服务器将使用短连接模式")
+    else:
+        logging.info("Web应用服务器将使用长连接模式")
     
     # 打印当前的路由
     logging.info("Web应用服务器路由:")
@@ -168,94 +189,91 @@ def run_web_app(host=None, port=None, debug=False, use_ssl=True):
     
     # 启动服务器
     logging.info(f"Web应用服务器启动于 {'https' if use_ssl else 'http'}://{host}:{port}")
-    app.run(host=host, port=port, debug=debug, ssl_context=ssl_context)
+    try:
+        # 尝试正常启动服务器 - 删除不支持的keep_alive_timeout参数
+        app.run(host=host, port=port, debug=debug, ssl_context=ssl_context, 
+                threaded=True, processes=1, use_reloader=debug)
+    except OSError as e:
+        # 捕获套接字错误
+        logging.error(f"启动Web服务器时发生错误: {str(e)}")
+        logging.info("尝试使用替代方法启动服务器...")
+        
+        # 对于Windows环境下的socket.fromfd错误，使用threaded=False和简化的SSL上下文
+        if "非套接字上尝试了一个操作" in str(e) or "[WinError 10038]" in str(e):
+            # 在Windows上，使用简化的SSL上下文模式
+            if use_ssl:
+                import ssl
+                logging.info("使用简化的SSL上下文...")
+                context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+                web_cert_path = config.WEB_SSL_CERT
+                web_key_path = config.WEB_SSL_KEY
+                context.load_cert_chain(web_cert_path, web_key_path)
+                ssl_context = context
+            
+            # 禁用线程模式和进程模式
+            logging.info("以非线程模式启动服务器...")
+            app.run(host=host, port=port, debug=debug, ssl_context=ssl_context, 
+                   threaded=False, processes=1)
+        else:
+            # 其他类型的错误，重新抛出
+            raise
 
-def run_device_api(host=None, port=None, debug=False, use_ssl=True):
-    """运行边缘设备API服务器"""
+def run_device_api(host=None, port=None, debug=False, use_ssl=True, use_keep_alive=False):
+    """
+    运行设备API服务器
+    
+    Args:
+        host: 主机地址，默认使用配置中的API_HOST
+        port: 端口号，默认使用配置中的API_PORT
+        debug: 是否启用调试模式
+        use_ssl: 是否使用SSL
+        use_keep_alive: 是否使用长连接，默认False表示使用短连接
+    """
     # 使用配置中的值作为默认值
     if host is None:
         host = config.API_HOST
     if port is None:
         port = config.API_PORT
     
-    app = create_app('api')
-    
-    # 打印当前的路由
-    logging.info("边缘设备API服务器路由:")
-    for rule in app.url_map.iter_rules():
-        logging.info(f"{rule.endpoint}: {rule.rule}")
-    
-    # 准备SSL选项
-    ssl_context = None
-    if use_ssl:
-        if not check_ssl_files(is_api=True):
-            logging.error("API证书文件不存在，无法以HTTPS模式启动，将回退到HTTP模式")
+    # 检查SSL
+    if use_ssl and not check_ssl_files(is_api=True):
+        logging.error("API证书文件不存在，无法以HTTPS模式启动，将回退到HTTP模式")
+        use_ssl = False
+    elif use_ssl:
+        # 仅当use_ssl为True且证书文件存在时，才获取SSL上下文
+        ssl_context = get_ssl_context(is_api=True)
+        if not ssl_context:
+            logging.error("无法创建API证书的SSL上下文，无法以HTTPS模式启动，将回退到HTTP模式")
             use_ssl = False
         else:
-            ssl_context = get_ssl_context(is_api=True)
-            if not ssl_context:
-                logging.error("无法创建API证书的SSL上下文，无法以HTTPS模式启动，将回退到HTTP模式")
-                use_ssl = False
-            else:
-                logging.info("边缘设备API服务器将以HTTPS模式启动")
+            logging.info("边缘设备API服务器初始化完成")
+            logging.info(f"证书文件: {config.API_SSL_CERT}")
+            logging.info(f"密钥文件: {config.API_SSL_KEY}")
     
-    # 启动服务器
-    logging.info(f"边缘设备API服务器启动于 {'https' if use_ssl else 'http'}://{host}:{port} {'(调试模式)' if debug else ''}")
-    app.run(host=host, port=port, debug=debug, ssl_context=ssl_context)
+    # 启动API服务器
+    logging.info(f"边缘设备API服务器将在 {'0.0.0.0' if host == '0.0.0.0' else host}:{port} 上启动{'，启用调试模式' if debug else ''}")
+    from start_api_server import run_api_server
+    run_api_server(host, port, debug, use_ssl, use_keep_alive=use_keep_alive)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='油田监控系统服务端')
-    parser.add_argument('--web-host', default=None, help=f'Web应用主机 (默认: {config.WEB_HOST})')
-    parser.add_argument('--web-port', type=int, default=None, help=f'Web应用端口 (默认: {config.WEB_PORT})')
-    parser.add_argument('--api-host', default=None, help=f'设备API主机 (默认: {config.API_HOST})')
-    parser.add_argument('--api-port', type=int, default=None, help=f'设备API端口 (默认: {config.API_PORT})')
+    parser = argparse.ArgumentParser(description='运行Web应用或API服务器')
+    parser.add_argument('--host', help='主机地址，默认使用配置中的值')
+    parser.add_argument('--port', type=int, help='端口号，默认使用配置中的值')
+    parser.add_argument('--api-only', action='store_true', help='仅运行API服务器')
+    parser.add_argument('--web-only', action='store_true', help='仅运行Web应用')
     parser.add_argument('--debug', action='store_true', help='启用调试模式')
-    parser.add_argument('--http', action='store_true', help='使用HTTP模式替代默认的HTTPS模式')
-    parser.add_argument('--api-only', action='store_true', help='仅启动设备API')
-    parser.add_argument('--web-only', action='store_true', help='仅启动Web应用')
-    parser.add_argument('--clear-sessions', action='store_true', help='清除所有用户会话')
+    parser.add_argument('--no-ssl', action='store_true', help='禁用SSL（默认启用SSL）')
+    parser.add_argument('--use-keep-alive', action='store_true', 
+                        help='使用长连接（默认为短连接）')
     
     args = parser.parse_args()
     
-    # 设置日志级别
-    if args.debug:
-        logging.getLogger().setLevel(logging.DEBUG)
-        logging.info("调试日志已启用")
+    # 运行Web应用
+    if not args.api_only:
+        run_web_app(host=args.host, port=args.port, debug=args.debug, 
+                    use_ssl=not args.no_ssl, use_keep_alive=args.use_keep_alive)
     
-    # 清除所有会话
-    if args.clear_sessions:
-        clear_all_sessions()
-    
-    # 确定是否使用SSL
-    use_ssl = not args.http
-    
-    # 输出用户情况
-    try:
-        users = User.query.all()
-        logging.info(f"系统中有 {len(users)} 个用户")
-        for user in users:
-            logging.info(f"用户: {user.username}, Email: {user.email if hasattr(user, 'email') else 'N/A'}, 角色: {user.role}")
-    except Exception as e:
-        logging.warning(f"无法获取用户列表: {str(e)}")
-    
-    # 如果指定了--api-only，则只启动API服务器
-    if args.api_only:
-        run_device_api(args.api_host, args.api_port, args.debug, use_ssl)
-    # 如果指定了--web-only，则只启动Web应用
-    elif args.web_only:
-        run_web_app(args.web_host, args.web_port, args.debug, use_ssl)
-    # 否则，启动两个服务器
-    else:
-        # 启动Web应用服务器线程
-        web_thread = threading.Thread(
-            target=run_web_app,
-            args=(args.web_host, args.web_port, args.debug, use_ssl)
-        )
-        web_thread.daemon = True
-        web_thread.start()
-        
-        # 稍微延迟以确保日志不会混淆
-        time.sleep(0.1)
-        
-        # 启动设备API服务器
-        run_device_api(args.api_host, args.api_port, args.debug, use_ssl)
+    # 运行API服务器
+    if not args.web_only:
+        run_device_api(host=args.host, port=args.port, debug=args.debug, 
+                      use_ssl=not args.no_ssl, use_keep_alive=args.use_keep_alive)
