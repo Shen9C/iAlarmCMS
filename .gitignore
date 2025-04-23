@@ -44,3 +44,5 @@ Thumbs.db
 logs/
 log/
 *.log.*
+alarm_images/*
+app/static/alarm_images/*

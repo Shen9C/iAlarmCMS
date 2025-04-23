@@ -291,8 +291,10 @@ if __name__ == "__main__":
         logging.info("调试日志已启用")
     
     # 确保子进程跳过Flask的自动重载器
-    web_args = (args.host, args.port, False, not args.no_ssl, args.use_keep_alive) 
-    api_args = (args.host, args.port, False, not args.no_ssl, args.use_keep_alive)
+    # web_args = (args.host, args.port, False, not args.no_ssl, args.use_keep_alive) 
+    # api_args = (args.host, args.port, False, not args.no_ssl, args.use_keep_alive)
+    web_args = (args.host, args.port, False, False, args.use_keep_alive) 
+    api_args = (args.host, args.port, False, True, args.use_keep_alive)
     
     # 使用多进程同时启动Web应用和API服务器
     processes = []

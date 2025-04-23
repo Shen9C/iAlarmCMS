@@ -3,18 +3,117 @@ import json
 import logging
 from datetime import datetime, timedelta
 from functools import wraps
-from flask import Blueprint, jsonify, request, current_app, g
+from flask import Blueprint, jsonify, request, current_app, g, send_from_directory, send_file
 from flask_login import login_required, current_user
 from sqlalchemy import and_, or_, desc
 from app import db
 from app.models.alarms import Alarm
 from app.models.users import User
+from PIL import Image
+from io import BytesIO
 
 # 设置日志记录器
 logger = logging.getLogger(__name__)
 
 # 创建Blueprint
 bp = Blueprint('alarms_api', __name__, url_prefix='/api/alarms')
+
+# 新增路由：提供告警图片访问
+@bp.route('/images/<filename>')
+def get_alarm_image(filename):
+    """提供告警图片文件，添加速度优化"""
+    # 安全检查：防止路径穿越
+    if '..' in filename or filename.startswith('/'):
+        return jsonify({'error': '无效的文件名'}), 400
+    
+    # 优先尝试固定路径，避免多次检查不同路径
+    cwd = os.getcwd()
+    primary_path = os.path.join(cwd, 'app', 'static', 'alarm_images')
+    file_path = os.path.join(primary_path, filename)
+    
+    # 检查是否要下载图片
+    download_mode = request.args.get('download', 'false').lower() == 'true'
+    
+    # 直接检查主要路径
+    if os.path.isfile(file_path):
+        logger.info(f"找到图片文件: {file_path}")
+        
+        # 根据请求模式决定如何发送文件
+        if download_mode:
+            logger.info(f"下载模式: {filename}")
+            return send_file(
+                file_path,
+                mimetype='application/octet-stream',  # 使用通用二进制流类型
+                as_attachment=True,                   # 强制作为附件下载
+                download_name=filename                # 设置下载文件名
+            )
+        else:
+            # 查看模式添加缓存头
+            logger.info(f"查看模式: {filename}")
+            return send_file(file_path, mimetype='image/jpeg')
+    
+    # 如果在首选路径找不到，尝试其他可能的位置
+    backup_paths = [
+        os.path.join(cwd, 'static', 'alarm_images'),
+        os.path.join(cwd, 'app/static', 'alarm_images')
+    ]
+    
+    for path in backup_paths:
+        file_path = os.path.join(path, filename)
+        if os.path.isfile(file_path):
+            logger.info(f"备用路径找到图片: {file_path}")
+            
+            if download_mode:
+                return send_file(
+                    file_path,
+                    mimetype='application/octet-stream',
+                    as_attachment=True,
+                    download_name=filename
+                )
+            else:
+                return send_file(file_path, mimetype='image/jpeg')
+                
+            return send_file(file_path, mimetype='image/jpeg')
+    
+    # 如果所有路径都找不到文件
+    logger.error(f"未找到图片文件: {filename}")
+    return jsonify({'error': '图片文件不存在'}), 404
+
+@bp.route('/thumbnails/<filename>')
+def get_alarm_thumbnail(filename):
+    """提供告警图片缩略图"""
+    # 与get_alarm_image类似的查找逻辑
+    cwd = os.getcwd()
+    possible_paths = [
+        os.path.join(cwd, 'app', 'static', 'alarm_images', filename),
+        os.path.join(cwd, 'static', 'alarm_images', filename),
+        os.path.join(cwd, 'app/static', 'alarm_images', filename)
+    ]
+    
+    file_path = None
+    for path in possible_paths:
+        if os.path.isfile(path):
+            file_path = path
+            break
+            
+    if not file_path:
+        return jsonify({'error': '图片文件不存在'}), 404
+        
+    # 找到图片后，生成缩略图
+    try:
+        img = Image.open(file_path)
+        img.thumbnail((100, 100))  # 缩小到100x100
+        
+        # 保存到内存
+        output = BytesIO()
+        img.save(output, format='JPEG', quality=75, optimize=True)
+        output.seek(0)
+        
+        return send_file(output, mimetype='image/jpeg')
+    except Exception as e:
+        logger.error(f"生成缩略图失败: {str(e)}")
+        # 降级到原始图片
+        return send_file(file_path, mimetype='image/jpeg')
 
 # 辅助函数：通过token获取用户
 def get_user_by_token(token):
@@ -377,3 +476,16 @@ def get_stats():
             'code': 500,
             'message': f'获取告警统计失败: {str(e)}'
         }), 500
+
+def optimize_images(directory, quality=85):
+    """压缩目录中的所有JPG图片"""
+    for filename in os.listdir(directory):
+        if filename.lower().endswith('.jpg'):
+            filepath = os.path.join(directory, filename)
+            try:
+                img = Image.open(filepath)
+                # 保存为WebP格式或优化的JPG
+                img.save(filepath, quality=quality, optimize=True)
+                print(f"已优化: {filepath}")
+            except Exception as e:
+                print(f"处理{filepath}时出错: {e}")

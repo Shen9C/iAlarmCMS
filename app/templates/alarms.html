@@ -1,0 +1,72 @@
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing code ...
+    
+    // 为所有图片URL添加时间戳参数，防止缓存
+    function addTimestampToImageUrls() {
+        const images = document.querySelectorAll('.alarm-image');
+        images.forEach(img => {
+            const currentSrc = img.getAttribute('src');
+            if(currentSrc && !currentSrc.includes('?t=')) {
+                const timestamp = new Date().getTime();
+                img.setAttribute('src', `${currentSrc}?t=${timestamp}`);
+            }
+        });
+    }
+    
+    // 初始加载时添加时间戳
+    addTimestampToImageUrls();
+    
+    // 监听页面数据加载完成事件
+    $(document).on('alarms-loaded', function() {
+        // 为新加载的图片添加时间戳
+        addTimestampToImageUrls();
+    });
+});
+</script>
+
+<!-- 图片预览模态框 -->
+<div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">告警图片查看</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" class="img-fluid" src="" alt="告警图片">
+            </div>
+            <div class="modal-footer">
+                <a id="downloadImageLink" href="#" class="btn btn-primary" download>下载图片</a>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 图片点击处理
+$(document).on('click', '.alarm-image', function() {
+    const imgSrc = $(this).attr('src').split('?')[0]; // 移除可能存在的查询参数
+    const timestamp = new Date().getTime();
+    
+    // 设置模态框中的图片源，添加时间戳参数
+    $('#modalImage').attr('src', `${imgSrc}?t=${timestamp}`);
+    
+    // 设置下载链接
+    $('#downloadImageLink').attr('href', `${imgSrc}?download=true&t=${timestamp}`);
+    
+    // 显示模态框
+    $('#imageModal').modal('show');
+});
+
+// 在加载告警数据后触发自定义事件
+$(document).ajaxSuccess(function(event, xhr, settings) {
+    // 检查是否是加载告警的Ajax请求
+    if (settings.url.includes('/api/alarms/list')) {
+        $(document).trigger('alarms-loaded');
+    }
+});
+</script> 
