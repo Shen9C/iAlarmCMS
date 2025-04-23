@@ -1,0 +1,8 @@
+# 开发环境配置
+debug: true
+debug_log_enabled: true
+
+# 开发环境下允许HTTP访问Cookie (不强制HTTPS)
+security:
+  session_cookie_secure: false
+  remember_cookie_secure: false 

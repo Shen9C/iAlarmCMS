@@ -1,9 +1,13 @@
-from flask import Flask, redirect, url_for, request, jsonify, flash  # 添加 flash 导入
+from flask import Flask, redirect, url_for, request, jsonify, flash, render_template  # 添加 render_template 导入
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user, logout_user
 from flask_migrate import Migrate
-from config import Config  
+from app.utils.yaml_config_loader import Config, config
 import logging
+import os
+import importlib.util
+from pathlib import Path
+import sys
 
 # 设置日志
 logger = logging.getLogger(__name__)
@@ -16,9 +20,81 @@ login_manager = LoginManager()
 # 删除这行错误的导入
 # from app.routes import tasks_view  # 删除这行
 
-def create_app(config_class=Config):
+# 导入自定义SSL模块
+try:
+    from app.utils.custom_ssl import get_ssl_context, enable_ssl_for_app
+except ImportError:
+    logger.warning("无法导入自定义SSL模块，请确保app/utils/custom_ssl.py文件存在")
+    # 系统将使用默认HTTP模式
+
+def create_api_app():
+    """创建边缘设备API服务器应用实例"""
+    try:
+        # 获取项目根目录
+        project_root = Path(__file__).resolve().parent.parent
+        
+        # 使用importlib动态加载API服务器模块，避免循环引用
+        api_server_path = os.path.join(project_root, "app", "routes", "edge_device_api_server.py")
+        
+        if not os.path.exists(api_server_path):
+            logger.error(f"边缘设备API服务器模块不存在: {api_server_path}")
+            raise FileNotFoundError(f"找不到文件: {api_server_path}")
+            
+        spec = importlib.util.spec_from_file_location("edge_device_api_server", api_server_path)
+        api_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(api_module)
+        
+        # 获取模块中的Flask应用实例
+        if not hasattr(api_module, 'app'):
+            logger.error("API服务器模块中找不到app实例")
+            raise AttributeError("API服务器模块中缺少app实例")
+            
+        logger.info("边缘设备API服务器初始化完成")
+        return api_module.app
+    except Exception as e:
+        logger.error(f"创建边缘设备API服务器应用失败: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        raise
+
+def create_app(config_class=None):
     app = Flask(__name__)
-    app.config.from_object(config_class)
+    
+    # 使用YAML配置加载器
+    if config_class is None:
+        # 加载配置
+        cfg = config
+    else:
+        # 如果传入了具体的config_class，使用该配置
+        cfg = Config(config_class)
+
+    # 将配置应用到Flask应用
+    app.config['SECRET_KEY'] = cfg.secret_key
+    app.config['DEBUG'] = cfg.debug
+    
+    # 确保设置数据库URI
+    if hasattr(cfg, 'SQLALCHEMY_DATABASE_URI'):
+        app.config['SQLALCHEMY_DATABASE_URI'] = cfg.SQLALCHEMY_DATABASE_URI
+    else:
+        # 如果配置对象没有URI，则手动构建
+        db_cfg = cfg.database
+        app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{db_cfg.user}:{db_cfg.password}@{db_cfg.host}:{db_cfg.port}/{db_cfg.name}"
+    
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    # 禁用严格传输安全，避免HTTPS自签名证书问题
+    app.config['PREFERRED_URL_SCHEME'] = 'https'
+    
+    # 设置应用程序的安全相关配置
+    # 在开发环境中，禁用一些可能导致问题的安全功能
+    if app.debug:
+        # 开发环境配置
+        app.config['SESSION_COOKIE_SECURE'] = False  # 允许HTTP访问cookie
+        app.config['REMEMBER_COOKIE_SECURE'] = False  # 允许HTTP访问记住我cookie
+    else:
+        # 生产环境配置
+        app.config['SESSION_COOKIE_SECURE'] = True  # 只允许HTTPS访问cookie
+        app.config['REMEMBER_COOKIE_SECURE'] = True  # 只允许HTTPS访问记住我cookie
     
     # 配置日志级别
     if app.config.get('DEBUG_LOG_ENABLED', False):
@@ -134,6 +210,7 @@ def create_app(config_class=Config):
             'web_auth.web_login',
             'web_auth_api.web_login_api',
             'static',
+            'test_https',
             'edge_device_api.create_alarm',
             'edge_device_api.create_batch_alarms',
             'edge_device_api.get_alarm_status'
@@ -155,12 +232,44 @@ def create_app(config_class=Config):
                     }), 401
                 return redirect(url_for('web_auth.web_login'))
     
+    @app.route('/test-https')
+    def test_https():
+        """用于测试HTTPS连接的路由"""
+        is_https = request.headers.get('X-Forwarded-Proto', request.scheme) == 'https'
+        scheme = request.scheme
+        
+        if app.config.get('DEBUG_LOG_ENABLED', False):
+            logger.debug(f"访问/test-https: scheme={scheme}, is_https={is_https}, headers={dict(request.headers)}")
+            
+        # 获取到达服务器的协议方案信息
+        protocol_info = {
+            'scheme': request.scheme,
+            'http_host': request.host,
+            'url': request.url,
+            'path': request.path,
+            'is_secure': request.is_secure
+        }
+            
+        return render_template('test_https.html', protocol_info=protocol_info)
+    
     @app.route('/')
     def index():
         """应用程序主入口"""
         if app.config.get('DEBUG_LOG_ENABLED', False):
             logger.debug(f"访问根路径: authenticated={current_user.is_authenticated}")
         
+        # 添加调试日志，帮助发现问题
+        request_info = {
+            'scheme': request.scheme,
+            'host': request.host,
+            'path': request.path,
+            'is_secure': request.is_secure,
+            'headers': dict(request.headers),
+            'authenticated': current_user.is_authenticated if hasattr(current_user, 'is_authenticated') else False
+        }
+        logger.info(f"根路由请求信息: {request_info}")
+        
+        # 恢复原始的重定向逻辑
         if current_user.is_authenticated:
             if current_user.current_token:
                 if app.config.get('DEBUG_LOG_ENABLED', False):
@@ -200,18 +309,15 @@ def create_app(config_class=Config):
     with app.app_context():
         # 清理所有用户的登录状态
         try:
-            users = User.query.all()
-            for user in users:
-                user.current_token = None
-                user.token_timestamp = None
-                # 移除这行，因为这个字段可能不存在
-                # user.session_expired = True
-            db.session.commit()
-            
-            # 移除这行，因为它需要请求上下文
-            # logout_user()
-            
-            logger.info("所有用户会话已清理")
+            # 防止在应用初始化时执行数据库查询，只有当显式请求清理会话时才执行
+            if 'clear_sessions' in sys.argv:
+                from app.models.users import User
+                users = User.query.all()
+                for user in users:
+                    user.current_token = None
+                    user.token_timestamp = None
+                db.session.commit()
+                logger.info("所有用户会话已清理")
         except Exception as e:
             logger.error(f"清理用户会话时出错: {str(e)}")
             logger.exception("详细错误信息：")

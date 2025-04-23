@@ -1,0 +1,69 @@
+# 基础配置
+debug_log_enabled: true
+debug: true
+secret_key: ${SECRET_KEY:-dev-key-123}
+
+# 服务器配置（旧配置，保持兼容）
+host: 0.0.0.0
+port: 5000
+
+# Web服务器配置
+web_server:
+  host: 0.0.0.0
+  port: 5000
+  
+# API服务器配置
+api_server:
+  host: 0.0.0.0
+  port: 5566
+
+# 数据库配置
+database:
+  user: shen9c
+  password: 123456
+  host: localhost
+  port: 25432
+  name: oilfield_web
+
+# 会话配置
+session:
+  permanent_lifetime_days: 7
+  token_expiration_days: 1
+
+# 日志配置
+logging:
+  path: logs
+  filename: oilfield_gateway.log
+  max_bytes: 52428800  # 50MB
+  backup_count: 20
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# 应用配置
+application:
+  items_per_page: 20
+  max_content_length: 16777216  # 16MB
+  upload_folder: uploads
+  allowed_extensions:
+    - txt
+    - pdf
+    - png
+    - jpg
+    - jpeg
+    - gif
+    - csv
+    - xlsx
+
+# 安全配置
+security:
+  session_cookie_secure: true
+  remember_cookie_secure: true
+  session_cookie_httponly: true
+  remember_cookie_httponly: true
+
+# SSL配置
+ssl:
+  cert_file: web_cert.pem
+  key_file: web_key.pem
+  api_cert_file: api_cert.pem
+  api_key_file: api_key.pem
+  cert_dir: ssl 

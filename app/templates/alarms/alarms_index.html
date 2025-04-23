@@ -10,106 +10,106 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="card-title mb-0">告警列表</h3>
                     <button class="btn btn-sm btn-success" onclick="exportAlarms(); return false;">
-                            <i class="bi bi-download"></i> 导出
+                <i class="bi bi-download"></i> 导出
                     </button>
                 </div>
                 <div class="card-body">
-                    <!-- 筛选表单 -->
+        <!-- 筛选表单 -->
                     <div class="mb-4">
-                        <form class="row g-3" method="get" action="{{ url_for('alarms_view.index') }}">
-                            <input type="hidden" name="user_token" value="{{ request.args.get('user_token') }}">
-                            <!-- 告警类型选择 -->
-                            <div class="col-md-2">
+            <form class="row g-3" method="get" action="{{ url_for('alarms_view.index') }}">
+                <input type="hidden" name="user_token" value="{{ request.args.get('user_token') }}">
+                <!-- 告警类型选择 -->
+                <div class="col-md-2">
                             <select name="alarm_type" class="form-select form-select-sm">
-                                    <option value="">所有类型</option>
-                                    {% for type in alarm_types %}
-                                    <option value="{{ type }}" {% if current_type == type %}selected{% endif %}>
-                                        {{ type }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
+                        <option value="">所有类型</option>
+                        {% for type in alarm_types %}
+                        <option value="{{ type }}" {% if current_type == type %}selected{% endif %}>
+                            {{ type }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
                         <!-- 告警状态选择 (使用 is_processed) -->
-                            <div class="col-md-2">
+                <div class="col-md-2">
                             <select name="status" class="form-select form-select-sm">
-                                    <option value="">告警状态</option>
+                        <option value="">告警状态</option>
                                 <option value="0" {% if current_status == '0' %}selected{% endif %}>未处理</option>
                                 <option value="1" {% if current_status == '1' %}selected{% endif %}>已处理</option>
-                                </select>
-                            </div>
-                            <!-- 设备名称选择 -->
-                            <div class="col-md-2">
+                    </select>
+                </div>
+                <!-- 设备名称选择 -->
+                <div class="col-md-2">
                             <select name="device_name" class="form-select form-select-sm">
-                                    <option value="">所有油井</option>
-                                    {% for device in device_names %}
-                                    <option value="{{ device }}" {% if current_device == device %}selected{% endif %}>
-                                        {{ device }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
+                        <option value="">所有油井</option>
+                        {% for device in device_names %}
+                        <option value="{{ device }}" {% if current_device == device %}selected{% endif %}>
+                            {{ device }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
                         <!-- 时间选择 -->
-                            <div class="col-md-2">
+                <div class="col-md-2">
                             <input type="date" name="start_date" class="form-control form-control-sm" placeholder="开始日期" 
-                                   value="{{ request.args.get('start_date', '') }}">
-                            </div>
-                            <div class="col-md-2">
+                           value="{{ request.args.get('start_date', '') }}">
+                </div>
+                <div class="col-md-2">
                             <input type="date" name="end_date" class="form-control form-control-sm" placeholder="结束日期"
-                                   value="{{ request.args.get('end_date', '') }}">
-                            </div>
-                            <!-- 按钮区域 -->
-                            <div class="col-md-2 d-flex gap-2">
+                           value="{{ request.args.get('end_date', '') }}">
+                </div>
+                <!-- 按钮区域 -->
+                <div class="col-md-2 d-flex gap-2">
                             <button type="submit" class="btn btn-primary btn-sm">筛选</button>
                             <a href="{{ url_for('alarms_view.index', user_token=request.args.get('user_token')) }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-x-circle"></i> 清除
-                                </a>
-                            </div>
-                        </form>
-                    </div>
+                        <i class="bi bi-x-circle"></i> 清除
+                    </a>
+                </div>
+            </form>
+        </div>
 
                     <!-- 增加消息容器 -->
                     <div id="messageContainer" class="p-2 mb-3"></div>
 
-                    <!-- 表格区域 -->
+        <!-- 表格区域 -->
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0 resizable-table">
-                            <thead>
-                                <tr>
-                                    <th class="resizable text-center">告警编号</th>
-                                    <th class="resizable text-center">告警状态</th>
+            <table class="table table-hover mb-0 resizable-table">
+                <thead>
+                    <tr>
+                        <th class="resizable text-center">告警编号</th>
+                        <th class="resizable text-center">告警状态</th>
                                 <th class="resizable text-center">告警确认</th>
-                                    <th class="resizable text-center">告警类型</th>
-                                    <th class="resizable text-center">油井名称</th>
-                                    <th class="resizable text-center">摄像头IP</th>
-                                    <th class="resizable text-center">告警产生时间</th>
+                        <th class="resizable text-center">告警类型</th>
+                        <th class="resizable text-center">油井名称</th>
+                        <th class="resizable text-center">摄像头IP</th>
+                        <th class="resizable text-center">告警产生时间</th>
                                 <th class="resizable text-center">告警处理时间</th>
-                                    <th class="resizable text-center">确认时间</th>
-                                    <th class="resizable text-center">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody class="table-group-divider">
-                                {% for alarm in alarms %}
-                                <tr>
+                        <th class="resizable text-center">确认时间</th>
+                        <th class="resizable text-center">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                    {% for alarm in alarms %}
+                    <tr>
                                 <td class="text-center align-middle">
                                     <a href="{{ url_for('alarms_view.alarm_detail', alarm_id=alarm.id, user_token=request.args.get('user_token')) }}">
                                         {{ alarm.alarm_code }}
-                                        </a>
-                                    </td>
+                            </a>
+                        </td>
                                 <!-- 优化告警状态显示 -->
                                 <td class="text-center align-middle">
                                     {% if alarm.is_processed %}
                                         <span class="badge bg-success">已处理</span>
-                                        {% else %}
+                            {% else %}
                                         <span class="badge bg-warning text-dark">未处理</span>
-                                        {% endif %}
-                                    </td>
+                            {% endif %}
+                        </td>
                                 <td class="text-center align-middle">
                                     {% if alarm.is_confirmed %}
                                         <span class="badge bg-secondary">{{ alarm.confirmation_type or '故障' }}</span>
                                     {% else %}
                                         <span class="text-muted">-</span>
-                                        {% endif %}
-                                    </td>
+                            {% endif %}
+                        </td>
                                 <td class="text-center align-middle">{{ alarm.alarm_type }}</td>
                                 <td class="text-center align-middle">{{ alarm.device_name }}</td>
                                 <td class="text-center align-middle">{{ alarm.camera_ip or '-' }}</td>
@@ -119,16 +119,16 @@
                                 </td>
                                 <td class="text-center align-middle">
                                     {{ alarm.confirmed_at.strftime('%Y-%m-%d %H:%M:%S') if alarm.confirmed_at else '-' }}
-                                    </td>
+                        </td>
                                 <!-- 优化操作按钮 -->
                                 <td class="text-center align-middle">
                                     <div class="btn-group btn-group-sm">
                                         {% if not alarm.is_processed %}
-                                        {% if not alarm.is_confirmed %}
-                                        <button type="button" 
+                            {% if not alarm.is_confirmed %}
+                            <button type="button" 
                                                     class="btn btn-primary confirm-alarm-btn" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#alarmConfirmModal" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#alarmConfirmModal" 
                                                     data-alarm-id="{{ alarm.id }}" title="确认">
                                                     <i class="bi bi-check-lg"></i> 确认
                                                 </button>
@@ -140,18 +140,18 @@
                                                 data-alarm-id="{{ alarm.id }}" title="处理">
                                                 <i class="bi bi-gear"></i> 处理
                                             </button>
-                                        {% endif %}
+                            {% endif %}
                                     </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <!-- 分页区域 -->
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页区域 -->
                     <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
-                        <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center">
                             <!-- 每页显示数量选择器 -->
                             <form id="searchForm" class="d-flex align-items-center" method="GET" action="{{ url_for('alarms_view.index') }}">
                                 <label class="me-2 form-label-sm">每页显示：</label>
@@ -161,59 +161,59 @@
                                     <option value="20" {% if request.args.get('per_page', '15')|int == 20 %}selected{% endif %}>20</option>
                                     <option value="50" {% if request.args.get('per_page', '15')|int == 50 %}selected{% endif %}>50</option>
                                     <option value="100" {% if request.args.get('per_page', '15')|int == 100 %}selected{% endif %}>100</option>
-                                </select>
+                    </select>
                                 <input type="hidden" name="user_token" value="{{ request.args.get('user_token') }}">
                                 <input type="hidden" name="alarm_type" value="{{ request.args.get('alarm_type', '') }}">
                                 <input type="hidden" name="status" value="{{ request.args.get('status', '') }}">
                                 <input type="hidden" name="device_name" value="{{ request.args.get('device_name', '') }}">
                                 <input type="hidden" name="start_date" value="{{ request.args.get('start_date', '') }}">
                                 <input type="hidden" name="end_date" value="{{ request.args.get('end_date', '') }}">
-                                {% for key, value in request.args.items() %}
+                    {% for key, value in request.args.items() %}
                                     {% if key not in ['per_page', 'page', 'user_token', 'alarm_type', 'status', 'device_name', 'start_date', 'end_date'] %}
-                                    <input type="hidden" name="{{ key }}" value="{{ value }}">
-                                    {% endif %}
-                                {% endfor %}
-                            </form>
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endif %}
+                    {% endfor %}
+                </form>
                             <span class="ms-3 text-muted small">共 {{ pagination.total }} 条记录</span>
-                        </div>
-                        
+            </div>
+            
                         <!-- 分页导航 -->
                         {% if pagination and pagination.pages > 1 %}
-                        <nav aria-label="Page navigation">
+            <nav aria-label="Page navigation">
                             <ul class="pagination pagination-sm mb-0">
-                                {% if pagination.has_prev %}
-                                <li class="page-item">
-                                    {% set args = request.args.copy() %}
-                                    {% set _ = args.pop('page', None) %}
-                                    <a class="page-link" href="{{ url_for('alarms_view.index', page=pagination.prev_num, **args) }}">上一页</a>
-                                </li>
+                    {% if pagination.has_prev %}
+                    <li class="page-item">
+                        {% set args = request.args.copy() %}
+                        {% set _ = args.pop('page', None) %}
+                        <a class="page-link" href="{{ url_for('alarms_view.index', page=pagination.prev_num, **args) }}">上一页</a>
+                    </li>
                                 {% else %}
                                 <li class="page-item disabled"><span class="page-link">上一页</span></li>
-                                {% endif %}
-                                
+                    {% endif %}
+                    
                                 {% for page_num in pagination.iter_pages(left_edge=1, left_current=2, right_current=3, right_edge=1) %}
-                                    {% if page_num %}
-                                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
-                                            {% set args = request.args.copy() %}
-                                            {% set _ = args.pop('page', None) %}
+                        {% if page_num %}
+                            <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                                {% set args = request.args.copy() %}
+                                {% set _ = args.pop('page', None) %}
                                             <a class="page-link" href="{{ url_for('alarms_view.index', page=page_num, **args) }}">{{ page_num }}</a>
-                                        </li>
-                                    {% else %}
-                                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                                    {% endif %}
-                                {% endfor %}
-                                
-                                {% if pagination.has_next %}
-                                <li class="page-item">
-                                    {% set args = request.args.copy() %}
-                                    {% set _ = args.pop('page', None) %}
-                                    <a class="page-link" href="{{ url_for('alarms_view.index', page=pagination.next_num, **args) }}">下一页</a>
-                                </li>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if pagination.has_next %}
+                    <li class="page-item">
+                        {% set args = request.args.copy() %}
+                        {% set _ = args.pop('page', None) %}
+                        <a class="page-link" href="{{ url_for('alarms_view.index', page=pagination.next_num, **args) }}">下一页</a>
+                    </li>
                                 {% else %}
                                 <li class="page-item disabled"><span class="page-link">下一页</span></li>
-                                {% endif %}
-                            </ul>
-                        </nav>
+                    {% endif %}
+                </ul>
+            </nav>
                         {% endif %}
                     </div>
                 </div>

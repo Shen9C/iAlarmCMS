@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HTTPS 连接测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .info-box {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>HTTPS 连接测试页面</h1>
+    
+    <div class="info-box">
+        <h2>连接状态</h2>
+        {% if protocol_info.scheme == 'https' %}
+            <p class="success">✅ 当前使用HTTPS安全连接</p>
+        {% else %}
+            <p class="error">❌ 当前使用HTTP非安全连接</p>
+        {% endif %}
+    </div>
+    
+    <h2>连接详情</h2>
+    <table>
+        <tr>
+            <th>参数</th>
+            <th>值</th>
+        </tr>
+        {% for key, value in protocol_info.items() %}
+        <tr>
+            <td>{{ key }}</td>
+            <td>{{ value }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <div class="info-box">
+        <h2>下一步</h2>
+        <p>您可以返回到系统主页：</p>
+        <a href="{{ url_for('index') }}" class="btn">返回主页</a>
+    </div>
+</body>
+</html> 

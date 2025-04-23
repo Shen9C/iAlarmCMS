@@ -1,4 +1,12 @@
-# 删除重复的导入
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+数据库初始化脚本，负责：
+1. 创建数据库表结构
+2. 生成SSL证书（用于HTTPS支持）
+"""
+
 import os
 import sys
 import logging
@@ -10,9 +18,14 @@ from psycopg2 import sql
 import codecs
 import traceback
 from sqlalchemy import text, inspect
+from pathlib import Path
+import argparse
+from OpenSSL import crypto
+import importlib
 
-# 添加项目根目录到 Python 路径
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# 将项目根目录添加到系统路径
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
 # 确保logs文件夹存在
 logs_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
@@ -57,7 +70,7 @@ from app.models.edge_devices import EdgeDevice
 from app.models.tasks import Task
 from app.models.oil_wells import OilWell
 from app.models.settings import SystemConfig, KeyValueSetting
-from config import Config
+from app.utils.yaml_config_loader import Config, config
 
 # 修改成功/失败标记
 SUCCESS_MARK = '[成功]'
@@ -69,15 +82,62 @@ app_logger = logging.getLogger('app')
 app_logger.handlers.clear()
 app_logger.addHandler(logging.NullHandler())
 
-# 从 Config 类获取数据库配置
-DB_USER = Config.DB_USER
-DB_PASSWORD = Config.DB_PASSWORD
-DB_HOST = Config.DB_HOST
-DB_PORT = Config.DB_PORT
-DB_NAME = Config.DB_NAME
+# 从配置对象中获取数据库配置
+DB_USER = config.DB_USER
+DB_PASSWORD = config.DB_PASSWORD
+DB_HOST = config.DB_HOST
+DB_PORT = config.DB_PORT
+DB_NAME = config.DB_NAME
 
 # 记录数据库配置信息
 logger.info(f"数据库配置: 主机={DB_HOST}, 端口={DB_PORT}, 数据库名={DB_NAME}, 用户={DB_USER}")
+
+def init_database(reset=False):
+    """初始化数据库"""
+    logger.info("正在初始化数据库...")
+    
+    # 检查数据库是否存在
+    if not create_database_if_not_exists():
+        logger.error("创建数据库失败")
+        return False
+    
+    with app.app_context():
+        try:
+            # 如果需要重置数据库
+            if reset:
+                logger.info("重置数据库...")
+                db.drop_all()
+            
+            # 创建数据库表
+            logger.info("创建数据库表...")
+            db.create_all()
+            logger.info(f"{SUCCESS_MARK} 数据库表创建成功")
+            
+            # 创建管理员账户
+            try:
+                # 检查是否已有管理员账户
+                admin = User.query.filter_by(username='管理员').first()
+                if not admin:
+                    admin = User(
+                        username='管理员',
+                        role='admin',
+                        is_admin=True,
+                        active=True
+                    )
+                    admin.set_password('admin123@Youtian')
+                    db.session.add(admin)
+                    db.session.commit()
+                    logger.info(f"{SUCCESS_MARK} 管理员账户创建成功")
+                else:
+                    logger.info(f"管理员账户已存在，跳过创建")
+            except Exception as e:
+                logger.error(f"{ERROR_MARK} 创建管理员账户失败: {str(e)}")
+            
+            return True
+        except Exception as e:
+            logger.error(f"数据库初始化失败: {str(e)}")
+            logger.error(traceback.format_exc())
+            return False
 
 @click.group()
 def cli():
@@ -142,354 +202,7 @@ def create_database_if_not_exists():
 @cli.command()
 def init():
     """初始化PostgreSQL数据库"""
-    logger.info("开始初始化PostgreSQL数据库...")
-    
-    # 快速检查数据库是否存在
-    if not create_database_if_not_exists():
-        logger.error("创建数据库失败")
-        return
-    
-    with app.app_context():
-        try:
-            # 快速连接测试
-            conn = get_connection()
-            if not conn:
-                logger.error("无法连接到数据库，请检查配置")
-                return
-            conn.close()
-            
-            # 获取所有需要创建的表名
-            expected_tables = {
-                'users': User,
-                'alarms': Alarm,
-                'edge_devices': EdgeDevice,
-                'tasks': Task,
-                'oil_wells': OilWell,  # 添加油井表
-                'system_config': SystemConfig,
-                'key_value_settings': KeyValueSetting
-            }
-            
-            # 检查是否需要先删除旧的表
-            try:
-                inspector = inspect(db.engine)
-                need_rebuild = False
-                
-                # 检查告警表
-                if 'alarms' in inspector.get_table_names():
-                    columns = [column['name'] for column in inspector.get_columns('alarms')]
-                    if 'alarm_id' in columns and 'alarm_code' not in columns:
-                        logger.warning("检测到旧的告警表结构，包含alarm_id但不包含alarm_code")
-                        need_rebuild = True
-                
-                # 检查任务表
-                if 'tasks' in inspector.get_table_names():
-                    columns = [column['name'] for column in inspector.get_columns('tasks')]
-                    if 'detection_type' in columns and 'task_type' not in columns:
-                        logger.warning("检测到旧的任务表结构，包含detection_type但不包含task_type")
-                        need_rebuild = True
-                
-                if need_rebuild:
-                    logger.warning("建议使用 python scripts/init_pg_db.py rebuild 命令强制重建表结构")
-                    confirm = input("是否继续初始化? 如果继续，可能会导致字段不一致问题 (y/n): ").strip().lower()
-                    if confirm != 'y':
-                        logger.info("操作已取消")
-                        return
-                    logger.info("继续初始化...")
-            except Exception as e:
-                logger.error(f"检查表结构出错: {str(e)}")
-            
-            # 创建所有表 - 使用SQLAlchemy的自动映射
-            logger.info("开始创建数据库表...")
-            db.create_all()
-            logger.info("数据库表创建完成")
-            
-            # 验证每个表是否创建成功
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'")
-            existing_tables = {table[0] for table in cursor.fetchall()}
-            
-            # 检查每个表是否存在
-            for table_name in expected_tables:
-                if table_name in existing_tables:
-                    logger.info(f"{SUCCESS_MARK} 表 {table_name} 创建成功")
-                else:
-                    logger.error(f"{ERROR_MARK} 表 {table_name} 创建失败")
-                    try:
-                        model = expected_tables[table_name]
-                        model.__table__.create(db.engine)
-                        logger.info(f"{SUCCESS_MARK} 重试创建表 {table_name} 成功")
-                    except Exception as e:
-                        logger.error(f"重试创建表 {table_name} 失败: {str(e)}")
-            
-            # 特别检查告警表
-            cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'alarms'")
-            alarm_columns = {col[0] for col in cursor.fetchall()}
-            required_alarm_fields = ['alarm_code', 'is_processed', 'is_confirmed', 'well_code']
-            missing_fields = [field for field in required_alarm_fields if field not in alarm_columns]
-            
-            if not missing_fields:
-                logger.info(f"{SUCCESS_MARK} 告警表包含所有必需字段")
-            else:
-                logger.error(f"{ERROR_MARK} 告警表缺少字段: {', '.join(missing_fields)}")
-                if 'alarm_id' in alarm_columns and 'alarm_code' not in alarm_columns:
-                    logger.warning("警告: 告警表仍然使用的是旧的alarm_id字段")
-                    logger.warning("建议使用 python scripts/init_pg_db.py rebuild 命令强制重建表结构")
-                if 'processed_status' in alarm_columns:
-                    logger.warning("警告: 告警表使用了processed_status字段，应该使用is_processed和is_confirmed")
-            
-            # 特别检查边缘设备表
-            cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'edge_devices'")
-            edge_device_columns = {col[0] for col in cursor.fetchall()}
-            required_edge_device_fields = ['device_id', 'device_name', 'ip_address', 'secret_key', 'last_auth_time', 'status']
-            missing_edge_device_fields = [field for field in required_edge_device_fields if field not in edge_device_columns]
-            
-            if not missing_edge_device_fields:
-                logger.info(f"{SUCCESS_MARK} 边缘设备表包含所有必需字段")
-            else:
-                logger.warning(f"边缘设备表缺少字段: {', '.join(missing_edge_device_fields)}")
-                logger.warning("请运行数据库迁移或执行rebuild命令添加缺少的字段")
-
-            # 特别检查任务表
-            cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'tasks'")
-            task_columns = {col[0] for col in cursor.fetchall()}
-            
-            # 检查摄像头字段
-            if 'camera_username' in task_columns and 'camera_password' in task_columns:
-                logger.info(f"{SUCCESS_MARK} 任务表包含摄像头用户名和密码字段")
-            else:
-                if 'camera_username' not in task_columns or 'camera_password' not in task_columns:
-                    logger.warning("警告: 任务表缺少摄像头用户名或密码字段，请运行数据库迁移")
-            
-            if 'task_type' in task_columns:
-                logger.info(f"{SUCCESS_MARK} 任务表结构正确，包含task_type字段")
-            else:
-                logger.error(f"{ERROR_MARK} 任务表结构不正确，不包含task_type字段")
-                if 'detection_type' in task_columns:
-                    logger.warning("警告：任务表使用了旧的detection_type字段，请先运行init_pg_db.py清空并重建表结构")
-            
-            # 特别检查油井表
-            cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'oil_wells'")
-            oil_well_columns = {col[0] for col in cursor.fetchall()}
-            required_oil_well_fields = ['well_code', 'well_name', 'status', 'location']
-            missing_oil_well_fields = [field for field in required_oil_well_fields if field not in oil_well_columns]
-            
-            if not missing_oil_well_fields:
-                logger.info(f"{SUCCESS_MARK} 油井表包含所有必需字段")
-            else:
-                logger.error(f"{ERROR_MARK} 油井表缺少字段: {', '.join(missing_oil_well_fields)}")
-            
-            # 清理连接
-            cursor.close()
-            conn.close()
-            
-            # 创建管理员账户
-            try:
-                # 检查是否已有管理员账户
-                admin = User.query.filter_by(username='管理员').first()
-                if not admin:
-                    admin = User(
-                        username='管理员',
-                        role='admin',
-                        is_admin=True,
-                        active=True
-                    )
-                    admin.set_password('admin123')
-                    db.session.add(admin)
-                    db.session.commit()
-                    logger.info(f"{SUCCESS_MARK} 管理员账户创建成功")
-                else:
-                    logger.info(f"管理员账户已存在，跳过创建")
-            except Exception as e:
-                logger.error(f"{ERROR_MARK} 创建管理员账户失败: {str(e)}")
-            
-            logger.info("数据库初始化完成")
-        except Exception as e:
-            logger.error(f"数据库初始化失败: {str(e)}")
-            logger.error(traceback.format_exc())
-
-@cli.command(name='clear-all')  # 使用连字符
-def clear_all():
-    """清空所有表的数据但保留表结构"""
-    with app.app_context():
-        try:
-            # 清理会话
-            clear_user_sessions()
-            
-            # 添加风险警告
-            confirm = input("警告: 此操作将清空所有表的数据！是否继续执行? (yes/no): ").strip().lower()
-            if confirm != 'yes':
-                logger.info("操作已取消")
-                return
-            
-            # 获取所有表名
-            conn = get_connection()
-            if not conn:
-                logger.error("无法连接到数据库，请检查配置")
-                return
-                
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT table_name 
-                FROM information_schema.tables 
-                WHERE table_schema = 'public' 
-                AND table_type = 'BASE TABLE'
-                AND table_name NOT IN ('alembic_version', 'spatial_ref_sys')
-            """)
-            tables = [table[0] for table in cursor.fetchall()]
-            cursor.close()
-            conn.close()
-            
-            # 清空所有表数据
-            inspector = inspect(db.engine)
-            existing_tables = inspector.get_table_names()
-            
-            # 首先清除有外键约束的表
-            logger.info("正在清空表数据...")
-            
-            # 删除顺序非常重要，需要考虑外键引用
-            deletion_order = [
-                'alarms',          # 先删除告警，因为它可能引用任务和设备
-                'tasks',           # 再删除任务，因为它可能引用设备和油井
-                'edge_devices',    # 再删除设备
-                'oil_wells',       # 再删除油井
-                'users',           # 再删除用户
-                'system_config',   # 再删除系统配置
-                'key_value_settings', # 最后删除键值设置
-            ]
-            
-            # 过滤出实际存在的表
-            deletion_order = [table for table in deletion_order if table in existing_tables]
-            
-            # 添加其他没有列出的表
-            other_tables = [table for table in existing_tables if table not in deletion_order and table != 'alembic_version']
-            deletion_order.extend(other_tables)
-            
-            # 执行删除
-            for table in deletion_order:
-                try:
-                    db.session.execute(text(f'DELETE FROM "{table}"'))
-                    logger.info(f"{SUCCESS_MARK} 清空表 {table} 成功")
-                except Exception as e:
-                    logger.error(f"{ERROR_MARK} 清空表 {table} 失败: {str(e)}")
-            
-            # 提交事务
-            db.session.commit()
-            
-            # 创建管理员账户
-            admin = User(
-                username='管理员',
-                role='admin',
-                is_admin=True,
-                active=True
-            )
-            admin.set_password('admin123')
-            db.session.add(admin)
-            db.session.commit()
-            logger.info(f"{SUCCESS_MARK} 管理员账户创建成功")
-            
-            logger.info("所有表数据已清空，并重新创建了管理员账户")
-        except Exception as e:
-            db.session.rollback()
-            logger.error(f"清空表数据失败: {str(e)}")
-            logger.error(traceback.format_exc())
-
-@cli.command(name='clear-test')  # 使用连字符
-def clear_test():
-    """清空测试数据，但保留用户账户和系统配置"""
-    with app.app_context():
-        try:
-            # 添加风险警告
-            confirm = input("警告: 此操作将清空所有测试数据！是否继续执行? (yes/no): ").strip().lower()
-            if confirm != 'yes':
-                logger.info("操作已取消")
-                return
-            
-            # 清空测试数据表
-            test_tables = ['alarms', 'tasks', 'edge_devices', 'oil_wells']
-            
-            logger.info("正在清空测试数据...")
-            
-            # 按正确的顺序删除，考虑外键约束
-            for table in test_tables:
-                try:
-                    db.session.execute(text(f'DELETE FROM "{table}"'))
-                    logger.info(f"{SUCCESS_MARK} 清空表 {table} 成功")
-                except Exception as e:
-                    logger.error(f"{ERROR_MARK} 清空表 {table} 失败: {str(e)}")
-            
-            # 提交事务
-            db.session.commit()
-            
-            logger.info("所有测试数据已清空")
-        except Exception as e:
-            db.session.rollback()
-            logger.error(f"清空测试数据失败: {str(e)}")
-            logger.error(traceback.format_exc())
-
-@cli.command()
-def backup():
-    """备份数据库"""
-    try:
-        # 生成备份文件名（使用日期和时间）
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        backup_file = f"backup_{DB_NAME}_{timestamp}.sql"
-        
-        # 构建pg_dump命令
-        cmd = f'pg_dump -h {DB_HOST} -p {DB_PORT} -U {DB_USER} -F c -b -v -f "{backup_file}" {DB_NAME}'
-        
-        # 设置环境变量，支持密码
-        os.environ['PGPASSWORD'] = DB_PASSWORD
-        
-        # 执行备份命令
-        logger.info(f"正在备份数据库到 {backup_file}...")
-        exit_code = os.system(cmd)
-        
-        # 清除环境变量中的密码
-        os.environ.pop('PGPASSWORD', None)
-        
-        if exit_code == 0:
-            logger.info(f"{SUCCESS_MARK} 数据库备份成功: {backup_file}")
-        else:
-            logger.error(f"{ERROR_MARK} 数据库备份失败，退出代码: {exit_code}")
-    except Exception as e:
-        logger.error(f"数据库备份过程中出错: {str(e)}")
-
-@cli.command()
-@click.argument('backup_file')
-def restore(backup_file):
-    """从备份文件恢复数据库"""
-    try:
-        # 检查备份文件是否存在
-        if not os.path.exists(backup_file):
-            logger.error(f"备份文件不存在: {backup_file}")
-            return
-        
-        # 添加风险警告
-        confirm = input(f"警告: 此操作将用备份文件 {backup_file} 覆盖现有数据库！是否继续执行? (yes/no): ").strip().lower()
-        if confirm != 'yes':
-            logger.info("操作已取消")
-            return
-        
-        # 构建pg_restore命令
-        cmd = f'pg_restore -h {DB_HOST} -p {DB_PORT} -U {DB_USER} -d {DB_NAME} -c -v "{backup_file}"'
-        
-        # 设置环境变量，支持密码
-        os.environ['PGPASSWORD'] = DB_PASSWORD
-        
-        # 执行恢复命令
-        logger.info(f"正在从 {backup_file} 恢复数据库...")
-        exit_code = os.system(cmd)
-        
-        # 清除环境变量中的密码
-        os.environ.pop('PGPASSWORD', None)
-        
-        if exit_code == 0:
-            logger.info(f"{SUCCESS_MARK} 数据库恢复成功")
-        else:
-            logger.error(f"{ERROR_MARK} 数据库恢复失败，退出代码: {exit_code}")
-    except Exception as e:
-        logger.error(f"数据库恢复过程中出错: {str(e)}")
+    init_database()
 
 def clear_user_sessions():
     """清理所有用户会话"""
@@ -505,147 +218,397 @@ def clear_user_sessions():
     except Exception as e:
         logger.error(f"清理用户会话失败: {str(e)}")
 
-@cli.command()
-def rebuild():
-    """强制重建数据库表结构（警告：此操作会删除所有数据）"""
-    with app.app_context():
-        try:
-            # 清理会话
-            clear_user_sessions()
-            
-            # 添加风险警告
-            confirm = input("警告: 此操作将删除所有表并重新创建，所有数据将丢失！是否继续执行? (yes/no): ").strip().lower()
-            if confirm != 'yes':
-                logger.info("操作已取消")
-                return
-            
-            # 获取要删除的表名
-            logger.info("正在获取数据库表信息...")
-            inspector = inspect(db.engine)
-            tables = inspector.get_table_names()
-            
-            # 排除alembic_version表
-            tables = [table for table in tables if table != 'alembic_version']
-            
-            # 检查是否有表需要删除
-            if not tables:
-                logger.info("数据库中没有需要删除的表")
-            else:
-                # 首先删除表，必须考虑表之间的依赖关系
-                # 按照依赖顺序删除表
-                deletion_order = [
-                    'alarms',          # 先删除告警，因为它可能引用任务和设备
-                    'tasks',           # 再删除任务，因为它可能引用设备和油井
-                    'edge_devices',    # 再删除设备
-                    'oil_wells',       # 再删除油井
-                    'users',           # 再删除用户
-                    'system_config',   # 再删除系统配置
-                    'key_value_settings', # 最后删除键值设置
-                ]
-                
-                logger.info("正在删除表...")
-                
-                # 确保只删除存在的表，按照依赖顺序
-                for table in deletion_order:
-                    if table in tables:
-                        try:
-                            db.session.execute(text(f'DROP TABLE IF EXISTS "{table}" CASCADE'))
-                            logger.info(f"{SUCCESS_MARK} 删除表 {table} 成功")
-                        except Exception as e:
-                            logger.error(f"{ERROR_MARK} 删除表 {table} 失败: {str(e)}")
-                
-                # 删除未在列表中但存在的表
-                remaining_tables = [table for table in tables if table not in deletion_order]
-                for table in remaining_tables:
-                    try:
-                        db.session.execute(text(f'DROP TABLE IF EXISTS "{table}" CASCADE'))
-                        logger.info(f"{SUCCESS_MARK} 删除表 {table} 成功")
-                    except Exception as e:
-                        logger.error(f"{ERROR_MARK} 删除表 {table} 失败: {str(e)}")
-                
-                # 提交删除操作
-                db.session.commit()
-            
-            # 重新创建所有表
-            logger.info("正在创建新的表结构...")
-            db.create_all()
-            
-            # 验证表是否创建成功
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'")
-            existing_tables = {table[0] for table in cursor.fetchall()}
-            
-            # 检查每个预期的表是否已创建
-            expected_tables = {
-                'users': User,
-                'alarms': Alarm,
-                'edge_devices': EdgeDevice,
-                'tasks': Task,
-                'oil_wells': OilWell,  # 添加油井表
-                'system_config': SystemConfig,
-                'key_value_settings': KeyValueSetting
-            }
-            
-            for table_name in expected_tables:
-                if table_name in existing_tables:
-                    logger.info(f"{SUCCESS_MARK} 表 {table_name} 创建成功")
-                else:
-                    logger.error(f"{ERROR_MARK} 表 {table_name} 创建失败")
-                    try:
-                        model = expected_tables[table_name]
-                        model.__table__.create(db.engine)
-                        logger.info(f"{SUCCESS_MARK} 重试创建表 {table_name} 成功")
-                    except Exception as e:
-                        logger.error(f"重试创建表 {table_name} 失败: {str(e)}")
-            
-            # 验证告警表字段
-            cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'alarms'")
-            alarm_columns = {col[0] for col in cursor.fetchall()}
-            
-            # 检查告警表是否包含alarm_code字段
-            if 'alarm_code' in alarm_columns:
-                logger.info(f"{SUCCESS_MARK} 告警表结构正确，包含alarm_code字段")
-            else:
-                logger.error(f"{ERROR_MARK} 告警表结构不正确，不包含alarm_code字段")
-            
-            # 检查任务表字段
-            cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'tasks'")
-            task_columns = {col[0] for col in cursor.fetchall()}
-            
-            # 检查任务表是否包含task_type字段
-            if 'task_type' in task_columns:
-                logger.info(f"{SUCCESS_MARK} 任务表结构正确，包含task_type字段")
-            else:
-                logger.error(f"{ERROR_MARK} 任务表结构不正确，不包含task_type字段")
-            
-            # 关闭连接
-            cursor.close()
-            conn.close()
-            
-            # 创建管理员账户
-            admin = User(
-                username='管理员',
-                role='admin',
-                is_admin=True,
-                active=True
-            )
-            admin.set_password('admin123')
-            db.session.add(admin)
-            db.session.commit()
-            logger.info(f"{SUCCESS_MARK} 管理员账户创建成功")
-            
-            logger.info("数据库表重建完成")
-        except Exception as e:
-            db.session.rollback()
-            logger.error(f"重建表结构失败: {str(e)}")
-            logger.error(traceback.format_exc())
+def generate_ssl_cert(cert_dir, cert_file, key_file, 
+                     country="CN", state="Beijing", locality="Beijing", 
+                     org="DevTest", org_unit="Testing", cn="localhost", force=False):
+    """
+    生成自签名的SSL证书和私钥
+    """
+    # 确保目录存在
+    os.makedirs(cert_dir, exist_ok=True)
+    
+    cert_path = os.path.join(cert_dir, cert_file)
+    key_path = os.path.join(cert_dir, key_file)
+    
+    # 检查证书是否已存在，如果不存在或force=True则生成新证书
+    if not force and os.path.exists(cert_path) and os.path.exists(key_path):
+        logger.info(f"证书已存在：{cert_path} 和 {key_path}")
+        return cert_path, key_path
+    
+    # 创建密钥对
+    k = crypto.PKey()
+    k.generate_key(crypto.TYPE_RSA, 2048)
+    
+    # 创建自签名证书
+    cert = crypto.X509()
+    cert.get_subject().C = country
+    cert.get_subject().ST = state
+    cert.get_subject().L = locality
+    cert.get_subject().O = org
+    cert.get_subject().OU = org_unit
+    cert.get_subject().CN = cn
+    cert.set_serial_number(1000)
+    cert.gmtime_adj_notBefore(0)
+    cert.gmtime_adj_notAfter(10*365*24*60*60)  # 10年有效期
+    cert.set_issuer(cert.get_subject())
+    cert.set_pubkey(k)
+    cert.sign(k, 'sha256')
+    
+    # 写入证书和私钥文件
+    with open(cert_path, "wb") as cert_file_obj:
+        cert_file_obj.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
+    
+    with open(key_path, "wb") as key_file_obj:
+        key_file_obj.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, k))
+    
+    logger.info(f"成功生成SSL证书：{cert_path}")
+    logger.info(f"成功生成SSL私钥：{key_path}")
+    
+    return cert_path, key_path
 
-if __name__ == '__main__':
-    # 检查是否有命令行参数
+def create_ssl_certs(force=False):
+    """创建SSL证书"""
+    logger.info("正在生成SSL证书...")
+    
+    # 定义SSL目录和文件名
+    ssl_dir = os.path.join(project_root, "ssl")
+    # 确保目录存在
+    os.makedirs(ssl_dir, exist_ok=True)
+    
+    # 定义SSL证书和密钥文件名
+    # Web服务器使用的证书文件
+    web_cert_file = "web_cert.pem"
+    web_key_file = "web_key.pem"
+    # API服务器使用的证书文件
+    api_cert_file = "api_cert.pem"
+    api_key_file = "api_key.pem"
+    
+    # 完整路径
+    web_cert_path = os.path.join(ssl_dir, web_cert_file)
+    web_key_path = os.path.join(ssl_dir, web_key_file)
+    api_cert_path = os.path.join(ssl_dir, api_cert_file)
+    api_key_path = os.path.join(ssl_dir, api_key_file)
+    
+    # 存储证书路径的字典
+    cert_paths = {}
+    
+    try:
+        # 1. 首先生成Web证书（使用Chrome兼容证书生成脚本）
+        web_cert_script = os.path.join(project_root, "scripts", "generate_web_cert.py")
+        if os.path.exists(web_cert_script):
+            logger.info("正在为Web登录生成Chrome兼容证书...")
+            spec = importlib.util.spec_from_file_location("generate_web_cert", web_cert_script)
+            web_cert_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(web_cert_module)
+            
+            if hasattr(web_cert_module, "generate_chrome_compatible_cert"):
+                try:
+                    # 尝试使用新的参数调用
+                    web_cert_path, web_key_path = web_cert_module.generate_chrome_compatible_cert(
+                        ssl_dir, web_cert_file, web_key_file)
+                except TypeError:
+                    # 如果新参数调用失败，使用旧的调用方式
+                    logger.warning("使用旧版证书生成器接口，将手动重命名证书文件")
+                    temp_cert_path, temp_key_path = web_cert_module.generate_chrome_compatible_cert(ssl_dir)
+                    
+                    # 如果生成的证书不是我们想要的名称，则重命名
+                    if os.path.basename(temp_cert_path) != web_cert_file:
+                        os.rename(temp_cert_path, web_cert_path)
+                    if os.path.basename(temp_key_path) != web_key_file:
+                        os.rename(temp_key_path, web_key_path)
+                
+                logger.info(f"Web登录Chrome兼容证书生成成功: {web_cert_path}")
+                cert_paths['web'] = (web_cert_path, web_key_path)
+            else:
+                logger.warning("Web证书生成模块缺少必要的函数，使用内置方法生成")
+                web_cert_path, web_key_path = generate_ssl_cert(
+                    cert_dir=ssl_dir,
+                    cert_file=web_cert_file,
+                    key_file=web_key_file,
+                    cn="localhost",
+                    force=force
+                )
+                cert_paths['web'] = (web_cert_path, web_key_path)
+        else:
+            logger.warning(f"未找到Web证书生成脚本，使用内置方法生成")
+            
+            # 使用内置方法生成Web证书
+            web_cert_path, web_key_path = generate_ssl_cert(
+                cert_dir=ssl_dir,
+                cert_file=web_cert_file,
+                key_file=web_key_file,
+                cn="localhost",
+                force=force
+            )
+            cert_paths['web'] = (web_cert_path, web_key_path)
+        
+        # 2. 然后生成API证书
+        api_cert_script = os.path.join(project_root, "scripts", "generate_api_cert.py")
+        if os.path.exists(api_cert_script):
+            logger.info("正在为边缘设备API生成专用证书...")
+            spec = importlib.util.spec_from_file_location("generate_api_cert", api_cert_script)
+            api_cert_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(api_cert_module)
+            
+            if hasattr(api_cert_module, "generate_api_cert"):
+                try:
+                    # 尝试使用新的参数调用
+                    api_cert_path, api_key_path = api_cert_module.generate_api_cert(
+                        ssl_dir, api_cert_file, api_key_file)
+                except TypeError:
+                    # 如果新参数调用失败，使用旧的调用方式
+                    logger.warning("使用旧版API证书生成器接口，将手动重命名证书文件")
+                    temp_cert_path, temp_key_path = api_cert_module.generate_api_cert(ssl_dir)
+                    
+                    # 如果生成的证书不是我们想要的名称，则重命名
+                    if os.path.basename(temp_cert_path) != api_cert_file:
+                        os.rename(temp_cert_path, api_cert_path)
+                    if os.path.basename(temp_key_path) != api_key_file:
+                        os.rename(temp_key_path, api_key_path)
+                
+                logger.info(f"API专用证书生成成功: {api_cert_path}")
+                cert_paths['api'] = (api_cert_path, api_key_path)
+            else:
+                logger.warning("API证书生成模块缺少必要的函数，使用内置方法生成")
+                api_cert_path, api_key_path = generate_ssl_cert(
+                    cert_dir=ssl_dir,
+                    cert_file=api_cert_file,
+                    key_file=api_key_file,
+                    cn="api.localhost",
+                    force=force
+                )
+                cert_paths['api'] = (api_cert_path, api_key_path)
+        else:
+            logger.warning(f"未找到API证书生成脚本，使用内置方法生成")
+            
+            # 使用内置方法生成API证书
+            api_cert_path, api_key_path = generate_ssl_cert(
+                cert_dir=ssl_dir,
+                cert_file=api_cert_file,
+                key_file=api_key_file,
+                cn="api.localhost",
+                force=force
+            )
+            cert_paths['api'] = (api_cert_path, api_key_path)
+        
+        # 3. 生成兼容配置文件的软链接或副本
+        # 根据配置文件中的设置，创建对应的证书链接
+        config_cert_file = config.ssl.cert_file if hasattr(config.ssl, 'cert_file') else "cert.pem"
+        config_key_file = config.ssl.key_file if hasattr(config.ssl, 'key_file') else "key.pem"
+        
+        # 如果配置文件中的证书名与web证书不同，则创建软链接或副本
+        if config_cert_file != web_cert_file:
+            config_cert_path = os.path.join(ssl_dir, config_cert_file)
+            try:
+                # 尝试创建软链接
+                if os.path.exists(config_cert_path):
+                    os.remove(config_cert_path)
+                
+                try:
+                    # 在Windows上可能不支持软链接，所以使用副本
+                    import shutil
+                    shutil.copy2(web_cert_path, config_cert_path)
+                    logger.info(f"为兼容配置文件，创建证书副本: {config_cert_path}")
+                except:
+                    os.symlink(web_cert_path, config_cert_path)
+                    logger.info(f"为兼容配置文件，创建证书软链接: {config_cert_path}")
+            except Exception as e:
+                logger.warning(f"创建证书兼容文件失败: {str(e)}")
+        
+        if config_key_file != web_key_file:
+            config_key_path = os.path.join(ssl_dir, config_key_file)
+            try:
+                # 尝试创建软链接
+                if os.path.exists(config_key_path):
+                    os.remove(config_key_path)
+                
+                try:
+                    # 在Windows上可能不支持软链接，所以使用副本
+                    import shutil
+                    shutil.copy2(web_key_path, config_key_path)
+                    logger.info(f"为兼容配置文件，创建密钥副本: {config_key_path}")
+                except:
+                    os.symlink(web_key_path, config_key_path)
+                    logger.info(f"为兼容配置文件，创建密钥软链接: {config_key_path}")
+            except Exception as e:
+                logger.warning(f"创建密钥兼容文件失败: {str(e)}")
+        
+        # 证书生成总结
+        logger.info("\nSSL证书生成完成:")
+        if 'web' in cert_paths:
+            logger.info(f"Web登录证书: {cert_paths['web'][0]}")
+            logger.info(f"Web登录密钥: {cert_paths['web'][1]}")
+        if 'api' in cert_paths:
+            logger.info(f"API证书: {cert_paths['api'][0]}")
+            logger.info(f"API密钥: {cert_paths['api'][1]}")
+        
+        # 返回Web证书路径作为默认证书
+        return cert_paths.get('web', (None, None))
+        
+    except Exception as e:
+        logger.error(f"生成SSL证书时出错: {str(e)}")
+        logger.error(traceback.format_exc())
+        logger.error("请确保已安装相关依赖库: pip install pyOpenSSL cryptography")
+        return None, None
+
+def run_test_data_script():
+    """
+    该函数已废弃，测试数据生成已移至tests/test_generate_data.py
+    此处仅保留提示信息，建议用户使用专门的测试工具
+    """
+    logger.info("测试数据生成已移至独立测试工具")
+    logger.info("如需生成测试数据，请运行: python tests/test_generate_data.py")
+    logger.info("这样可以更好地分离应用初始化和测试功能")
+
+def main():
+    parser = argparse.ArgumentParser(description="数据库初始化和系统准备脚本")
+    parser.add_argument("action", nargs='?', default=None, help="执行的操作: reset(重置所有), ssl(仅生成SSL证书)")
+    parser.add_argument("--reset", action="store_true", help="重置数据库（删除所有现有表并重建）")
+    parser.add_argument("--no-ssl", action="store_true", help="不生成SSL证书")
+    parser.add_argument("--ssl-only", action="store_true", help="只生成SSL证书")
+    parser.add_argument("--regenerate-ssl", action="store_true", help="强制重新生成SSL证书（即使已存在）")
+    
+    args = parser.parse_args()
+    
+    # 处理位置参数
+    if args.action == 'reset':
+        args.reset = True
+    elif args.action == 'ssl':
+        args.ssl_only = True
+    elif args.action == 'regenerate-ssl':
+        args.regenerate_ssl = True
+    elif args.action == 'rebuild':  # 兼容旧命令
+        args.reset = True
+    
+    # 如果指定只重新生成SSL证书
+    if args.regenerate_ssl:
+        logger.info("正在强制重新生成SSL证书...")
+        # 移除现有的Web证书文件
+        ssl_dir = os.path.join(project_root, "ssl")
+        web_cert_file = "web_cert.pem"
+        web_key_file = "web_key.pem"
+        api_cert_file = "api_cert.pem"
+        api_key_file = "api_key.pem"
+        # 以及旧的证书名称
+        old_cert_file = "cert.pem"
+        old_key_file = "key.pem"
+        
+        cert_files = [
+            os.path.join(ssl_dir, web_cert_file),
+            os.path.join(ssl_dir, web_key_file),
+            os.path.join(ssl_dir, api_cert_file),
+            os.path.join(ssl_dir, api_key_file),
+            os.path.join(ssl_dir, old_cert_file),
+            os.path.join(ssl_dir, old_key_file)
+        ]
+        
+        # 尝试删除所有证书文件
+        for cert_path in cert_files:
+            try:
+                if os.path.exists(cert_path):
+                    logger.info(f"删除现有证书文件: {cert_path}")
+                    os.remove(cert_path)
+            except Exception as e:
+                logger.warning(f"删除证书文件失败: {str(e)}")
+        
+        # 创建新的SSL证书
+        cert_path, key_path = create_ssl_certs(force=True)
+        if cert_path and key_path:
+            logger.info("\nSSL证书重新生成完成！")
+            logger.info("您可以通过以下命令启动HTTPS服务器:")
+            logger.info("python run.py --web-only --ssl  # 启动HTTPS Web服务器")
+            logger.info("python run.py --api-only --ssl  # 启动HTTPS API服务器")
+        return
+    
+    # 如果只生成SSL证书
+    if args.ssl_only:
+        cert_path, key_path = create_ssl_certs()
+        if cert_path and key_path:
+            logger.info("\nSSL证书生成完成！")
+            logger.info("您可以通过以下命令启动HTTPS服务器:")
+            logger.info("python run.py --api-only --ssl")
+        return
+    
+    # reset命令包含所有功能：重建数据库、生成证书
+    if args.reset:
+        logger.info("执行全面重置操作...")
+        # 重建数据库
+        init_database(reset=True)
+        
+        # 生成SSL证书（除非明确指定不生成）
+        if not args.no_ssl:
+            # 移除现有的Web证书文件
+            ssl_dir = os.path.join(project_root, "ssl")
+            web_cert_file = "web_cert.pem"
+            web_key_file = "web_key.pem"
+            api_cert_file = "api_cert.pem"
+            api_key_file = "api_key.pem"
+            # 以及旧的证书名称
+            old_cert_file = "cert.pem"
+            old_key_file = "key.pem"
+            
+            cert_files = [
+                os.path.join(ssl_dir, web_cert_file),
+                os.path.join(ssl_dir, web_key_file),
+                os.path.join(ssl_dir, api_cert_file),
+                os.path.join(ssl_dir, api_key_file),
+                os.path.join(ssl_dir, old_cert_file),
+                os.path.join(ssl_dir, old_key_file)
+            ]
+            
+            # 尝试删除所有证书文件
+            for cert_path in cert_files:
+                try:
+                    if os.path.exists(cert_path):
+                        logger.info(f"删除现有证书文件: {cert_path}")
+                        os.remove(cert_path)
+                except Exception as e:
+                    logger.warning(f"删除证书文件失败: {str(e)}")
+            
+            # 创建新的SSL证书
+            create_ssl_certs(force=True)
+        
+        # 提示用户测试数据生成方法已改变
+        run_test_data_script()
+        
+        logger.info("\n系统重置完成!")
+        logger.info("您可以通过以下命令启动服务器:")
+        logger.info("python run.py --api-only --ssl  # 启动HTTPS API服务器")
+        logger.info("python run.py --api-only        # 启动HTTP API服务器")
+        return
+    
+    # 普通初始化流程
+    # 初始化数据库
+    init_database(reset=False)
+    
+    # 生成SSL证书（除非明确指定不生成）
+    if not args.no_ssl:
+        create_ssl_certs()
+    
+    # 提示用户测试数据生成方法已改变
+    run_test_data_script()
+    
+    logger.info("\n系统初始化和准备工作已完成!")
+    logger.info("您可以通过以下命令启动服务器:")
+    logger.info("python run.py --api-only --ssl  # 启动HTTPS API服务器")
+    logger.info("python run.py --api-only        # 启动HTTP API服务器")
+
+if __name__ == "__main__":
     if len(sys.argv) > 1:
-        cli()
+        cmd_map = {
+            'rebuild': '--reset',
+            'regenerate-ssl': '--regenerate-ssl',
+            'ssl': '--ssl-only',
+            'init': 'init'
+        }
+        if sys.argv[1] in cmd_map:
+            sys.argv[1] = cmd_map[sys.argv[1]]
+            # 对于click命令的兼容
+            if sys.argv[1] == 'init':
+                cli()
+                sys.exit(0)
+        # 其他情况继续执行main()
+        main()
     else:
-        # 如果没有提供参数，打印帮助信息
-        os.system(f"{sys.executable} {__file__} --help")
+        main()
 

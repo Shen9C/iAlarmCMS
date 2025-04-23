@@ -70,8 +70,8 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // 修改为根路径，让应用自己处理重定向
-            window.location.href = "/?user_token=" + data.data.user_token;
+            // 直接重定向到告警页面，避免经过根路径
+            window.location.href = "/alarms?user_token=" + data.data.user_token;
         } else {
             alert(data.error || '登录失败');
         }
