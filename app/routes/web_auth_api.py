@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, url_for
 from flask_login import login_user, logout_user, current_user, login_required
 from datetime import datetime
 import logging
@@ -64,12 +64,20 @@ def web_login_api():
         login_user(user, remember=True)
         print(f"登录成功 - 用户: {username}, 生成Token: {token}")
         
-        return jsonify({
+        # 登录成功，返回token及重定向URL
+        redirect_url = url_for('alarms_view.index')
+        response = jsonify({
             'success': True,
             'data': {
-                'user_token': token
+                'user_token': token,
+                'redirect_url': redirect_url
             }
         })
+        # 设置cookie存储token，增强安全性
+        response.set_cookie('user_token', token, 
+                           httponly=True, secure=request.is_secure, 
+                           samesite='Lax', max_age=86400)  # 1天有效期
+        return response
     except Exception as e:
         print(f"登录处理异常: {str(e)}")
         import traceback
@@ -84,7 +92,7 @@ def web_login_api():
 def web_logout_api():
     """Web端登出API"""
     try:
-        token = request.args.get('user_token')
+        token = request.cookies.get('user_token') or request.args.get('user_token')
         if not token or current_user.current_token != token:
             return jsonify({
                 'code': 401,
@@ -95,16 +103,23 @@ def web_logout_api():
         db.session.commit()
         logout_user()
         
-        return jsonify({
+        response = jsonify({
             'code': 200,
             'message': '登出成功'
         })
+        # 清除cookie中的token
+        response.delete_cookie('user_token')
+        return response
     except Exception as e:
         logger.error(f"[ERROR] 登出过程发生错误: {str(e)}")
-        return jsonify({
+        response = jsonify({
             'code': 500,
             'message': f'登出失败: {str(e)}'
-        }), 500
+        })
+        # 即使出错也清除cookie
+        response.delete_cookie('user_token')
+        response.status_code = 500
+        return response
 
 @bp.route('/change_password', methods=['POST'])
 @login_required

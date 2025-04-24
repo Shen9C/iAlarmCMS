@@ -181,8 +181,8 @@ def get_user_by_token(token):
 def token_or_login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # 检查是否有user_token
-        user_token = request.args.get('user_token')
+        # 从cookie或URL参数或头部获取token
+        user_token = request.cookies.get('user_token') or request.args.get('user_token') or request.headers.get('X-User-Token')
         if user_token:
             user = get_user_by_token(user_token)
             if user:

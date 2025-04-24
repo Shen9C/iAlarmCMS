@@ -24,7 +24,12 @@ def web_login():
     
     # 如果用户已登录且token有效，直接跳转到首页
     if current_user.is_authenticated:
-        return redirect(url_for('alarms_view.index'))
+        response = redirect(url_for('alarms_view.index'))
+        # 设置安全的HttpOnly cookie
+        response.set_cookie('user_token', current_user.current_token, 
+                           httponly=True, secure=request.is_secure, 
+                           samesite='Lax', max_age=86400)  # 1天有效期
+        return response
     
     logger.info(f"收到登录请求: 方法={request.method}, 内容类型={request.headers.get('Content-Type')}")
     
@@ -61,7 +66,8 @@ def web_login():
             return jsonify({
                 'success': True,
                 'data': {
-                    'user_token': token
+                    'user_token': token,
+                    'redirect_url': url_for('alarms_view.index')
                 }
             })
         except Exception as e:
@@ -92,10 +98,16 @@ def web_login():
         
         next_page = request.args.get('next')
         if not next_page or urlparse(next_page).netloc != '':
+            # 登录成功后重定向到首页，不再在URL中附带token
             next_page = url_for('alarms_view.index')
         
         flash('登录成功')
-        return redirect(next_page)
+        response = redirect(next_page)
+        # 设置安全的HttpOnly cookie
+        response.set_cookie('user_token', token, 
+                           httponly=True, secure=request.is_secure, 
+                           samesite='Lax', max_age=86400)  # 1天有效期
+        return response
     
     flash('用户名或密码错误')
     return render_template('web_auth/login.html')
@@ -141,10 +153,16 @@ def web_logout():
         
         # 清理用户会话
         logout_user()
+        
+        response = redirect(url_for('web_auth.web_login'))
+        # 清除cookie中的token
+        response.delete_cookie('user_token')
         flash('您已成功退出登录')
+        return response
         
     except Exception as e:
         logger.error(f"退出登录时出错: {str(e)}")
+        response = redirect(url_for('web_auth.web_login'))
+        response.delete_cookie('user_token')  # 确保即使出错也清除cookie
         flash('退出登录时发生错误')
-    
-    return redirect(url_for('web_auth.web_login'))
+        return response

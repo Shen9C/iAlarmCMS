@@ -432,14 +432,24 @@ def create_web_app(config_class=None):
                 if current_user.current_token:
                     if app.config.get('DEBUG_LOG_ENABLED', False):
                         logger.debug(f"用户已登录，重定向到告警页面: token={current_user.current_token}")
-                    return redirect(url_for('alarms_view.index', user_token=current_user.current_token))
+                    response = redirect(url_for('alarms_view.index'))
+                    # 设置安全的HttpOnly cookie存储token
+                    response.set_cookie('user_token', current_user.current_token, 
+                                       httponly=True, secure=request.is_secure, 
+                                       samesite='Lax', max_age=86400)  # 1天有效期
+                    return response
                 
                 token = current_user.generate_token()
                 current_user.current_token = token
                 db.session.commit()
                 if app.config.get('DEBUG_LOG_ENABLED', False):
                     logger.debug(f"生成新token并重定向: token={token}")
-                return redirect(url_for('alarms_view.index', user_token=token))
+                response = redirect(url_for('alarms_view.index'))
+                # 设置安全的HttpOnly cookie存储token
+                response.set_cookie('user_token', token, 
+                                   httponly=True, secure=request.is_secure, 
+                                   samesite='Lax', max_age=86400)  # 1天有效期
+                return response
             
             if app.config.get('DEBUG_LOG_ENABLED', False):
                 logger.debug("用户未登录，重定向到登录页面")

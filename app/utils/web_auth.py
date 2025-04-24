@@ -9,8 +9,8 @@ def check_user_auth():
     if not current_user.is_authenticated:
         return False, '用户未登录'
     
-    # 检查用户令牌
-    user_token = request.args.get('user_token')
+    # 从cookie或URL参数获取用户令牌，优先使用cookie
+    user_token = request.cookies.get('user_token') or request.args.get('user_token')
     if not user_token:
         return False, '缺少用户令牌'
     
@@ -39,20 +39,6 @@ def web_auth_required(f):
             # 如果是普通请求，重定向到登录页面
             logout_user()
             return redirect(url_for('web_auth.web_login'))
-            
-        return f(*args, **kwargs)
-    return decorated_function
-
-def web_api_auth_required(f):
-    """Web API认证装饰器"""
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        is_valid, error_msg = check_user_auth()
-        if not is_valid:
-            return jsonify({
-                'success': False,
-                'error': error_msg
-            }), 401
             
         return f(*args, **kwargs)
     return decorated_function

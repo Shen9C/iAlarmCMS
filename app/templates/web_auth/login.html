@@ -70,8 +70,8 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // 直接重定向到告警页面，避免经过根路径
-            window.location.href = "/alarms?user_token=" + data.data.user_token;
+            // 登录成功跳转，token已通过cookie设置
+            window.location.href = data.data.redirect_url || "/alarms";
         } else {
             alert(data.error || '登录失败');
         }

@@ -53,6 +53,9 @@ def index():
     if end_date:
         query = query.filter(Alarm.alarm_time < datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1))
     
+    # 按ID升序排序
+    query = query.order_by(Alarm.id.asc())
+    
     # 获取所有设备名称和告警类型（用于下拉列表）
     device_names = db.session.query(Alarm.device_name.distinct()).order_by(Alarm.device_name).all()
     device_names = [name[0] for name in device_names if name[0]]
@@ -380,17 +383,23 @@ def change_password():
             'user_token': user_token
         })
 
-@bp.route('/detail/<int:alarm_id>')
-@web_auth_required
+@bp.route('/detail/<int:alarm_id>', methods=['GET', 'POST'])
+@login_required
 def alarm_detail(alarm_id):
+    # 从cookie或请求参数中获取user_token
+    user_token = request.cookies.get('user_token') or request.args.get('user_token')
+    
+    logger.info(f"告警详情请求: alarm_id={alarm_id}, method={request.method}, user_token={user_token}")
+    
+    # 获取告警详情
     alarm = Alarm.query.get_or_404(alarm_id)
-    user_token = request.args.get('user_token')
+    
     return render_template('alarms/alarm_detail.html', alarm=alarm, user_token=user_token)
 
 @bp.route('/confirm_type/<int:alarm_id>', methods=['GET', 'POST'])
-@web_auth_required
+@login_required
 def show_confirm_type(alarm_id):
-    user_token = request.args.get('user_token')
+    user_token = request.cookies.get('user_token') or request.args.get('user_token')
     # 获取告警信息
     alarm = Alarm.query.get_or_404(alarm_id)
     
@@ -403,13 +412,13 @@ def show_confirm_type(alarm_id):
             alarm.confirmed_at = datetime.now()
             # 不改变processed_status，只设置确认类型
             db.session.commit()
-            return redirect(url_for('alarms_view.index', user_token=user_token))
+            return redirect(url_for('alarms_view.index'))
     
     # 如果是 GET 请求，显示表单
     return render_template('alarms/alarms_confirm_type.html', alarm=alarm, user_token=user_token)
 
 @bp.route('/process/<int:alarm_id>', methods=['POST'])
-@web_auth_required
+@login_required
 def process_alarm(alarm_id):
     """处理告警"""
     alarm = Alarm.query.get_or_404(alarm_id)
