@@ -187,27 +187,71 @@ def statistics():
 
         # 按类型统计
         type_stats = []
-        alarm_types = db.session.query(Alarm.alarm_type.distinct()).filter(Alarm.alarm_type.isnot(None)).all()
-        for type_tuple in alarm_types:
-            alarm_type = type_tuple[0]
+        alarm_types = db.session.query(
+            Alarm.alarm_type,
+            db.func.count(Alarm.id).label('count')
+        ).filter(
+            Alarm.alarm_type.isnot(None)
+        ).group_by(
+            Alarm.alarm_type
+        ).order_by(
+            db.desc('count')
+        ).all()
+
+        # 处理告警类型统计
+        for alarm_type, count in alarm_types:
             if alarm_type:
-                count = base_query.filter(Alarm.alarm_type == alarm_type).count()
-                type_stats.append({'type': alarm_type, 'count': count})
+                # 从告警类型中提取分类
+                alarm_category = None
+                alarm_name = alarm_type
+                
+                # 如果告警类型包含 "-"，则分割为分类和名称
+                if "-" in alarm_type:
+                    parts = alarm_type.split("-", 1)
+                    if len(parts) == 2:
+                        alarm_category = parts[0].strip()
+                        alarm_name = parts[1].strip()
+                
+                type_stats.append({
+                    'alarm_type': alarm_type,
+                    'alarm_category': alarm_category,
+                    'alarm_name': alarm_name,
+                    'count': count
+                })
         
         # 按设备统计
         device_stats = []
-        devices = db.session.query(Alarm.device_name.distinct()).filter(Alarm.device_name.isnot(None)).all()
-        for device_tuple in devices:
-            device_name = device_tuple[0]
+        devices = db.session.query(
+            Alarm.device_name,
+            Alarm.alarm_type,
+            db.func.count(Alarm.id).label('count')
+        ).filter(
+            Alarm.device_name.isnot(None)
+        ).group_by(
+            Alarm.device_name,
+            Alarm.alarm_type
+        ).order_by(
+            db.desc('count')
+        ).limit(10).all()
+
+        for device_name, alarm_type, count in devices:
             if device_name:
-                count = base_query.filter(Alarm.device_name == device_name).count()
-                device_stats.append({'device': device_name, 'count': count})
+                # 从告警类型中提取名称
+                alarm_name = alarm_type
+                if "-" in alarm_type:
+                    alarm_name = alarm_type.split("-", 1)[1].strip()
+                
+                device_stats.append({
+                    'device_name': device_name,
+                    'alarm_type': alarm_type,
+                    'alarm_name': alarm_name,
+                    'count': count
+                })
         
         # 按日期统计
         daily_stats = []
-        # 获取最近30天的数据
         end_date = datetime.now()
-        start_date = end_date - timedelta(days=30)
+        start_date = end_date - timedelta(days=7)  # 改为只显示最近7天
         
         current_date = start_date
         while current_date <= end_date:
@@ -223,12 +267,6 @@ def statistics():
             })
             current_date = next_date
         
-        # 格式化为前端需要的格式
-        formatted_daily_stats = {
-            'dates': [item['date'] for item in daily_stats],
-            'counts': [item['count'] for item in daily_stats]
-        }
-        
         user_token = request.args.get('user_token')
         
         stats = {
@@ -239,7 +277,7 @@ def statistics():
             'unconfirmed_alarms': unconfirmed,
             'type_stats': type_stats,
             'device_stats': device_stats,
-            'daily_stats': formatted_daily_stats
+            'daily_stats': daily_stats
         }
         
         return render_template('alarms/alarm_statistics.html', stats=stats, user_token=user_token)
@@ -256,7 +294,7 @@ def statistics():
             'unconfirmed_alarms': 0,
             'type_stats': [],
             'device_stats': [],
-            'daily_stats': {'dates': [], 'counts': []}
+            'daily_stats': []
         })
 
 @bp.route('/export_alarms')
