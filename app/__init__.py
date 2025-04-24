@@ -28,6 +28,15 @@ except ImportError:
     logger.warning("无法导入自定义SSL模块，请确保app/utils/custom_ssl.py文件存在")
     # 系统将使用默认HTTP模式
 
+# 导入数据库连接管理器
+try:
+    from app.utils.db_connection import init_db_engine, check_db_connection, db_session
+    HAS_DB_CONNECTION_MANAGER = True
+    logger.info("成功导入数据库连接管理器")
+except ImportError as e:
+    logger.warning(f"无法导入数据库连接管理器，将使用默认SQLAlchemy连接: {e}")
+    HAS_DB_CONNECTION_MANAGER = False
+
 def create_api_app(config_class=None):
     """创建边缘设备API服务器应用实例
     
@@ -68,6 +77,15 @@ def create_api_app(config_class=None):
         # 初始化数据库
         db.init_app(api_app)
         
+        # 如果使用自定义数据库连接管理器，初始化引擎
+        if HAS_DB_CONNECTION_MANAGER:
+            with api_app.app_context():
+                try:
+                    init_db_engine()
+                    logger.info("API应用: 数据库连接管理器初始化成功")
+                except Exception as db_error:
+                    logger.error(f"API应用: 数据库连接管理器初始化失败: {db_error}")
+        
         # 添加错误处理器，确保所有错误返回JSON而不是HTML
         @api_app.errorhandler(404)
         def api_not_found(error):
@@ -89,6 +107,14 @@ def create_api_app(config_class=None):
             """记录API请求信息"""
             logger.debug(f"API请求: {request.method} {request.path}")
             logger.debug(f"请求数据: {request.get_json(silent=True)}")
+            
+            # 如果使用自定义数据库连接管理器，检查数据库连接状态
+            if HAS_DB_CONNECTION_MANAGER:
+                if not check_db_connection():
+                    return jsonify({
+                        'code': 503,
+                        'message': '数据库连接失败，请稍后重试'
+                    }), 503
         
         # 导入API路由 - 直接使用edge_device_api_server.py中的device_api_server蓝图
         # 而不是尝试从其他模块导入，避免命名冲突
@@ -109,7 +135,7 @@ def create_api_app(config_class=None):
                     'message': '边缘设备API服务器',
                     'status': 'error',
                     'error': '无法加载完整的API路由',
-                    'detail': str(e)
+                    'detail': str(e)  # noqa: F821
                 })
             
             api_app.register_blueprint(empty_bp)
@@ -126,21 +152,25 @@ def create_api_app(config_class=None):
                 return jsonify({
                     'message': '边缘设备API服务器',
                     'status': 'error',
-                    'error': '服务器初始化失败',
-                    'detail': str(e)
+                    'error': '服务器初始化失败', 
+                    'detail': str(e)  # noqa: F821
                 })
             
             api_app.register_blueprint(error_bp)
-        
         # 添加一个状态检查端点
         @api_app.route('/status')
         def api_status():
             """服务器状态检查端点"""
             from datetime import datetime
+            
+            # 添加数据库连接检查
+            db_status = "正常" if not HAS_DB_CONNECTION_MANAGER or check_db_connection() else "异常"
+            
             return jsonify({
                 'status': 'ok',
                 'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'message': 'API服务器运行正常'
+                'message': 'API服务器运行正常',
+                'database': db_status
             })
         
         logger.info("API服务器应用实例创建成功")
@@ -221,6 +251,15 @@ def create_web_app(config_class=None):
     migrate.init_app(app, db)
     login_manager.init_app(app)
     
+    # 如果使用自定义数据库连接管理器，初始化引擎
+    if HAS_DB_CONNECTION_MANAGER:
+        with app.app_context():
+            try:
+                init_db_engine()
+                logger.info("Web应用: 数据库连接管理器初始化成功")
+            except Exception as db_error:
+                logger.error(f"Web应用: 数据库连接管理器初始化失败: {db_error}")
+    
     # 确保所有模型都被导入
     from app.models import settings, tasks, users
     from app.models.users import User  # 添加这行，确保User模型被正确导入
@@ -291,6 +330,21 @@ def create_web_app(config_class=None):
         if app.config.get('DEBUG_LOG_ENABLED', False):
             logger.debug(f"请求信息: endpoint={request.endpoint}, path={request.path}, method={request.method}")
         
+        # 检查数据库连接状态 - 暂时禁用此检查
+        """
+        if HAS_DB_CONNECTION_MANAGER and not check_db_connection():
+            # 对于API请求返回JSON错误
+            if request.path.startswith('/api/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({
+                    'success': False,
+                    'error': '数据库连接失败，请稍后重试'
+                }), 503
+            # 对于页面请求，显示友好的错误页面
+            return render_template('error.html', 
+                                  error_title='数据库连接错误',
+                                  error_message='无法连接到数据库，请稍后重试或联系管理员'), 503
+        """
+        
         # 检查用户认证状态和token
         if current_user.is_authenticated and not current_user.current_token:
             logout_user()  # 强制登出
@@ -347,6 +401,10 @@ def create_web_app(config_class=None):
             'path': request.path,
             'is_secure': request.is_secure
         }
+        
+        # 添加数据库连接状态
+        if HAS_DB_CONNECTION_MANAGER:
+            protocol_info['db_status'] = "正常" if check_db_connection() else "异常"
             
         return render_template('test_https.html', protocol_info=protocol_info)
     
@@ -367,23 +425,29 @@ def create_web_app(config_class=None):
         }
         logger.info(f"根路由请求信息: {request_info}")
         
-        # 恢复原始的重定向逻辑
-        if current_user.is_authenticated:
-            if current_user.current_token:
+        # 使用try-except捕获可能的数据库错误
+        try:
+            # 恢复原始的重定向逻辑
+            if current_user.is_authenticated:
+                if current_user.current_token:
+                    if app.config.get('DEBUG_LOG_ENABLED', False):
+                        logger.debug(f"用户已登录，重定向到告警页面: token={current_user.current_token}")
+                    return redirect(url_for('alarms_view.index', user_token=current_user.current_token))
+                
+                token = current_user.generate_token()
+                current_user.current_token = token
+                db.session.commit()
                 if app.config.get('DEBUG_LOG_ENABLED', False):
-                    logger.debug(f"用户已登录，重定向到告警页面: token={current_user.current_token}")
-                return redirect(url_for('alarms_view.index', user_token=current_user.current_token))
+                    logger.debug(f"生成新token并重定向: token={token}")
+                return redirect(url_for('alarms_view.index', user_token=token))
             
-            token = current_user.generate_token()
-            current_user.current_token = token
-            db.session.commit()
             if app.config.get('DEBUG_LOG_ENABLED', False):
-                logger.debug(f"生成新token并重定向: token={token}")
-            return redirect(url_for('alarms_view.index', user_token=token))
-        
-        if app.config.get('DEBUG_LOG_ENABLED', False):
-            logger.debug("用户未登录，重定向到登录页面")
-        return redirect(url_for('web_auth.web_login'))
+                logger.debug("用户未登录，重定向到登录页面")
+            return redirect(url_for('web_auth.web_login'))
+        except Exception as e:
+            # 捕获所有异常，记录错误并返回登录页面
+            logger.error(f"根路由处理异常: {str(e)}")
+            return redirect(url_for('web_auth.web_login'))
     
     # 注册自定义过滤器
     @app.template_filter('datetime')

@@ -28,6 +28,14 @@ sys.path.insert(0, str(project_root))
 from app import create_web_app, create_api_app, db, models
 from app.utils.yaml_config_loader import config
 
+# 尝试导入数据库连接管理工具
+try:
+    from app.utils.db_connection import check_db_connection, init_db_engine, db_session, quick_db_check
+    HAS_DB_CONNECTION_MANAGER = True
+except ImportError:
+    HAS_DB_CONNECTION_MANAGER = False
+    logging.warning("无法导入数据库连接管理工具，将使用默认连接方式")
+
 # 导入模型类，从正确的子模块导入
 from app.models.users import User
 from app.models.alarms import Alarm
@@ -88,6 +96,49 @@ def clear_all_sessions():
         result = conn.execute(text("UPDATE users SET current_token = NULL"))
         conn.commit()
     print(f"已清除所有用户会话")
+
+def check_db_health():
+    """
+    检查数据库连接健康状态
+    
+    Returns:
+        bool: 数据库连接是否正常
+    """
+    if HAS_DB_CONNECTION_MANAGER:
+        # 使用数据库连接管理工具检查
+        logging.info("正在检查数据库连接状态...")
+        try:
+            if check_db_connection():
+                logging.info("✅ 数据库连接正常")
+                return True
+            else:
+                logging.error("❌ 数据库连接失败！请检查以下几点：")
+                logging.error("  1. PostgreSQL服务是否正在运行")
+                logging.error(f"  2. 数据库配置是否正确: 主机={config.DB_HOST}, 端口={config.DB_PORT}, 数据库={config.DB_NAME}, 用户={config.DB_USER}")
+                logging.error("  3. 防火墙是否允许数据库连接")
+                logging.error("  4. 网络连接是否正常")
+                logging.error("运行 python app/utils/db_init.py 初始化数据库可能会解决问题")
+                return False
+        except Exception as e:
+            logging.error(f"❌ 检查数据库连接时发生错误: {e}")
+            return False
+    else:
+        # 使用SQLAlchemy直接检查
+        logging.info("正在检查数据库连接状态...")
+        try:
+            # 创建一个临时的Flask应用
+            app = create_web_app()
+            with app.app_context():
+                # 尝试执行一个简单的查询
+                db.session.execute(text("SELECT 1"))
+                logging.info("✅ 数据库连接正常")
+                return True
+        except Exception as e:
+            logging.error(f"❌ 数据库连接失败: {e}")
+            logging.error("请检查数据库配置和PostgreSQL服务状态")
+            logging.error(f"数据库配置: 主机={config.DB_HOST}, 端口={config.DB_PORT}, 数据库={config.DB_NAME}, 用户={config.DB_USER}")
+            logging.error("运行 python app/utils/db_init.py 初始化数据库可能会解决问题")
+            return False
 
 def check_ssl_files(is_api=False):
     """
@@ -282,6 +333,8 @@ if __name__ == "__main__":
     parser.add_argument('--no-ssl', action='store_true', help='禁用SSL（默认启用SSL）')
     parser.add_argument('--use-keep-alive', action='store_true', 
                         help='使用长连接（默认为短连接）')
+    parser.add_argument('--skip-db-check', action='store_true', 
+                        help='跳过数据库连接检查')
     
     args = parser.parse_args()
     
@@ -290,11 +343,45 @@ if __name__ == "__main__":
         logging.getLogger().setLevel(logging.DEBUG)
         logging.info("调试日志已启用")
     
+    # 打印启动信息
+    logging.info("="*80)
+    logging.info("油田设备监控系统启动")
+    logging.info("="*80)
+    
+    # 检查数据库连接状态
+    if not args.skip_db_check:
+        logging.info("正在检查数据库连接状态...")
+        try:
+            # 使用简单的直接检查方式，避免循环导入
+            db_ok = quick_db_check()
+            
+            if not db_ok:
+                logging.error("="*80)
+                logging.error("⚠️  数据库连接异常  ⚠️")
+                logging.error("系统可能无法正常工作，请检查数据库配置和PostgreSQL服务状态")
+                logging.error("如果需要跳过数据库检查，请使用 --skip-db-check 参数")
+                logging.error("或尝试运行 python app/utils/db_init.py 初始化数据库")
+                logging.error("="*80)
+                
+                if not args.debug:
+                    # 在非调试模式下，如果数据库连接失败，则退出程序
+                    sys.exit(1)
+        except ImportError:
+            logging.warning("无法导入数据库连接检查工具，将继续执行程序")
+        except Exception as e:
+            logging.error(f"数据库检查过程中发生错误: {e}")
+            logging.error("如果需要跳过数据库检查，请使用 --skip-db-check 参数")
+            
+            if not args.debug:
+                sys.exit(1)
+    else:
+        logging.info("已跳过数据库连接检查")
+    
     # 确保子进程跳过Flask的自动重载器
-    # web_args = (args.host, args.port, False, not args.no_ssl, args.use_keep_alive) 
-    # api_args = (args.host, args.port, False, not args.no_ssl, args.use_keep_alive)
-    web_args = (args.host, args.port, False, False, args.use_keep_alive) 
-    api_args = (args.host, args.port, False, True, args.use_keep_alive)
+    web_args = (args.host, args.port, False, not args.no_ssl, args.use_keep_alive) 
+    api_args = (args.host, args.port, False, not args.no_ssl, args.use_keep_alive)
+    # web_args = (args.host, args.port, False, False, args.use_keep_alive)
+    # api_args = (args.host, args.port, False, True, args.use_keep_alive)
     
     # 使用多进程同时启动Web应用和API服务器
     processes = []

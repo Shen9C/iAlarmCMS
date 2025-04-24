@@ -15,147 +15,158 @@
                 </div>
                 <div class="card-body">
         <!-- 筛选表单 -->
-                    <div class="mb-4">
-            <form class="row g-3" method="get" action="{{ url_for('alarms_view.index') }}">
-                <input type="hidden" name="user_token" value="{{ request.args.get('user_token') }}">
-                <!-- 告警类型选择 -->
-                <div class="col-md-2">
-                            <select name="alarm_type" class="form-select form-select-sm">
-                        <option value="">所有类型</option>
-                        {% for type in alarm_types %}
-                        <option value="{{ type }}" {% if current_type == type %}selected{% endif %}>
-                            {{ type }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                        <!-- 告警状态选择 (使用 is_processed) -->
-                <div class="col-md-2">
-                            <select name="status" class="form-select form-select-sm">
-                        <option value="">告警状态</option>
-                                <option value="0" {% if current_status == '0' %}selected{% endif %}>未处理</option>
-                                <option value="1" {% if current_status == '1' %}selected{% endif %}>已处理</option>
-                    </select>
-                </div>
-                <!-- 设备名称选择 -->
-                <div class="col-md-2">
-                            <select name="device_name" class="form-select form-select-sm">
-                        <option value="">所有油井</option>
-                        {% for device in device_names %}
-                        <option value="{{ device }}" {% if current_device == device %}selected{% endif %}>
-                            {{ device }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                        <!-- 时间选择 -->
-                <div class="col-md-2">
-                            <input type="date" name="start_date" class="form-control form-control-sm" placeholder="开始日期" 
-                           value="{{ request.args.get('start_date', '') }}">
-                </div>
-                <div class="col-md-2">
-                            <input type="date" name="end_date" class="form-control form-control-sm" placeholder="结束日期"
-                           value="{{ request.args.get('end_date', '') }}">
-                </div>
-                <!-- 按钮区域 -->
-                <div class="col-md-2 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary btn-sm">筛选</button>
-                            <a href="{{ url_for('alarms_view.index', user_token=request.args.get('user_token')) }}" class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-x-circle"></i> 清除
-                    </a>
-                </div>
-            </form>
-        </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <form method="get" class="row g-2 align-items-end" action="{{ url_for('alarms_view.index') }}">
+                                <input type="hidden" name="user_token" value="{{ request.args.get('user_token') }}">
+                                <!-- 告警类型选择 -->
+                                <div class="col-md-2">
+                                    <label for="alarm_type" class="form-label">告警类型</label>
+                                    <select name="alarm_type" id="alarm_type" class="form-select form-select-sm">
+                                        <option value="">全部类型</option>
+                                        {% for type in alarm_types %}
+                                        <option value="{{ type }}" {% if current_type == type %}selected{% endif %}>{{ type }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <!-- 告警状态选择 (使用 is_processed) -->
+                                <div class="col-md-2">
+                                    <label for="status" class="form-label">告警状态</label>
+                                    <select name="status" id="status" class="form-select form-select-sm">
+                                        <option value="">全部状态</option>
+                                        <option value="0" {% if current_status == '0' %}selected{% endif %}>未处理</option>
+                                        <option value="1" {% if current_status == '1' %}selected{% endif %}>已处理</option>
+                                    </select>
+                                </div>
+                                <!-- 设备名称选择 -->
+                                <div class="col-md-2">
+                                    <label for="device_name" class="form-label">油井名称</label>
+                                    <select name="device_name" id="device_name" class="form-select form-select-sm">
+                                        <option value="">全部油井</option>
+                                        {% for device in device_names %}
+                                        <option value="{{ device }}" {% if current_device == device %}selected{% endif %}>{{ device }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <!-- 开始日期 -->
+                                <div class="col-md-2">
+                                    <label class="form-label">开始日期</label>
+                                    <input type="date" name="start_date" class="form-control form-control-sm" placeholder="开始日期" 
+                                        value="{{ request.args.get('start_date', '') }}">
+                                </div>
+                                
+                                <!-- 结束日期 -->
+                                <div class="col-md-2">
+                                    <label class="form-label">结束日期</label>
+                                    <input type="date" name="end_date" class="form-control form-control-sm" placeholder="结束日期"
+                                        value="{{ request.args.get('end_date', '') }}">
+                                </div>
+                                
+                                <!-- 按钮区域 -->
+                                <div class="col-md-2 d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary btn-sm">筛选</button>
+                                    <a href="{{ url_for('alarms_view.index', user_token=request.args.get('user_token')) }}" class="btn btn-outline-secondary btn-sm">清除</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
 
                     <!-- 增加消息容器 -->
-                    <div id="messageContainer" class="p-2 mb-3"></div>
+                    <div id="messageContainer" class="p-2 mb-3 d-none"></div>
 
         <!-- 表格区域 -->
                     <div class="table-responsive">
-            <table class="table table-hover mb-0 resizable-table">
-                <thead>
+            <table class="table table-bordered table-striped">
+                <thead class="bg-light">
                     <tr>
-                        <th class="resizable text-center">告警编号</th>
-                        <th class="resizable text-center">告警状态</th>
-                                <th class="resizable text-center">告警确认</th>
-                        <th class="resizable text-center">告警类型</th>
-                        <th class="resizable text-center">油井名称</th>
-                        <th class="resizable text-center">摄像头IP</th>
-                        <th class="resizable text-center">告警产生时间</th>
-                                <th class="resizable text-center">告警处理时间</th>
-                        <th class="resizable text-center">告警图片</th>
-                        <th class="resizable text-center">操作</th>
+                        <th class="text-center">告警码</th>
+                        <th class="text-center">告警状态</th>
+                        <th class="text-center">告警确认</th>
+                        <th class="text-center">告警类型</th>
+                        <th class="text-center">油井名称</th>
+                        <th class="text-center">摄像头IP</th>
+                        <th class="text-center">告警产生时间</th>
+                        <th class="text-center">告警处理时间</th>
+                        <th class="text-center">告警图片</th>
+                        <th class="text-center">操作</th>
                     </tr>
                 </thead>
-                <tbody class="table-group-divider">
+                <tbody>
                     {% for alarm in alarms %}
                     <tr>
-                                <td class="text-center align-middle">
+                                <td>
                                     <a href="{{ url_for('alarms_view.alarm_detail', alarm_id=alarm.id, user_token=request.args.get('user_token')) }}">
                                         {{ alarm.alarm_code }}
                             </a>
                         </td>
                                 <!-- 优化告警状态显示 -->
-                                <td class="text-center align-middle">
+                                <td>
                                     {% if alarm.is_processed %}
                                         <span class="badge bg-success">已处理</span>
                             {% else %}
                                         <span class="badge bg-warning text-dark">未处理</span>
                             {% endif %}
                         </td>
-                                <td class="text-center align-middle">
+                                <td>
                                     {% if alarm.is_confirmed %}
                                         <span class="badge bg-secondary">{{ alarm.confirmation_type or '故障' }}</span>
                                     {% else %}
-                                        <span class="text-muted">-</span>
+                                        <span class="text-dark">-</span>
                             {% endif %}
                         </td>
-                                <td class="text-center align-middle">{{ alarm.alarm_type }}</td>
-                                <td class="text-center align-middle">{{ alarm.device_name }}</td>
-                                <td class="text-center align-middle">
+                                <td>{{ alarm.alarm_type }}</td>
+                                <td>{{ alarm.device_name }}</td>
+                                <td>
                                     {% if alarm.camera_ip %}
                                         <a href="http://{{ alarm.camera_ip }}" target="_blank" title="打开摄像头页面">{{ alarm.camera_ip }}</a>
                                     {% else %}
                                         -
                                     {% endif %}
                                 </td>
-                                <td class="text-center align-middle">{{ alarm.alarm_time.strftime('%Y-%m-%d %H:%M:%S') if alarm.alarm_time else '-'}}</td>
-                                <td class="text-center align-middle">
+                                <td>{{ alarm.alarm_time.strftime('%Y-%m-%d %H:%M:%S') if alarm.alarm_time else '-'}}</td>
+                                <td>
                                     {{ alarm.processed_time.strftime('%Y-%m-%d %H:%M:%S') if alarm.processed_time else '-' }}
                                 </td>
-                                <td class="text-center align-middle">
+                                <td>
                                     {% if alarm.alarm_image %}
                                         <a href="/api/alarms/images/{{ alarm.alarm_image.split('/')[-1] }}" data-bs-toggle="modal" data-bs-target="#imageModal" 
                                            data-image-src="/api/alarms/images/{{ alarm.alarm_image.split('/')[-1] }}" data-image-title="{{ alarm.alarm_code }}">
                                             <img src="/api/alarms/images/{{ alarm.alarm_image.split('/')[-1] }}" class="img-thumbnail" style="max-height: 50px;" alt="告警图片">
                                         </a>
                                     {% else %}
-                                        <span class="text-muted">无图片</span>
+                                        <span class="text-dark">无图片</span>
                                     {% endif %}
                                 </td>
                                 <!-- 优化操作按钮 -->
-                                <td class="text-center align-middle">
-                                    <div class="btn-group btn-group-sm">
-                                        {% if not alarm.is_processed %}
-                            {% if not alarm.is_confirmed %}
-                            <button type="button" 
-                                                    class="btn btn-primary confirm-alarm-btn" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#alarmConfirmModal" 
-                                                    data-alarm-id="{{ alarm.id }}" title="确认">
-                                                    <i class="bi bi-check-lg"></i> 确认
-                                                </button>
-                                            {% endif %}
-                                            <button type="button" 
-                                                class="btn btn-success process-alarm-btn" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#alarmProcessModal" 
-                                                data-alarm-id="{{ alarm.id }}" title="处理">
-                                                <i class="bi bi-gear"></i> 处理
-                                            </button>
-                            {% endif %}
-                                    </div>
+                                <td>
+                                    {% if not alarm.is_processed %}
+                                        {% if not alarm.is_confirmed %}
+                                        <button type="button" 
+                                            class="btn btn-primary btn-sm confirm-alarm-btn" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#alarmConfirmModal" 
+                                            data-alarm-id="{{ alarm.id }}" title="确认">
+                                            <i class="bi bi-check-lg"></i> 确认
+                                        </button>
+                                        {% endif %}
+                                        <button type="button" 
+                                            class="btn btn-success btn-sm process-alarm-btn" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#alarmProcessModal" 
+                                            data-alarm-id="{{ alarm.id }}" title="处理">
+                                            <i class="bi bi-gear"></i> 处理
+                                        </button>
+                                    {% else %}
+                                        <a href="{{ url_for('alarms_view.alarm_detail', alarm_id=alarm.id, user_token=request.args.get('user_token')) }}" class="btn btn-info btn-sm">
+                                            <i class="fas fa-eye"></i> 查看
+                                        </a>
+                                    {% endif %}
                         </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="10" class="text-center">暂无告警数据</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -187,7 +198,7 @@
                         {% endif %}
                     {% endfor %}
                 </form>
-                            <span class="ms-3 text-muted small">共 {{ pagination.total }} 条记录</span>
+                            <span class="ms-3 text-dark small">共 {{ pagination.total }} 条记录</span>
             </div>
             
                         <!-- 分页导航 -->
@@ -241,6 +252,34 @@
         overflow-x: auto;
     }
     .card {
+        margin-bottom: 20px;
+    }
+    .table {
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+    .table thead th {
+        position: sticky;
+        top: 0;
+        background-color: #f8f9fc;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-align: center;
+        padding: 12px 8px;
+        border-bottom: 2px solid #000000; /* 修改为黑色边框 */
+        vertical-align: middle;
+        z-index: 1;
+    }
+    .table tbody td {
+        vertical-align: middle;
+        padding: 8px;
+    }
+    /* 列宽调整相关样式 */
+    .resizable {
+        position: relative;
+        overflow: hidden;
+    }
+    .card {
         height: auto; /* 移除固定高度 */
         border: none; /* 移除卡片边框 */
         box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* 添加轻微阴影 */
@@ -259,11 +298,10 @@
         z-index: 1;
         font-size: 0.85rem;
         font-weight: bold;
-        color: #5a5c69;
+        color: #000000; /* 修改为黑色字体 */
         border-bottom-width: 2px; /* 加粗底部边框 */
-    }
-    .table {
-        margin-bottom: 0;
+        border-color: #000000; /* 修改为黑色边框 */
+        text-align: center; /* 确保文字居中 */
     }
     .table td, .table th { /* 单元格垂直居中 */
          vertical-align: middle;
@@ -441,10 +479,21 @@
     </div>
 </div>
 
-<!-- JavaScript部分 -->
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
 <script>
-// 在DOMContentLoaded事件的开始位置添加代码
 document.addEventListener('DOMContentLoaded', function() {
+    // 为筛选表单添加自动提交功能
+    const filterSelects = document.querySelectorAll('form select[name="alarm_type"], form select[name="status"], form select[name="device_name"]');
+    filterSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            // 获取包含此选择器的表单并提交
+            this.closest('form').submit();
+        });
+    });
+    
     // 图片模态框初始化
     var imageModal = document.getElementById('imageModal');
     if (imageModal) {
@@ -470,7 +519,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    
+    // 检查消息容器是否有内容，有内容则显示
+    var messageContainer = document.getElementById('messageContainer');
+    if (messageContainer && messageContainer.innerHTML.trim() !== '') {
+        messageContainer.classList.remove('d-none');
+    }
 });
 </script>
-
 {% endblock %}
