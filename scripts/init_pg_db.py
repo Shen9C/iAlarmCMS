@@ -22,6 +22,7 @@ from pathlib import Path
 import argparse
 from OpenSSL import crypto
 import importlib
+import time
 
 # 将项目根目录添加到系统路径
 project_root = Path(__file__).resolve().parent.parent
@@ -49,8 +50,6 @@ rotating_handler = RotatingFileHandler(
 )
 
 # 配置控制台处理器
-if sys.stdout.encoding != 'utf-8':
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
 console_handler = logging.StreamHandler(sys.stdout)
 
 # 设置日志格式
@@ -62,8 +61,12 @@ console_handler.setFormatter(formatter)
 logger.addHandler(rotating_handler)
 logger.addHandler(console_handler)
 
+# 设置其他模块的日志级别
+logging.getLogger('sqlalchemy').setLevel(logging.INFO)
+logging.getLogger('app').setLevel(logging.INFO)
+
 # 导入应用相关模块
-from app import create_app, db
+from app import create_web_app, db
 from app.models.users import User
 from app.models.alarms import Alarm
 from app.models.edge_devices import EdgeDevice
@@ -72,22 +75,25 @@ from app.models.oil_wells import OilWell
 from app.models.settings import SystemConfig, KeyValueSetting
 from app.utils.yaml_config_loader import Config, config
 
-# 修改成功/失败标记
-SUCCESS_MARK = '[成功]'
-ERROR_MARK = '[失败]'
-
-# 禁用应用日志处理器，避免日志重复
-app = create_app()
-app_logger = logging.getLogger('app')
-app_logger.handlers.clear()
-app_logger.addHandler(logging.NullHandler())
-
 # 从配置对象中获取数据库配置
 DB_USER = config.DB_USER
 DB_PASSWORD = config.DB_PASSWORD
 DB_HOST = config.DB_HOST
 DB_PORT = config.DB_PORT
 DB_NAME = config.DB_NAME
+
+def get_connection_string():
+    """获取数据库连接字符串"""
+    return f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+# 修改成功/失败标记
+SUCCESS_MARK = '[成功]'
+ERROR_MARK = '[失败]'
+
+# 创建应用实例
+app = create_web_app()
+app.config['SQLALCHEMY_DATABASE_URI'] = get_connection_string()
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # 记录数据库配置信息
 logger.info(f"数据库配置: 主机={DB_HOST}, 端口={DB_PORT}, 数据库名={DB_NAME}, 用户={DB_USER}")
@@ -96,57 +102,98 @@ def init_database(reset=False):
     """初始化数据库"""
     logger.info("正在初始化数据库...")
     
-    # 检查数据库是否存在
-    if not create_database_if_not_exists():
-        logger.error("创建数据库失败")
-        return False
-    
-    with app.app_context():
-        try:
-            # 如果需要重置数据库
-            if reset:
-                logger.info("重置数据库...")
-                db.drop_all()
-            
-            # 创建数据库表
-            logger.info("创建数据库表...")
-            db.create_all()
-            logger.info(f"{SUCCESS_MARK} 数据库表创建成功")
-            
-            # 创建管理员账户
-            try:
-                # 检查是否已有管理员账户
-                admin = User.query.filter_by(username='管理员').first()
-                if not admin:
-                    admin = User(
-                        username='管理员',
-                        role='admin',
-                        is_admin=True,
-                        active=True
-                    )
-                    admin.set_password('admin123@Youtian')
-                    db.session.add(admin)
-                    db.session.commit()
-                    logger.info(f"{SUCCESS_MARK} 管理员账户创建成功")
-                else:
-                    logger.info(f"管理员账户已存在，跳过创建")
-            except Exception as e:
-                logger.error(f"{ERROR_MARK} 创建管理员账户失败: {str(e)}")
-            
-            return True
-        except Exception as e:
-            logger.error(f"数据库初始化失败: {str(e)}")
-            logger.error(traceback.format_exc())
+    try:
+        # 检查数据库是否存在
+        logger.info("检查数据库是否存在...")
+        if not create_database_if_not_exists():
+            logger.error(f"{ERROR_MARK} 创建数据库失败")
             return False
+        
+        logger.info("创建应用上下文...")
+        with app.app_context():
+            try:
+                # 如果需要重置数据库
+                if reset:
+                    logger.info("重置数据库...")
+                    try:
+                        # 获取所有表名
+                        inspector = inspect(db.engine)
+                        tables = inspector.get_table_names()
+                        
+                        if tables:
+                            logger.info(f"发现 {len(tables)} 个表需要删除")
+                            for table in tables:
+                                logger.info(f"删除表 {table}...")
+                                db.session.execute(text(f'DROP TABLE IF EXISTS "{table}" CASCADE'))
+                            db.session.commit()
+                            logger.info(f"{SUCCESS_MARK} 所有表删除成功")
+                        else:
+                            logger.info("数据库中没有表需要删除")
+                    except Exception as e:
+                        logger.error(f"{ERROR_MARK} 删除数据库表失败: {str(e)}")
+                        logger.error(traceback.format_exc())
+                        return False
+                
+                # 创建数据库表
+                logger.info("创建数据库表...")
+                try:
+                    db.create_all()
+                    logger.info(f"{SUCCESS_MARK} 数据库表创建成功")
+                except Exception as e:
+                    logger.error(f"{ERROR_MARK} 创建数据库表失败: {str(e)}")
+                    logger.error(traceback.format_exc())
+                    return False
+                
+                # 创建管理员账户
+                logger.info("检查管理员账户...")
+                try:
+                    # 检查是否已有管理员账户
+                    admin = User.query.filter_by(username='管理员').first()
+                    if not admin:
+                        logger.info("创建管理员账户...")
+                        admin = User(
+                            username='管理员',
+                            role='admin',
+                            is_admin=True,
+                            active=True
+                        )
+                        admin.set_password('admin123@Youtian')
+                        db.session.add(admin)
+                        db.session.commit()
+                        logger.info(f"{SUCCESS_MARK} 管理员账户创建成功")
+                    else:
+                        logger.info("管理员账户已存在，跳过创建")
+                except Exception as e:
+                    logger.error(f"{ERROR_MARK} 创建管理员账户失败: {str(e)}")
+                    logger.error(traceback.format_exc())
+                    db.session.rollback()
+                    return False
+                
+                # 检查数据库表是否创建成功
+                try:
+                    inspector = inspect(db.engine)
+                    tables = inspector.get_table_names()
+                    logger.info(f"数据库中共有 {len(tables)} 个表:")
+                    for table in tables:
+                        logger.info(f"- {table}")
+                except Exception as e:
+                    logger.error(f"{ERROR_MARK} 检查数据库表失败: {str(e)}")
+                    return False
+                
+                return True
+            except Exception as e:
+                logger.error(f"{ERROR_MARK} 数据库初始化失败: {str(e)}")
+                logger.error(traceback.format_exc())
+                return False
+    except Exception as e:
+        logger.error(f"{ERROR_MARK} 初始化过程失败: {str(e)}")
+        logger.error(traceback.format_exc())
+        return False
 
 @click.group()
 def cli():
     """PostgreSQL数据库管理工具"""
     pass
-
-def get_connection_string():
-    """获取PostgreSQL连接字符串"""
-    return f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 def get_connection():
     """获取PostgreSQL连接"""
@@ -167,37 +214,60 @@ def get_connection():
 
 def create_database_if_not_exists():
     """如果数据库不存在，则创建数据库"""
-    try:
-        # 添加连接超时设置
-        conn = psycopg2.connect(
-            user=DB_USER,
-            password=DB_PASSWORD,
-            host=DB_HOST,
-            port=DB_PORT,
-            database="postgres",
-            connect_timeout=10
-        )
-        conn.autocommit = True
-        cursor = conn.cursor()
-        
-        # 使用更高效的查询
-        cursor.execute("SELECT 1 FROM pg_database WHERE datname = %s", (DB_NAME,))
-        exists = cursor.fetchone()
-        
-        if not exists:
-            logger.info(f"数据库 {DB_NAME} 不存在，正在创建...")
-            cursor.execute(sql.SQL("CREATE DATABASE {} WITH ENCODING 'UTF8'").format(
-                sql.Identifier(DB_NAME)))
-            logger.info(f"数据库 {DB_NAME} 创建成功")
-        else:
-            logger.info(f"数据库 {DB_NAME} 已存在")
-        
-        cursor.close()
-        conn.close()
-        return True
-    except Exception as e:
-        logger.error(f"创建数据库失败: {str(e)}")
-        return False
+    retries = 0
+    max_retries = 3
+    retry_delay = 1
+    
+    while retries < max_retries:
+        try:
+            # 添加连接超时设置
+            conn = psycopg2.connect(
+                user=DB_USER,
+                password=DB_PASSWORD,
+                host=DB_HOST,
+                port=DB_PORT,
+                database="postgres",
+                connect_timeout=3
+            )
+            conn.autocommit = True
+            cursor = conn.cursor()
+            
+            # 使用更高效的查询
+            cursor.execute("SELECT 1 FROM pg_database WHERE datname = %s", (DB_NAME,))
+            exists = cursor.fetchone()
+            
+            if not exists:
+                logger.info(f"数据库 {DB_NAME} 不存在，正在创建...")
+                try:
+                    cursor.execute(sql.SQL("CREATE DATABASE {} WITH ENCODING 'UTF8'").format(
+                        sql.Identifier(DB_NAME)))
+                    logger.info(f"{SUCCESS_MARK} 数据库 {DB_NAME} 创建成功")
+                except Exception as e:
+                    logger.error(f"{ERROR_MARK} 创建数据库失败: {str(e)}")
+                    if "already exists" in str(e):
+                        logger.info("数据库已存在，继续执行")
+                        return True
+                    raise
+            else:
+                logger.info(f"数据库 {DB_NAME} 已存在")
+            
+            cursor.close()
+            conn.close()
+            return True
+            
+        except Exception as e:
+            retries += 1
+            logger.error(f"{ERROR_MARK} 数据库操作失败 (尝试 {retries}/{max_retries}): {str(e)}")
+            
+            if retries < max_retries:
+                wait_time = retry_delay * (2 ** (retries - 1))
+                logger.info(f"等待 {wait_time} 秒后重试...")
+                time.sleep(wait_time)
+            else:
+                logger.error(f"{ERROR_MARK} 达到最大重试次数，操作失败")
+                return False
+    
+    return False
 
 @cli.command()
 def init():
@@ -461,6 +531,7 @@ def run_test_data_script():
     logger.info("这样可以更好地分离应用初始化和测试功能")
 
 def main():
+    """主函数"""
     parser = argparse.ArgumentParser(description="数据库初始化和系统准备脚本")
     parser.add_argument("action", nargs='?', default=None, help="执行的操作: reset(重置所有), ssl(仅生成SSL证书)")
     parser.add_argument("--reset", action="store_true", help="重置数据库（删除所有现有表并重建）")
@@ -477,121 +548,84 @@ def main():
         args.ssl_only = True
     elif args.action == 'regenerate-ssl':
         args.regenerate_ssl = True
-    elif args.action == 'rebuild':  # 兼容旧命令
-        args.reset = True
     
-    # 如果指定只重新生成SSL证书
-    if args.regenerate_ssl:
-        logger.info("正在强制重新生成SSL证书...")
-        # 移除现有的Web证书文件
-        ssl_dir = os.path.join(project_root, "ssl")
-        web_cert_file = "web_cert.pem"
-        web_key_file = "web_key.pem"
-        api_cert_file = "api_cert.pem"
-        api_key_file = "api_key.pem"
-        # 以及旧的证书名称
-        old_cert_file = "cert.pem"
-        old_key_file = "key.pem"
-        
-        cert_files = [
-            os.path.join(ssl_dir, web_cert_file),
-            os.path.join(ssl_dir, web_key_file),
-            os.path.join(ssl_dir, api_cert_file),
-            os.path.join(ssl_dir, api_key_file),
-            os.path.join(ssl_dir, old_cert_file),
-            os.path.join(ssl_dir, old_key_file)
-        ]
-        
-        # 尝试删除所有证书文件
-        for cert_path in cert_files:
-            try:
-                if os.path.exists(cert_path):
-                    logger.info(f"删除现有证书文件: {cert_path}")
-                    os.remove(cert_path)
-            except Exception as e:
-                logger.warning(f"删除证书文件失败: {str(e)}")
-        
-        # 创建新的SSL证书
-        cert_path, key_path = create_ssl_certs(force=True)
-        if cert_path and key_path:
-            logger.info("\nSSL证书重新生成完成！")
-            logger.info("您可以通过以下命令启动HTTPS服务器:")
-            logger.info("python run.py --web-only --ssl  # 启动HTTPS Web服务器")
-            logger.info("python run.py --api-only --ssl  # 启动HTTPS API服务器")
-        return
+    success = True
     
-    # 如果只生成SSL证书
-    if args.ssl_only:
-        cert_path, key_path = create_ssl_certs()
-        if cert_path and key_path:
-            logger.info("\nSSL证书生成完成！")
-            logger.info("您可以通过以下命令启动HTTPS服务器:")
-            logger.info("python run.py --api-only --ssl")
-        return
-    
-    # reset命令包含所有功能：重建数据库、生成证书
-    if args.reset:
-        logger.info("执行全面重置操作...")
-        # 重建数据库
-        init_database(reset=True)
+    try:
+        # 如果只生成SSL证书
+        if args.ssl_only:
+            logger.info("=== 开始生成SSL证书 ===")
+            cert_path, key_path = create_ssl_certs()
+            if cert_path and key_path:
+                logger.info(f"{SUCCESS_MARK} SSL证书生成完成")
+                logger.info("您可以通过以下命令启动HTTPS服务器:")
+                logger.info("python run.py --api-only --ssl")
+            return
+        
+        # 如果需要重新生成SSL证书
+        if args.regenerate_ssl:
+            logger.info("=== 强制重新生成SSL证书 ===")
+            cert_path, key_path = create_ssl_certs(force=True)
+            if cert_path and key_path:
+                logger.info(f"{SUCCESS_MARK} SSL证书重新生成完成")
+            return
+        
+        # 数据库初始化部分
+        logger.info("=== 开始数据库初始化 ===")
+        logger.info(f"数据库配置: 主机={DB_HOST}, 端口={DB_PORT}, 数据库名={DB_NAME}, 用户={DB_USER}")
+        
+        # 检查数据库连接
+        logger.info("检查数据库服务器连接...")
+        try:
+            conn = psycopg2.connect(
+                user=DB_USER,
+                password=DB_PASSWORD,
+                host=DB_HOST,
+                port=DB_PORT,
+                database="postgres",
+                connect_timeout=3
+            )
+            conn.close()
+            logger.info(f"{SUCCESS_MARK} 数据库服务器连接正常")
+        except Exception as e:
+            logger.error(f"{ERROR_MARK} 无法连接到数据库服务器: {str(e)}")
+            return False
+        
+        # 初始化数据库
+        if not init_database(reset=args.reset):
+            logger.error(f"{ERROR_MARK} 数据库初始化失败")
+            success = False
+        else:
+            logger.info(f"{SUCCESS_MARK} 数据库初始化完成")
         
         # 生成SSL证书（除非明确指定不生成）
         if not args.no_ssl:
-            # 移除现有的Web证书文件
-            ssl_dir = os.path.join(project_root, "ssl")
-            web_cert_file = "web_cert.pem"
-            web_key_file = "web_key.pem"
-            api_cert_file = "api_cert.pem"
-            api_key_file = "api_key.pem"
-            # 以及旧的证书名称
-            old_cert_file = "cert.pem"
-            old_key_file = "key.pem"
-            
-            cert_files = [
-                os.path.join(ssl_dir, web_cert_file),
-                os.path.join(ssl_dir, web_key_file),
-                os.path.join(ssl_dir, api_cert_file),
-                os.path.join(ssl_dir, api_key_file),
-                os.path.join(ssl_dir, old_cert_file),
-                os.path.join(ssl_dir, old_key_file)
-            ]
-            
-            # 尝试删除所有证书文件
-            for cert_path in cert_files:
-                try:
-                    if os.path.exists(cert_path):
-                        logger.info(f"删除现有证书文件: {cert_path}")
-                        os.remove(cert_path)
-                except Exception as e:
-                    logger.warning(f"删除证书文件失败: {str(e)}")
-            
-            # 创建新的SSL证书
-            create_ssl_certs(force=True)
+            logger.info("=== 开始生成SSL证书 ===")
+            cert_path, key_path = create_ssl_certs(force=args.reset)
+            if cert_path and key_path:
+                logger.info(f"{SUCCESS_MARK} SSL证书生成完成")
+            else:
+                logger.error(f"{ERROR_MARK} SSL证书生成失败")
+                success = False
         
-        # 提示用户测试数据生成方法已改变
-        run_test_data_script()
+        # 总结
+        if success:
+            logger.info("\n=== 初始化完成 ===")
+            logger.info("您可以通过以下命令启动服务器:")
+            logger.info("1. 启动HTTPS API服务器:")
+            logger.info("   python run.py --api-only --ssl")
+            logger.info("2. 启动HTTP API服务器:")
+            logger.info("   python run.py --api-only")
+        else:
+            logger.error("\n=== 初始化过程中存在错误 ===")
+            logger.error("请检查上述错误信息并修复后重试")
         
-        logger.info("\n系统重置完成!")
-        logger.info("您可以通过以下命令启动服务器:")
-        logger.info("python run.py --api-only --ssl  # 启动HTTPS API服务器")
-        logger.info("python run.py --api-only        # 启动HTTP API服务器")
-        return
+        return success
     
-    # 普通初始化流程
-    # 初始化数据库
-    init_database(reset=False)
-    
-    # 生成SSL证书（除非明确指定不生成）
-    if not args.no_ssl:
-        create_ssl_certs()
-    
-    # 提示用户测试数据生成方法已改变
-    run_test_data_script()
-    
-    logger.info("\n系统初始化和准备工作已完成!")
-    logger.info("您可以通过以下命令启动服务器:")
-    logger.info("python run.py --api-only --ssl  # 启动HTTPS API服务器")
-    logger.info("python run.py --api-only        # 启动HTTP API服务器")
+    except Exception as e:
+        logger.error(f"\n{ERROR_MARK} 初始化过程发生错误: {str(e)}")
+        logger.error(traceback.format_exc())
+        return False
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -606,9 +640,13 @@ if __name__ == "__main__":
             # 对于click命令的兼容
             if sys.argv[1] == 'init':
                 cli()
-                sys.exit(0)
-                # 其他情况继续执行main()
-                main()
             else:
-                main()
+                success = main()
+                sys.exit(0 if success else 1)
+        else:
+            success = main()
+            sys.exit(0 if success else 1)
+    else:
+        success = main()
+        sys.exit(0 if success else 1)
 

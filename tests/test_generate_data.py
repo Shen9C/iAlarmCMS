@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger(__name__)
 
 # 导入应用相关模块
-from app import create_app, db  # noqa: E402
+from app import create_web_app, db  # noqa: E402
 from app.models.users import User
 from app.models.alarms import Alarm
 from app.models.edge_devices import EdgeDevice
@@ -35,7 +35,7 @@ from app.models.oil_wells import OilWell
 from app.models.settings import SystemConfig, KeyValueSetting
 
 # 创建Flask应用上下文
-app = create_app()
+app = create_web_app()
 
 # 读取配置文件
 config_path = os.path.join(project_root, 'tests', 'test_data_config.json')

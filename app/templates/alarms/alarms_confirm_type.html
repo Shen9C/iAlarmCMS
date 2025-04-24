@@ -7,26 +7,63 @@
             <h5>告警确认</h5>
         </div>
         <div class="card-body">
-            <h6>告警信息</h6>
-            <p>告警编号：{{ alarm.alarm_code }}</p>
-            <p>告警类型：{{ alarm.alarm_type }}</p>
-            <p>设备名称：{{ alarm.device_name }}</p>
-            <p>告警时间：{{ alarm.alarm_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            <div class="alarm-info mb-4">
+                <h6 class="mb-3">告警信息</h6>
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">告警ID</dt>
+                    <dd class="col-sm-9">{{ alarm.id }}</dd>
+                    
+                    <dt class="col-sm-3">告警编号</dt>
+                    <dd class="col-sm-9">{{ alarm.alarm_code }}</dd>
+                    
+                    <dt class="col-sm-3">告警类型</dt>
+                    <dd class="col-sm-9">{{ alarm.alarm_type }}</dd>
+                    
+                    <dt class="col-sm-3">设备名称</dt>
+                    <dd class="col-sm-9">{{ alarm.device_name }}</dd>
+                    
+                    <dt class="col-sm-3">告警时间</dt>
+                    <dd class="col-sm-9">{{ alarm.alarm_time.strftime('%Y-%m-%d %H:%M:%S') }}</dd>
+                </dl>
+            </div>
             
-            <!-- 修改表单的 action 属性 -->
-            <form method="POST" action="{{ url_for('alarms_view.show_confirm_type', alarm_code=alarm.alarm_code, user_token=user_token) }}">
-                <!-- 表单内容 -->
+            <form id="confirmForm" method="POST" action="{{ url_for('alarms_view.confirm_alarm_type', alarm_id=alarm.id) }}">
+                <input type="hidden" name="alarm_id" value="{{ alarm.id }}">
                 <div class="mb-3">
-                    <label for="confirmType" class="form-label">确认类型</label>
-                    <select class="form-select" id="confirmType" name="confirmation_type">
-                        <option value="故障">故障</option>
-                        <option value="误报">误报</option>
-                        <option value="测试">测试</option>
-                        <option value="其他">其他</option>
-                    </select>
+                    <label for="confirmType" class="form-label fw-bold">确认类型</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="confirmation_type" id="radioFault" value="故障" checked>
+                        <label class="form-check-label" for="radioFault">
+                            故障
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="confirmation_type" id="radioFalseAlarm" value="误报">
+                        <label class="form-check-label" for="radioFalseAlarm">
+                            误报
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="confirmation_type" id="radioTest" value="测试">
+                        <label class="form-check-label" for="radioTest">
+                            测试
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="confirmation_type" id="radioOther" value="其他">
+                        <label class="form-check-label" for="radioOther">
+                            其他
+                        </label>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary">确认</button>
-                <a href="{{ url_for('alarms_view.index', user_token=user_token) }}" class="btn btn-secondary">取消</a>
+                <div class="mb-3">
+                    <label for="confirmationNotes" class="form-label fw-bold">备注</label>
+                    <textarea class="form-control" id="confirmationNotes" name="notes" rows="3" placeholder="可选：添加备注说明"></textarea>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">确认</button>
+                    <a href="{{ url_for('alarms_view.index') }}" class="btn btn-secondary ms-2">取消</a>
+                </div>
             </form>
         </div>
     </div>

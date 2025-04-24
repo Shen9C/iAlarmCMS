@@ -10,7 +10,7 @@ import time
 import logging
 import threading
 from contextlib import contextmanager
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError, OperationalError, DisconnectionError
 from sqlalchemy.orm import sessionmaker, scoped_session
 from flask import current_app
@@ -86,9 +86,10 @@ def init_db_engine(force=False):
             # 创建会话工厂
             _Session = scoped_session(sessionmaker(bind=_engine))
             
-            # 测试连接
+            # 测试连接 - 使用 SQLAlchemy 2.0 API
             with _engine.connect() as conn:
-                conn.execute("SELECT 1")
+                conn.execute(text("SELECT 1"))
+                conn.commit()
             
             logger.info("数据库引擎初始化成功")
             

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, Response, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, Response, flash, jsonify, current_app
 from app.models.alarms import Alarm
 from app.models.users import User
 from app import db
@@ -396,43 +396,105 @@ def alarm_detail(alarm_id):
     
     return render_template('alarms/alarm_detail.html', alarm=alarm, user_token=user_token)
 
-@bp.route('/confirm_type/<int:alarm_id>', methods=['GET', 'POST'])
+@bp.route('/confirm_alarm_type/<int:alarm_id>', methods=['GET', 'POST'])
 @login_required
-def show_confirm_type(alarm_id):
+def confirm_alarm_type(alarm_id):
+    """
+    显示告警确认类型页面
+    """
+    logger.info(f'访问告警确认页面: alarm_id={alarm_id}, method={request.method}')
+    
+    # 获取用户token
     user_token = request.cookies.get('user_token') or request.args.get('user_token')
+    logger.info(f'用户令牌: {user_token}')
+    
+    if not user_token:
+        flash('缺少用户认证信息', 'error')
+        return redirect(url_for('alarms_view.index'))
+
     # 获取告警信息
     alarm = Alarm.query.get_or_404(alarm_id)
+    logger.info(f'获取到的告警信息: {alarm.alarm_code}')
     
-    # 如果是 POST 请求，处理表单提交
     if request.method == 'POST':
+        logger.info('处理POST请求')
+        logger.info(f'表单数据: {request.form}')
+        
         confirmation_type = request.form.get('confirmation_type')
-        if confirmation_type:
-            alarm.confirmation_type = confirmation_type
+        notes = request.form.get('notes', '')
+        
+        logger.info(f'确认类型: {confirmation_type}')
+        
+        if not confirmation_type:
+            flash('请选择确认类型', 'warning')
+            return render_template('alarms/alarms_confirm_type.html', alarm=alarm, user_token=user_token)
+        
+        try:
+            # 更新告警确认状态
             alarm.is_confirmed = True
+            alarm.confirmation_type = confirmation_type
+            alarm.confirmation_notes = notes
             alarm.confirmed_at = datetime.now()
-            # 不改变processed_status，只设置确认类型
+            alarm.confirmed_by = current_user.username
+            
             db.session.commit()
+            logger.info('告警确认成功')
+            flash('告警确认成功', 'success')
             return redirect(url_for('alarms_view.index'))
+            
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f'告警确认失败: {str(e)}')
+            flash('告警确认失败，请重试', 'error')
     
-    # 如果是 GET 请求，显示表单
     return render_template('alarms/alarms_confirm_type.html', alarm=alarm, user_token=user_token)
 
-@bp.route('/process/<int:alarm_id>', methods=['POST'])
+@bp.route('/process_alarm/<int:alarm_id>', methods=['GET', 'POST'])
 @login_required
 def process_alarm(alarm_id):
-    """处理告警"""
+    """
+    处理告警
+    """
+    logger.info(f'访问告警处理页面: alarm_id={alarm_id}, method={request.method}')
+    
+    # 获取用户token
+    user_token = request.cookies.get('user_token') or request.args.get('user_token')
+    logger.info(f'用户令牌: {user_token}')
+    
+    if not user_token:
+        flash('缺少用户认证信息', 'error')
+        return redirect(url_for('alarms_view.index'))
+
+    # 获取告警信息
     alarm = Alarm.query.get_or_404(alarm_id)
-    description = request.form.get('description', '')
+    logger.info(f'获取到的告警信息: {alarm.alarm_code}')
     
-    # 更新告警状态
-    alarm.is_processed = True
-    alarm.processed_time = datetime.now()
-    alarm.processed_by = current_user.username
+    if request.method == 'POST':
+        logger.info('处理POST请求')
+        logger.info(f'表单数据: {request.form}')
+        
+        notes = request.form.get('notes', '')
+        
+        if not notes:
+            flash('请输入处理备注', 'warning')
+            return render_template('alarms/alarms_process.html', alarm=alarm, user_token=user_token)
+        
+        try:
+            # 更新告警处理状态
+            alarm.is_processed = True
+            alarm.process_notes = notes
+            alarm.processed_time = datetime.now()
+            alarm.processed_by = current_user.username
+            
+            db.session.commit()
+            logger.info('告警处理成功')
+            flash('告警处理成功', 'success')
+            return redirect(url_for('alarms_view.index'))
+            
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f'告警处理失败: {str(e)}')
+            flash('告警处理失败，请重试', 'error')
     
-    if description:
-        alarm.description = description
-    
-    db.session.commit()
-    flash('告警已成功处理', 'success')
-    return redirect(url_for('alarms_view.index'))
+    return render_template('alarms/alarms_process.html', alarm=alarm, user_token=user_token)
 

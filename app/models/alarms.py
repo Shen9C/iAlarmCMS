@@ -26,7 +26,9 @@ class Alarm(db.Model):
     confirmed_at = db.Column(db.TIMESTAMP, comment='确认时间')
     confirmed_by = db.Column(db.String(100), comment='确认人')
     confirmation_type = db.Column(db.String(20), comment='确认类型，如故障、误报、测试等')
+    confirmation_notes = db.Column(db.Text, comment='确认备注')
     description = db.Column(db.String(255), comment='告警描述')
+    process_notes = db.Column(db.Text, comment='处理备注')
     
     created_at = db.Column(TIMESTAMP, default=lambda: datetime.now(), comment='创建时间')
     updated_at = db.Column(TIMESTAMP, default=lambda: datetime.now(), onupdate=lambda: datetime.now(), comment='更新时间')
@@ -56,7 +58,9 @@ class Alarm(db.Model):
             'confirmed_at': self.confirmed_at.strftime('%Y-%m-%d %H:%M:%S') if self.confirmed_at else None,
             'confirmed_by': self.confirmed_by,
             'confirmation_type': self.confirmation_type,
+            'confirmation_notes': self.confirmation_notes,
             'description': self.description,
+            'process_notes': self.process_notes,
             'alarm_suffix_code': self.alarm_suffix_code,
             'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None,
             'updated_at': self.updated_at.strftime('%Y-%m-%d %H:%M:%S') if self.updated_at else None
