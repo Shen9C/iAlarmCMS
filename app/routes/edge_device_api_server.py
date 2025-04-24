@@ -7,7 +7,7 @@
 避免被Web应用的身份验证中间件拦截
 """
 
-from flask import Flask, Blueprint, jsonify, request
+from flask import Flask, Blueprint, jsonify, request, current_app
 import os
 import sys
 from pathlib import Path
@@ -21,18 +21,20 @@ from app import db
 from app.models.edge_devices import EdgeDevice
 from app.models.alarms import Alarm
 from app.utils.yaml_config_loader import Config, config
+from app.utils.db_connection import check_db_connection, db_session, init_db_engine
 import jwt
 import uuid
 import logging
 from datetime import datetime, timedelta
 from functools import wraps
+from sqlalchemy import text
 
 # 配置日志
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# 创建一个仅包含设备API路由的Blueprint，避免命名冲突
-device_api_server = Blueprint('device_api_server', __name__, url_prefix='/api/edge_devices')
+# 创建一个仅包含设备API路由的Blueprint
+bp = Blueprint('device_api', __name__, url_prefix='/api/edge_devices')
 
 # 全局Flask应用实例仅在直接运行此文件时创建
 # 当此模块被导入时不创建应用实例，避免与create_api_app冲突
@@ -89,18 +91,10 @@ def device_token_auth_required(f):
         logger.debug(f"收到的令牌: {token}")
         
         try:
-            # 尝试解码令牌 - 简化为直接调用jwt库解码
+            # 使用统一的get_secret_key()函数获取密钥
+            secret_key = get_secret_key()
+            
             try:
-                # 获取密钥 - 这里不应该使用request.app
-                # 可以从当前应用或全局配置获取secret_key
-                from flask import current_app
-                try:
-                    # 尝试从当前应用获取密钥
-                    secret_key = current_app.config.get('SECRET_KEY')
-                except RuntimeError:
-                    # 如果不在应用上下文中，使用配置中的密钥
-                    secret_key = config.secret_key
-                
                 payload = jwt.decode(
                     token, 
                     secret_key, 
@@ -150,90 +144,100 @@ def device_token_auth_required(f):
     
     return decorated_function
 
-# 设备认证获取Token API
-@device_api_server.route('/auth/token', methods=['POST'])
-def get_device_token():
-    """边缘设备通过设备ID和密钥获取访问令牌"""
+def get_secret_key():
+    """获取密钥的统一方法"""
     try:
-        # 从请求中获取设备ID和密钥
-        data = request.get_json()
-        if not data:
-            return jsonify({"code": 400, "message": "无效的请求数据"}), 400
-        
-        device_id = data.get('device_id')
-        secret_key = data.get('secret_key')
-        
-        if not device_id or not secret_key:
-            return jsonify({"code": 400, "message": "设备ID和密钥不能为空"}), 400
-        
-        # 查找设备
-        device = EdgeDevice.query.filter_by(device_id=device_id).first()
-        if not device:
-            logger.warning(f"设备认证失败: 无效的设备ID {device_id}")
-            return jsonify({"code": 401, "message": "无效的设备ID"}), 401
-        
-        # 验证密钥
-        if device.secret_key != secret_key:
-            logger.warning(f"设备认证失败: 无效的密钥 (设备ID: {device_id})")
-            return jsonify({"code": 401, "message": "无效的密钥"}), 401
-        
-        # 更新设备最后一次登录时间和状态
-        device.last_auth_time = datetime.now()
-        device.status = '在线'
-        db.session.commit()
-        logger.info(f"设备 {device.device_name} (ID: {device.device_id}) 认证成功，已更新最后登录时间")
-        
-        # 生成JWT令牌，有效期为24小时
-        current_time = datetime.now()
-        exp_time = current_time + timedelta(hours=24)
-        
-        # 使用简单的payload格式
-        payload = {
-            'device_id': device.device_id,
-            'exp': int(exp_time.timestamp()),
-            'iat': int(current_time.timestamp()),
-            'jti': str(uuid.uuid4())
-        }
-        
-        # 记录用于调试的信息
-        logger.debug(f"生成令牌的payload: {payload}")
-        
-        # 获取密钥 - 这里不应该使用request.app
-        # 可以从当前应用或全局配置获取secret_key
-        from flask import current_app
-        try:
-            # 尝试从当前应用获取密钥
-            secret_key = current_app.config.get('SECRET_KEY')
-        except RuntimeError:
-            # 如果不在应用上下文中，使用配置中的密钥
-            secret_key = config.secret_key
-        
-        # 生成令牌
-        token = jwt.encode(
-            payload, 
-            secret_key, 
-            algorithm='HS256'
-        )
-        
+        # 尝试从当前应用获取密钥
+        return current_app.config['SECRET_KEY']
+    except (RuntimeError, KeyError):
+        # 如果不在应用上下文中或密钥不存在，使用配置中的密钥
+        return config.secret_key
+
+# 设备认证获取Token API
+@bp.route('/auth/token', methods=['POST'])
+def get_device_token():
+    """获取设备认证令牌"""
+    # 检查数据库连接状态
+    if not check_db_connection():
+        logger.error("数据库连接不可用")
         return jsonify({
-            'code': 200,
-            'message': '认证成功',
-            'data': {
-                'token': token,
-                'expires_in': 86400,  # 24小时的秒数
-                'device_id': device.device_id,
-                'device_name': device.device_name
-            }
-        })
+            'code': 503,
+            'message': '数据库服务暂时不可用，请稍后重试'
+        }), 503
+
+    try:
+        data = request.get_json()
+        if not data or 'device_id' not in data or 'secret_key' not in data:
+            logger.warning("请求数据无效")
+            return jsonify({
+                'code': 400,
+                'message': '无效的请求数据'
+            }), 400
+
+        device_id = data['device_id']
+        secret_key = data['secret_key']
+        
+        logger.debug(f"尝试认证设备: device_id={device_id}")
+
+        with db_session() as session:
+            # 修改查询条件，使用device_id而不是id
+            device = session.query(EdgeDevice).filter_by(device_id=device_id).first()
+            
+            if not device or device.secret_key != secret_key:
+                logger.warning(f"设备认证失败: device_id={device_id}")
+                return jsonify({
+                    'code': 401,
+                    'message': '设备ID或密钥无效'
+                }), 401
+
+            try:
+                # 更新设备最后认证时间和状态
+                device.last_auth_time = datetime.utcnow()
+                device.status = '在线'
+                session.commit()
+                logger.debug(f"设备状态已更新: device_id={device_id}, status=在线")
+
+                # 生成JWT令牌
+                payload = {
+                    'device_id': device_id,
+                    'exp': datetime.utcnow() + timedelta(days=1)
+                }
+                
+                try:
+                    secret_key = get_secret_key()
+                    token = jwt.encode(payload, secret_key, algorithm='HS256')
+                    logger.info(f"设备 {device_id} 认证成功，生成令牌")
+                    return jsonify({
+                        'code': 200,
+                        'message': '认证成功',
+                        'data': {
+                            'token': token,
+                            'expires_in': 86400  # 24小时的秒数
+                        }
+                    })
+                except Exception as e:
+                    logger.error(f"生成令牌时发生错误: {str(e)}")
+                    return jsonify({
+                        'code': 500,
+                        'message': '生成令牌失败'
+                    }), 500
+
+            except Exception as e:
+                session.rollback()
+                logger.error(f"更新设备状态时发生错误: {str(e)}")
+                return jsonify({
+                    'code': 500,
+                    'message': '更新设备状态失败'
+                }), 500
     except Exception as e:
-        logger.error(f"获取设备令牌失败: {str(e)}")
+        logger.error(f"处理认证请求时发生错误: {str(e)}")
         return jsonify({
             'code': 500,
-            'message': f'获取令牌失败: {str(e)}'
+            'message': '服务器内部错误'
         }), 500
 
 # 上传告警API - 支持Token认证
-@device_api_server.route('/alarms', methods=['POST'])
+@bp.route('/alarms', methods=['POST'])
 @device_token_auth_required
 def create_alarm_with_token():
     """边缘设备上传告警信息 - 使用Token认证方式"""
@@ -298,7 +302,7 @@ def create_alarm_with_token():
         }), 500
 
 # 设备状态检查API
-@device_api_server.route('/status', methods=['GET'])
+@bp.route('/status', methods=['GET'])
 def api_status():
     """API服务器状态检查"""
     return jsonify({
@@ -308,7 +312,7 @@ def api_status():
     })
 
 # 专门用于直接认证的测试端点
-@device_api_server.route('/direct_test', methods=['POST'])
+@bp.route('/direct_test', methods=['POST'])
 @device_auth_required
 def direct_test():
     """直接认证测试API - 专门用于测试设备ID和密钥认证方式"""
@@ -379,36 +383,69 @@ if __name__ == '__main__':
     
     # 创建独立的Flask应用实例
     standalone_app = Flask(__name__, template_folder=None, static_folder=None)
-    standalone_app.config.from_object(Config)
+    
+    # 配置数据库
+    db_cfg = config.database
+    standalone_app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{db_cfg.user}:{db_cfg.password}@{db_cfg.host}:{db_cfg.port}/{db_cfg.name}"
+    standalone_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    standalone_app.config['SECRET_KEY'] = config.secret_key
     
     # 初始化数据库
     db.init_app(standalone_app)
     
-    # 添加日志记录中间件
-    @standalone_app.before_request
-    def log_request_info():
-        """记录所有接收到的请求信息，用于调试"""
-        logger.debug('请求头: %s', dict(request.headers))
-        logger.debug('请求URL: %s %s', request.method, request.url)
-        logger.debug('请求数据: %s', request.get_json(silent=True))
+    # 注册Blueprint
+    standalone_app.register_blueprint(bp)
     
-    # 添加错误处理器，确保所有错误返回JSON而不是HTML
+    # 添加请求前处理中间件
+    @standalone_app.before_request
+    def before_request():
+        """请求前的处理"""
+        # 记录请求信息
+        logger.debug('Headers: %s', dict(request.headers))
+        logger.debug('URL: %s %s', request.method, request.url)
+        logger.debug('Data: %s', request.get_json(silent=True))
+        
+        # 检查数据库连接
+        if not check_db_connection():
+            logger.error("数据库连接不可用")
+            try:
+                # 尝试重新初始化数据库连接
+                with standalone_app.app_context():
+                    init_db_engine(force=True)
+                    logger.info("数据库连接重新初始化成功")
+            except Exception as e:
+                logger.error(f"数据库连接重新初始化失败: {e}")
+                return jsonify({
+                    'code': 503,
+                    'message': '数据库服务暂时不可用，请稍后重试'
+                }), 503
+    
+    # 添加错误处理器
     @standalone_app.errorhandler(404)
-    def not_found(error):
+    def not_found_error(error):
         return jsonify({
             'code': 404,
             'message': '请求的API端点不存在'
         }), 404
-    
+
     @standalone_app.errorhandler(500)
-    def server_error(error):
+    def internal_error(error):
         return jsonify({
             'code': 500,
-            'message': '服务器内部错误: ' + str(error)
+            'message': '服务器内部错误'
         }), 500
     
-    # 注册Blueprint
-    standalone_app.register_blueprint(device_api_server)
+    # 在应用上下文中初始化数据库连接
+    with standalone_app.app_context():
+        try:
+            init_db_engine()
+            # 测试数据库连接
+            with db_session() as session:
+                session.execute(text("SELECT 1"))
+            logger.info("数据库连接初始化成功")
+        except Exception as e:
+            logger.error(f"数据库连接初始化失败: {e}")
+            raise
     
     # 命令行参数
     parser = argparse.ArgumentParser(description='边缘设备API服务器')
@@ -419,4 +456,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     logger.info(f"边缘设备API服务器正在启动，监听 {args.host}:{args.port}")
-    standalone_app.run(host=args.host, port=args.port, debug=args.debug) 
+    standalone_app.run(host=args.host, port=args.port, debug=args.debug, ssl_context='adhoc') 

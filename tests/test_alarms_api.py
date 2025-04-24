@@ -19,7 +19,7 @@ from datetime import datetime
 DEFAULT_CONFIG = {
     'url': 'https://127.0.0.1:5566',  # 默认使用HTTPS
     'device_id': '9c5aff66',  # 默认测试设备ID
-    'secret_key': 'SKBeY26X6DwcAoIiQj3v7bLNGcLclKTxIQUw7a0edy',  # 默认测试密钥
+    'secret_key': 'SK1fGlYLe9AIJXRsIiO54wInpjiTC3QLE0GoiHwzka',  # 默认测试密钥
     'alarm_type': '设备异常',  # 默认告警类型
     'alarm_code': 'well_qt001',  # 默认告警编号（将自动生成）
     'well_code': 'JK003',  # 默认油井编号

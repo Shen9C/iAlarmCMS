@@ -47,7 +47,7 @@ def create_api_app(config_class=None):
         Flask API服务器应用实例
     """
     # 导入Flask，以避免未定义的变量错误
-    from flask import Flask, jsonify, Blueprint
+    from flask import Flask, jsonify, Blueprint, request
     import importlib
 
     logger.info("创建API服务器应用实例 - 极简模式")
@@ -77,107 +77,33 @@ def create_api_app(config_class=None):
         # 初始化数据库
         db.init_app(api_app)
         
-        # 如果使用自定义数据库连接管理器，初始化引擎
-        if HAS_DB_CONNECTION_MANAGER:
-            with api_app.app_context():
-                try:
-                    init_db_engine()
-                    logger.info("API应用: 数据库连接管理器初始化成功")
-                except Exception as db_error:
-                    logger.error(f"API应用: 数据库连接管理器初始化失败: {db_error}")
-        
-        # 添加错误处理器，确保所有错误返回JSON而不是HTML
-        @api_app.errorhandler(404)
-        def api_not_found(error):
-            return jsonify({
-                'code': 404,
-                'message': '请求的API端点不存在'
-            }), 404
-        
-        @api_app.errorhandler(500)
-        def api_server_error(error):
-            return jsonify({
-                'code': 500,
-                'message': '服务器内部错误: ' + str(error)
-            }), 500
-        
-        # 添加日志中间件
-        @api_app.before_request
-        def log_api_request():
-            """记录API请求信息"""
-            logger.debug(f"API请求: {request.method} {request.path}")
-            logger.debug(f"请求数据: {request.get_json(silent=True)}")
-            
-            # 如果使用自定义数据库连接管理器，检查数据库连接状态
-            if HAS_DB_CONNECTION_MANAGER:
-                if not check_db_connection():
-                    return jsonify({
-                        'code': 503,
-                        'message': '数据库连接失败，请稍后重试'
-                    }), 503
-        
-        # 导入API路由 - 直接使用edge_device_api_server.py中的device_api_server蓝图
-        # 而不是尝试从其他模块导入，避免命名冲突
-        
-        # 首先尝试直接导入边缘设备API蓝图
+        # 尝试导入并注册设备API蓝图
         try:
-            from app.routes.edge_device_api_server import device_api_server
-            api_app.register_blueprint(device_api_server)
-            logger.info(f"成功注册边缘设备API蓝图: device_api_server ({device_api_server.name})")
+            from app.routes.edge_device_api_server import bp as device_api_bp
+            api_app.register_blueprint(device_api_bp, url_prefix='/api/edge_devices')
+            logger.info("API应用: 设备API蓝图注册成功")
         except ImportError as e:
-            logger.error(f"导入edge_device_api_server模块失败: {str(e)}")
-            # 创建一个全新名称的蓝图，避免与Web应用冲突
-            empty_bp = Blueprint('api_device_server', __name__, url_prefix='/api/edge_devices')
-            
-            @empty_bp.route('/')
-            def api_root():
-                return jsonify({
-                    'message': '边缘设备API服务器',
-                    'status': 'error',
-                    'error': '无法加载完整的API路由',
-                    'detail': str(e)  # noqa: F821
-                })
-            
-            api_app.register_blueprint(empty_bp)
-            logger.warning("已注册临时API蓝图替代")
-        except Exception as e:
-            logger.error(f"注册API蓝图时发生未知错误: {str(e)}")
-            import traceback
-            logger.error(traceback.format_exc())
-            # 创建一个错误处理蓝图
-            error_bp = Blueprint('api_error', __name__, url_prefix='/api')
-            
-            @error_bp.route('/')
-            def api_error():
-                return jsonify({
-                    'message': '边缘设备API服务器',
-                    'status': 'error',
-                    'error': '服务器初始化失败', 
-                    'detail': str(e)  # noqa: F821
-                })
-            
-            api_app.register_blueprint(error_bp)
-        # 添加一个状态检查端点
-        @api_app.route('/status')
-        def api_status():
-            """服务器状态检查端点"""
-            from datetime import datetime
-            
-            # 添加数据库连接检查
-            db_status = "正常" if not HAS_DB_CONNECTION_MANAGER or check_db_connection() else "异常"
-            
-            return jsonify({
-                'status': 'ok',
-                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'message': 'API服务器运行正常',
-                'database': db_status
-            })
+            logger.warning(f"API应用: 无法导入设备API蓝图: {e}")
+            # 创建一个临时蓝图以保持基本功能
+            temp_bp = Blueprint('temp', __name__)
+            @temp_bp.route('/status')
+            def status():
+                return jsonify({'status': 'ok'})
+            api_app.register_blueprint(temp_bp)
         
-        logger.info("API服务器应用实例创建成功")
+        # 添加错误处理
+        @api_app.errorhandler(404)
+        def not_found_error(error):
+            return jsonify({'error': 'Not found'}), 404
+
+        @api_app.errorhandler(500)
+        def internal_error(error):
+            return jsonify({'error': 'Internal server error'}), 500
+            
         return api_app
+        
     except Exception as e:
-        logger.error(f"无法创建API应用实例: {str(e)}")
-        logger.exception("详细错误信息:")
+        logger.error(f"创建API应用实例失败: {e}")
         raise
 
 def create_web_app(config_class=None):

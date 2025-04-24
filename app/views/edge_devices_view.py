@@ -1,11 +1,13 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, current_app
 from flask_login import login_required, current_user  # 添加current_user导入
 from app.models.edge_devices import EdgeDevice
+from app.models.alarms import Alarm
 from app.utils.decorators import admin_required
 from app import db
 import logging
 import traceback
 from datetime import datetime
+import uuid
 
 bp = Blueprint('edge_devices', __name__, url_prefix='/edge_devices')
 
@@ -118,150 +120,96 @@ def regenerate_device_auth(device_id):
         flash(f'更新认证密钥失败: {str(e)}', 'error')
         return redirect(url_for('edge_devices.device_auth_detail', device_id=device_id))
 
-# 创建API蓝图
-api_bp = Blueprint('edge_devices_view', __name__, url_prefix='/api/edge_devices')
-
-@api_bp.route('/', methods=['POST'])
+@bp.route('/edge_devices/add', methods=['POST'])
 @login_required
 @admin_required
 def add_device():
-    """添加新的边缘设备"""
+    """添加新设备"""
     try:
         data = request.get_json()
-        if not data:
-            return jsonify({"code": 400, "message": "无效的请求数据"}), 400
-        
-        device_name = data.get('device_name')
-        ip_address = data.get('ip_address')
-        device_id = data.get('device_id')  # 可选参数
-        
-        if not device_name or not ip_address:
-            return jsonify({"code": 400, "message": "设备名称和IP地址不能为空"}), 400
-        
+        if not data or 'device_name' not in data or 'ip_address' not in data:
+            return jsonify({"code": 400, "message": "缺少必要参数"}), 400
+
+        device_name = data['device_name']
+        ip_address = data['ip_address']
+
         # 检查设备名称是否已存在
-        existing_device = EdgeDevice.query.filter_by(device_name=device_name).first()
-        if existing_device:
+        if EdgeDevice.query.filter_by(device_name=device_name).first():
             return jsonify({"code": 400, "message": "设备名称已存在"}), 400
-        
-        # 检查IP地址是否已存在
-        existing_ip = EdgeDevice.query.filter_by(ip_address=ip_address).first()
-        if existing_ip:
-            return jsonify({"code": 400, "message": "IP地址已被使用"}), 400
-        
-        # 如果提供了device_id，检查是否已存在
-        if device_id:
-            existing_device_id = EdgeDevice.query.filter_by(device_id=device_id).first()
-            if existing_device_id:
-                return jsonify({"code": 400, "message": "设备ID已存在"}), 400
-        
+
         # 创建新设备
-        new_device = EdgeDevice(
+        device = EdgeDevice(
             device_name=device_name,
             ip_address=ip_address,
-            device_id=device_id
+            device_id=f"DEV{uuid.uuid4().hex[:8]}",
+            secret_key=EdgeDevice.generate_secret_key()
         )
-        
-        db.session.add(new_device)
-        db.session.commit()
-        
-        return jsonify({"code": 200, "message": "设备添加成功", "data": {"id": new_device.id, "device_id": new_device.device_id}}), 200
-    
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"code": 500, "message": f"添加设备失败: {str(e)}"}), 500
 
-@api_bp.route('/<int:device_id>', methods=['PUT'])
+        db.session.add(device)
+        db.session.commit()
+
+        return jsonify({
+            "code": 200,
+            "message": "设备添加成功",
+            "data": device.to_dict()
+        }), 200
+
+    except Exception as e:
+        current_app.logger.error(f"添加设备失败: {str(e)}")
+        db.session.rollback()
+        return jsonify({"code": 500, "message": "服务器内部错误"}), 500
+
+@bp.route('/edge_devices/<int:device_id>/regenerate_key', methods=['POST'])
 @login_required
 @admin_required
-def update_device(device_id):
-    """更新边缘设备信息"""
-    try:
-        device = EdgeDevice.query.get_or_404(device_id)
-        data = request.get_json()
-        
-        if not data:
-            return jsonify({"code": 400, "message": "无效的请求数据"}), 400
-        
-        device_name = data.get('device_name')
-        ip_address = data.get('ip_address')
-        new_device_id = data.get('device_id')
-        
-        if not device_name or not ip_address:
-            return jsonify({"code": 400, "message": "设备名称和IP地址不能为空"}), 400
-        
-        # 检查设备名称是否已存在（排除当前设备）
-        existing_device = EdgeDevice.query.filter(
-            EdgeDevice.device_name == device_name, 
-            EdgeDevice.id != device_id
-        ).first()
-        if existing_device:
-            return jsonify({"code": 400, "message": "设备名称已存在"}), 400
-        
-        # 检查IP地址是否已存在（排除当前设备）
-        existing_ip = EdgeDevice.query.filter(
-            EdgeDevice.ip_address == ip_address, 
-            EdgeDevice.id != device_id
-        ).first()
-        if existing_ip:
-            return jsonify({"code": 400, "message": "IP地址已被使用"}), 400
-        
-        # 如果提供了device_id，检查是否已存在（排除当前设备）
-        if new_device_id and new_device_id != device.device_id:
-            existing_device_id = EdgeDevice.query.filter(
-                EdgeDevice.device_id == new_device_id, 
-                EdgeDevice.id != device_id
-            ).first()
-            if existing_device_id:
-                return jsonify({"code": 400, "message": "设备ID已存在"}), 400
-            device.device_id = new_device_id
-        
-        # 更新设备信息
-        device.device_name = device_name
-        device.ip_address = ip_address
-        
-        db.session.commit()
-        
-        return jsonify({"code": 200, "message": "设备更新成功"}), 200
-    
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"code": 500, "message": f"更新设备失败: {str(e)}"}), 500
-
-@api_bp.route('/<int:device_id>', methods=['DELETE'])
-@login_required
-@admin_required
-def delete_device(device_id):
-    """删除边缘设备"""
-    try:
-        device = EdgeDevice.query.get_or_404(device_id)
-        
-        db.session.delete(device)
-        db.session.commit()
-        
-        return jsonify({"code": 200, "message": "设备删除成功"}), 200
-    
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"code": 500, "message": f"删除设备失败: {str(e)}"}), 500
-
-@api_bp.route('/<int:device_id>/regenerate_secret', methods=['POST'])
-@login_required
-@admin_required
-def regenerate_device_secret(device_id):
+def regenerate_key(device_id):
     """重新生成设备密钥"""
     try:
         device = EdgeDevice.query.get_or_404(device_id)
-        
-        # 生成新的密钥
         device.secret_key = EdgeDevice.generate_secret_key()
-        
         db.session.commit()
-        
-        return jsonify({"code": 200, "message": "密钥重新生成成功", "data": {"secret_key": device.secret_key}}), 200
-    
+
+        return jsonify({
+            "code": 200,
+            "message": "密钥重新生成成功",
+            "data": {"secret_key": device.secret_key}
+        }), 200
+
     except Exception as e:
+        current_app.logger.error(f"重新生成密钥失败: {str(e)}")
         db.session.rollback()
-        return jsonify({"code": 500, "message": f"重新生成密钥失败: {str(e)}"}), 500
+        return jsonify({"code": 500, "message": "服务器内部错误"}), 500
+
+@bp.route('/edge_devices/<int:device_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_device(device_id):
+    """删除设备"""
+    try:
+        device = EdgeDevice.query.get_or_404(device_id)
+        
+        # 检查设备是否有关联的告警
+        if Alarm.query.filter_by(device_id=device.device_id).first():
+            return jsonify({
+                "code": 400,
+                "message": "设备存在关联的告警记录，无法删除"
+            }), 400
+
+        db.session.delete(device)
+        db.session.commit()
+
+        return jsonify({
+            "code": 200,
+            "message": "设备删除成功"
+        }), 200
+
+    except Exception as e:
+        current_app.logger.error(f"删除设备失败: {str(e)}")
+        db.session.rollback()
+        return jsonify({"code": 500, "message": "服务器内部错误"}), 500
+
+# 创建API蓝图
+api_bp = Blueprint('edge_devices_view', __name__, url_prefix='/api/edge_devices')
 
 @api_bp.route('/', methods=['GET'])
 @login_required
