@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import time
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import Blueprint, jsonify, request, current_app, g, send_from_directory, send_file
@@ -18,6 +19,11 @@ logger = logging.getLogger(__name__)
 # 创建Blueprint
 bp = Blueprint('alarms_api', __name__, url_prefix='/api/alarms')
 
+# 创建缩略图缓存
+thumbnail_cache = {}
+CACHE_MAX_SIZE = 100  # 缓存最多保存100个缩略图
+CACHE_EXPIRY = 3600   # 缓存有效期1小时（秒）
+
 # 新增路由：提供告警图片访问
 @bp.route('/images/<filename>')
 def get_alarm_image(filename):
@@ -25,6 +31,9 @@ def get_alarm_image(filename):
     # 安全检查：防止路径穿越
     if '..' in filename or filename.startswith('/'):
         return jsonify({'error': '无效的文件名'}), 400
+    
+    start_time = time.time()
+    logger.info(f"开始处理图片请求: {filename}, 时间: {start_time}")
     
     # 优先尝试固定路径，避免多次检查不同路径
     cwd = os.getcwd()
@@ -36,7 +45,7 @@ def get_alarm_image(filename):
     
     # 直接检查主要路径
     if os.path.isfile(file_path):
-        logger.info(f"找到图片文件: {file_path}")
+        logger.info(f"找到图片文件: {file_path}, 用时: {time.time() - start_time:.4f}秒")
         
         # 根据请求模式决定如何发送文件
         if download_mode:
@@ -49,8 +58,10 @@ def get_alarm_image(filename):
             )
         else:
             # 查看模式添加缓存头
-            logger.info(f"查看模式: {filename}")
-            return send_file(file_path, mimetype='image/jpeg')
+            logger.info(f"查看模式: {filename}, 总用时: {time.time() - start_time:.4f}秒")
+            response = send_file(file_path, mimetype='image/jpeg')
+            response.headers['Cache-Control'] = 'public, max-age=86400'  # 缓存1天
+            return response
     
     # 如果在首选路径找不到，尝试其他可能的位置
     backup_paths = [
@@ -61,7 +72,7 @@ def get_alarm_image(filename):
     for path in backup_paths:
         file_path = os.path.join(path, filename)
         if os.path.isfile(file_path):
-            logger.info(f"备用路径找到图片: {file_path}")
+            logger.info(f"备用路径找到图片: {file_path}, 用时: {time.time() - start_time:.4f}秒")
             
             if download_mode:
                 return send_file(
@@ -71,49 +82,94 @@ def get_alarm_image(filename):
                     download_name=filename
                 )
             else:
-                return send_file(file_path, mimetype='image/jpeg')
-                
-            return send_file(file_path, mimetype='image/jpeg')
+                response = send_file(file_path, mimetype='image/jpeg')
+                response.headers['Cache-Control'] = 'public, max-age=86400'
+                return response
     
     # 如果所有路径都找不到文件
-    logger.error(f"未找到图片文件: {filename}")
+    logger.error(f"未找到图片文件: {filename}, 用时: {time.time() - start_time:.4f}秒")
     return jsonify({'error': '图片文件不存在'}), 404
 
 @bp.route('/thumbnails/<filename>')
 def get_alarm_thumbnail(filename):
-    """提供告警图片缩略图"""
-    # 与get_alarm_image类似的查找逻辑
-    cwd = os.getcwd()
-    possible_paths = [
-        os.path.join(cwd, 'app', 'static', 'alarm_images', filename),
-        os.path.join(cwd, 'static', 'alarm_images', filename),
-        os.path.join(cwd, 'app/static', 'alarm_images', filename)
-    ]
+    """提供告警图片缩略图，添加性能优化和缓存"""
+    start_time = time.time()
+    logger.info(f"开始处理缩略图请求: {filename}, 时间: {start_time}")
     
-    file_path = None
-    for path in possible_paths:
-        if os.path.isfile(path):
-            file_path = path
-            break
-            
-    if not file_path:
-        return jsonify({'error': '图片文件不存在'}), 404
+    # 检查缓存中是否已存在此缩略图
+    cache_key = f"thumb_{filename}"
+    if cache_key in thumbnail_cache:
+        cache_entry = thumbnail_cache[cache_key]
+        # 检查缓存是否过期
+        if time.time() - cache_entry['timestamp'] < CACHE_EXPIRY:
+            logger.info(f"缩略图缓存命中: {filename}, 用时: {time.time() - start_time:.4f}秒")
+            # 从内存中返回缩略图
+            output = BytesIO(cache_entry['data'])
+            output.seek(0)
+            response = send_file(output, mimetype='image/jpeg')
+            response.headers['Cache-Control'] = 'public, max-age=86400'  # 缓存1天
+            return response
+    
+    # 优先尝试固定路径，减少多路径检查
+    cwd = os.getcwd()
+    primary_path = os.path.join(cwd, 'app', 'static', 'alarm_images')
+    file_path = os.path.join(primary_path, filename)
+    
+    # 如果主路径不存在，再尝试备用路径
+    if not os.path.isfile(file_path):
+        backup_paths = [
+            os.path.join(cwd, 'static', 'alarm_images'),
+            os.path.join(cwd, 'app/static', 'alarm_images')
+        ]
         
+        for path in backup_paths:
+            test_path = os.path.join(path, filename)
+            if os.path.isfile(test_path):
+                file_path = test_path
+                logger.info(f"在备用路径找到原始图片: {file_path}, 用时: {time.time() - start_time:.4f}秒")
+                break
+    else:
+        logger.info(f"在主路径找到原始图片: {file_path}, 用时: {time.time() - start_time:.4f}秒")
+            
+    if not os.path.isfile(file_path):
+        logger.error(f"未找到原始图片文件: {filename}, 用时: {time.time() - start_time:.4f}秒")
+        return jsonify({'error': '图片文件不存在'}), 404
+    
     # 找到图片后，生成缩略图
     try:
+        thumb_start = time.time()
         img = Image.open(file_path)
         img.thumbnail((100, 100))  # 缩小到100x100
         
         # 保存到内存
         output = BytesIO()
         img.save(output, format='JPEG', quality=75, optimize=True)
-        output.seek(0)
         
-        return send_file(output, mimetype='image/jpeg')
+        # 缓存生成的缩略图
+        output_data = output.getvalue()
+        thumbnail_cache[cache_key] = {
+            'data': output_data,
+            'timestamp': time.time()
+        }
+        
+        # 如果缓存太大，移除最旧的条目
+        if len(thumbnail_cache) > CACHE_MAX_SIZE:
+            oldest_key = min(thumbnail_cache.keys(), key=lambda k: thumbnail_cache[k]['timestamp'])
+            del thumbnail_cache[oldest_key]
+            
+        logger.info(f"缩略图生成完成: {filename}, 生成用时: {time.time() - thumb_start:.4f}秒, 总用时: {time.time() - start_time:.4f}秒")
+        
+        # 返回生成的缩略图
+        output.seek(0)
+        response = send_file(output, mimetype='image/jpeg')
+        response.headers['Cache-Control'] = 'public, max-age=86400'  # 缓存1天
+        return response
     except Exception as e:
-        logger.error(f"生成缩略图失败: {str(e)}")
+        logger.error(f"生成缩略图失败: {str(e)}, 用时: {time.time() - start_time:.4f}秒")
         # 降级到原始图片
-        return send_file(file_path, mimetype='image/jpeg')
+        response = send_file(file_path, mimetype='image/jpeg')
+        response.headers['Cache-Control'] = 'public, max-age=86400'
+        return response
 
 # 辅助函数：通过token获取用户
 def get_user_by_token(token):
