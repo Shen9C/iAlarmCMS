@@ -3,10 +3,6 @@ debug_log_enabled: true
 debug: true
 secret_key: ${SECRET_KEY:-dev-key-123}
 
-# 服务器配置（旧配置，保持兼容）
-host: 0.0.0.0
-port: 5000
-
 # Web服务器配置
 web_server:
   host: 0.0.0.0
@@ -33,10 +29,12 @@ session:
 # 日志配置
 logging:
   path: logs
-  filename: oilfield_gateway.log
+  main_log: oilfield.log
+  db_log: db_init.log
   max_bytes: 52428800  # 50MB
   backup_count: 20
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  date_format: "%Y-%m-%d %H:%M:%S"
 
 # 应用配置
 application:

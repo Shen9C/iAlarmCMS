@@ -13,47 +13,28 @@ import sys
 from pathlib import Path
 import importlib
 import traceback
+from app.utils.logger import get_logger
+from app.utils.yaml_config_loader import config
+from app.utils.db_connection import check_db_connection, db_session, init_db_engine
+from app.utils.decorators import get_secret_key
+from app import db  # 直接从app导入db
+from app.models.edge_devices import EdgeDevice  # 使用正确的模型导入
+from datetime import datetime, timedelta
+from functools import wraps
+from sqlalchemy import text
+import jwt
+import uuid
+import logging
+from functools import wraps
 
 # 将项目根目录添加到系统路径
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from app import db
-from app.models.edge_devices import EdgeDevice
 from app.models.alarms import Alarm
-from app.utils.yaml_config_loader import Config, config
-from app.utils.db_connection import check_db_connection, db_session, init_db_engine
-import jwt
-import uuid
-import logging
-from datetime import datetime, timedelta
-from functools import wraps
-from sqlalchemy import text
 
-# 配置日志
-log_file = getattr(config, 'log_file', 'logs/oilfield_gateway.log')
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler(log_file, encoding='utf-8')
-    ]
-)
-logger = logging.getLogger(__name__)
-
-# 配置Flask日志
-werkzeug_logger = logging.getLogger('werkzeug')
-werkzeug_logger.handlers = []  # 清除已有的处理器
-for handler in logging.getLogger().handlers:
-    werkzeug_logger.addHandler(handler)
-
-# 配置SQLAlchemy日志
-sqlalchemy_logger = logging.getLogger('sqlalchemy.engine')
-sqlalchemy_logger.handlers = []  # 清除已有的处理器
-for handler in logging.getLogger().handlers:
-    sqlalchemy_logger.addHandler(handler)
-sqlalchemy_logger.setLevel(logging.INFO)  # 设置为INFO以避免过多的SQL日志
+# 获取日志记录器
+logger = get_logger('api')
 
 # 创建一个仅包含设备API路由的Blueprint
 bp = Blueprint('device_api', __name__, url_prefix='/api/edge_devices')
@@ -178,15 +159,6 @@ def device_token_auth_required(f):
             return jsonify({"code": 500, "message": f"认证过程发生错误: {str(e)}"}), 500
     
     return decorated_function
-
-def get_secret_key():
-    """获取密钥的统一方法"""
-    try:
-        # 尝试从当前应用获取密钥
-        return current_app.config['SECRET_KEY']
-    except (RuntimeError, KeyError):
-        # 如果不在应用上下文中或密钥不存在，使用配置中的密钥
-        return config.secret_key
 
 # 设备认证获取Token API
 @bp.route('/auth/token', methods=['POST'])

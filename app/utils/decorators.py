@@ -1,6 +1,8 @@
 from functools import wraps
-from flask import flash, redirect, url_for, request
+from flask import flash, redirect, url_for, request, current_app, jsonify
 from flask_login import current_user
+from app.models.edge_devices import EdgeDevice
+from app.utils.yaml_config_loader import config
 
 def admin_required(f):
     @wraps(f)
@@ -11,14 +13,14 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-
-# 添加 device_auth_required 装饰器
-from functools import wraps
-from flask import request, jsonify, current_app
-from app.models.edge_devices import EdgeDevice
-from app.routes.edge_device_api_server import get_secret_key
-
-# 假设已有其他装饰器如 admin_required 等
+def get_secret_key():
+    """获取密钥的统一方法"""
+    try:
+        # 尝试从当前应用获取密钥
+        return current_app.config['SECRET_KEY']
+    except (RuntimeError, KeyError):
+        # 如果不在应用上下文中或密钥不存在，使用配置中的密钥
+        return config.secret_key
 
 def device_auth_required(f):
     @wraps(f)

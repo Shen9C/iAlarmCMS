@@ -136,12 +136,16 @@ def load_config(env=None):
     config.DEBUG = config.debug
     config.SECRET_KEY = config.secret_key
     
+    # 处理日志配置
     if hasattr(config, 'logging'):
-        config.LOG_PATH = os.path.join(config.BASEDIR, config.logging.path)
-        config.LOG_FILENAME = config.logging.filename
-        config.LOG_MAX_BYTES = config.logging.max_bytes
-        config.LOG_BACKUP_COUNT = config.logging.backup_count
-        config.LOG_FORMAT = config.logging.format
+        log = config.logging
+        config.LOG_PATH = log.path
+        config.MAIN_LOG = log.main_log
+        config.DB_LOG = log.db_log
+        config.LOG_MAX_BYTES = log.max_bytes
+        config.LOG_BACKUP_COUNT = log.backup_count
+        config.LOG_FORMAT = log.format
+        config.LOG_DATE_FORMAT = log.date_format
     
     # 处理SSL配置
     if hasattr(config, 'ssl'):

@@ -19,8 +19,8 @@ from urllib.parse import urlparse
 
 # 预置默认配置
 DEFAULT_CONFIG = {
-    # 'url': 'https://127.0.0.1:5566',  # 默认使用HTTPS
-    'url': 'https://192.168.8.16:5566',  # 默认使用HTTPS
+    'url': 'https://127.0.0.1:5566',  # 默认使用HTTPS
+    # 'url': 'https://192.168.8.16:5566',  # 默认使用HTTPS
     # 'url': 'https://192.168.3.3:5566',  # 默认使用HTTPS
     'device_id': '9c5aff66',  # 默认测试设备ID
     'secret_key': 'SK1fGlYLe9AIJXRsIiO54wInpjiTC3QLE0GoiHwzka',  # 默认测试密钥

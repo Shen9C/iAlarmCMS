@@ -14,8 +14,9 @@ import argparse
 import threading
 import multiprocessing
 from pathlib import Path
+import traceback
 
-from flask import Flask, has_request_context, request
+from flask import Flask, has_request_context, request, jsonify
 from flask.logging import default_handler
 from logging.config import dictConfig
 from sqlalchemy.sql import text
@@ -25,431 +26,209 @@ project_root = Path(__file__).resolve().parent
 sys.path.insert(0, str(project_root))
 
 # 导入应用和配置
-from app import create_web_app, create_api_app, db, models
+from app import create_web_app, create_api_app, db
 from app.utils.yaml_config_loader import config
-
-# 尝试导入数据库连接管理工具
-try:
-    from app.utils.db_connection import check_db_connection, init_db_engine, db_session, quick_db_check
-    HAS_DB_CONNECTION_MANAGER = True
-except ImportError:
-    HAS_DB_CONNECTION_MANAGER = False
-    logging.warning("无法导入数据库连接管理工具，将使用默认连接方式")
-
-# 导入模型类，从正确的子模块导入
-from app.models.users import User
-from app.models.alarms import Alarm
-from app.models.tasks import Task
-from app.models.oil_wells import OilWell
-
-# 尝试导入设备模型（如果存在）
-try:
-    from app.models.edge_devices import EdgeDevice as Device
-except ImportError:
-    # 如果不存在，创建一个空类以保持兼容性
-    class Device:
-        pass
-
-# 导入自定义SSL模块
-try:
-    from app.utils.custom_ssl import get_ssl_context, enable_ssl_for_app
-except ImportError:
-    logging.warning("无法导入自定义SSL模块，请确保app/utils/custom_ssl.py文件存在")
-
-# 设置日志格式
-class RequestFormatter(logging.Formatter):
-    def format(self, record):
-        if has_request_context():
-            record.url = request.url
-            record.remote_addr = request.remote_addr
-        else:
-            record.url = None
-            record.remote_addr = None
-        return super().format(record)
-
-formatter = RequestFormatter(
-    '[%(asctime)s] %(remote_addr)s requested %(url)s\n'
-    '%(levelname)s in %(module)s: %(message)s'
-)
-default_handler.setFormatter(formatter)
-
-# 配置日志
-dictConfig({
-    'version': 1,
-    'formatters': {'default': {
-        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
-    }},
-    'handlers': {'wsgi': {
-        'class': 'logging.StreamHandler',
-        'stream': 'ext://sys.stdout',
-        'formatter': 'default'
-    }},
-    'root': {
-        'level': 'INFO',
-        'handlers': ['wsgi']
-    }
-})
-
-def clear_all_sessions():
-    """清除所有用户会话"""
-    with models.db.engine.connect() as conn:
-        result = conn.execute(text("UPDATE users SET current_token = NULL"))
-        conn.commit()
-    print(f"已清除所有用户会话")
-
-def check_db_health():
-    """
-    检查数据库连接健康状态
-    
-    Returns:
-        bool: 数据库连接是否正常
-    """
-    if HAS_DB_CONNECTION_MANAGER:
-        # 使用数据库连接管理工具检查
-        logging.info("正在检查数据库连接状态...")
-        try:
-            if check_db_connection():
-                logging.info("✅ 数据库连接正常")
-                return True
-            else:
-                logging.error("❌ 数据库连接失败！请检查以下几点：")
-                logging.error("  1. PostgreSQL服务是否正在运行")
-                logging.error(f"  2. 数据库配置是否正确: 主机={config.DB_HOST}, 端口={config.DB_PORT}, 数据库={config.DB_NAME}, 用户={config.DB_USER}")
-                logging.error("  3. 防火墙是否允许数据库连接")
-                logging.error("  4. 网络连接是否正常")
-                logging.error("运行 python app/utils/db_init.py 初始化数据库可能会解决问题")
-                return False
-        except Exception as e:
-            logging.error(f"❌ 检查数据库连接时发生错误: {e}")
-            return False
-    else:
-        # 使用SQLAlchemy直接检查
-        logging.info("正在检查数据库连接状态...")
-        try:
-            # 创建一个临时的Flask应用
-            app = create_web_app()
-            with app.app_context():
-                # 尝试执行一个简单的查询
-                db.session.execute(text("SELECT 1"))
-                logging.info("✅ 数据库连接正常")
-                return True
-        except Exception as e:
-            logging.error(f"❌ 数据库连接失败: {e}")
-            logging.error("请检查数据库配置和PostgreSQL服务状态")
-            logging.error(f"数据库配置: 主机={config.DB_HOST}, 端口={config.DB_PORT}, 数据库={config.DB_NAME}, 用户={config.DB_USER}")
-            logging.error("运行 python app/utils/db_init.py 初始化数据库可能会解决问题")
-            return False
-
-def check_ssl_files(is_api=False):
-    """
-    检查SSL证书和密钥文件是否存在
-    
-    Args:
-        is_api: 是否检查API证书（否则检查Web证书）
-    """
-    if is_api:
-        cert_path = config.API_SSL_CERT
-        key_path = config.API_SSL_KEY
-    else:
-        cert_path = config.WEB_SSL_CERT
-        key_path = config.WEB_SSL_KEY
-    
-    # 检查证书和密钥文件
-    if not os.path.exists(cert_path):
-        logging.error(f"SSL证书文件不存在: {cert_path}")
-        return False
-    
-    if not os.path.exists(key_path):
-        logging.error(f"SSL密钥文件不存在: {key_path}")
-        return False
-    
-    logging.info(f"找到SSL证书: {cert_path}")
-    logging.info(f"找到SSL密钥: {key_path}")
-    return True
-
-def get_ssl_context(is_api=False):
-    """
-    获取SSL上下文
-    
-    Args:
-        is_api: 是否获取API证书的SSL上下文
-    """
-    if is_api:
-        cert_path = config.API_SSL_CERT
-        key_path = config.API_SSL_KEY
-    else:
-        cert_path = config.WEB_SSL_CERT
-        key_path = config.WEB_SSL_KEY
-    
-    try:
-        # 如果自定义SSL模块可用，使用它
-        from app.utils.custom_ssl import get_ssl_context
-        return get_ssl_context(cert_path, key_path)
-    except (ImportError, TypeError):
-        # 否则使用简单的元组
-        return (cert_path, key_path)
-
-def run_web_app(host=None, port=None, debug=False, use_ssl=True, use_keep_alive=False):
-    """
-    运行Web应用服务器
-    
-    Args:
-        host: 主机地址，默认使用配置中的WEB_HOST
-        port: 端口号，默认使用配置中的WEB_PORT
-        debug: 是否启用调试模式
-        use_ssl: 是否使用SSL
-        use_keep_alive: 是否使用长连接，默认False表示使用短连接
-    """
-    # 使用配置中的值作为默认值
-    if host is None:
-        host = config.WEB_HOST
-    if port is None:
-        port = config.WEB_PORT
-    
-    logging.info("正在创建Web应用实例...")
-    app = create_web_app()
-    logging.info("Web应用实例创建成功")
-    
-    # 如果不使用长连接，添加全局中间件，设置短连接
-    if not use_keep_alive:
-        @app.after_request
-        def set_connection_close(response):
-            response.headers["Connection"] = "close"
-            return response
-        logging.info("Web应用服务器将使用短连接模式")
-    else:
-        logging.info("Web应用服务器将使用长连接模式")
-    
-    # 打印当前的路由，改为DEBUG级别
-    if debug:
-        logging.debug("Web应用服务器路由:")
-        for rule in app.url_map.iter_rules():
-            logging.debug(f"{rule.endpoint}: {rule.rule}")
-    
-    # 准备SSL选项
-    ssl_context = None
-    if use_ssl:
-        if not check_ssl_files(is_api=False):
-            logging.error("Web证书文件不存在，无法以HTTPS模式启动，将回退到HTTP模式")
-            use_ssl = False
-        else:
-            ssl_context = get_ssl_context(is_api=False)
-            if not ssl_context:
-                logging.error("无法创建Web证书的SSL上下文，无法以HTTPS模式启动，将回退到HTTP模式")
-                use_ssl = False
-            else:
-                logging.info("Web应用服务器将以HTTPS模式启动")
-    
-    # 启动服务器
-    logging.info(f"Web应用服务器启动于 {'https' if use_ssl else 'http'}://{host}:{port}")
-    try:
-        # 尝试正常启动服务器 - 删除不支持的keep_alive_timeout参数
-        app.run(host=host, port=port, debug=debug, ssl_context=ssl_context, 
-                threaded=True, processes=1, use_reloader=debug)
-    except OSError as e:
-        # 捕获套接字错误
-        logging.error(f"启动Web服务器时发生错误: {str(e)}")
-        logging.info("尝试使用替代方法启动服务器...")
-        
-        # 对于Windows环境下的socket.fromfd错误，使用threaded=False和简化的SSL上下文
-        if "非套接字上尝试了一个操作" in str(e) or "[WinError 10038]" in str(e):
-            # 在Windows上，使用简化的SSL上下文模式
-            if use_ssl:
-                import ssl
-                logging.info("使用简化的SSL上下文...")
-                context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-                web_cert_path = config.WEB_SSL_CERT
-                web_key_path = config.WEB_SSL_KEY
-                context.load_cert_chain(web_cert_path, web_key_path)
-                ssl_context = context
-            
-            # 禁用线程模式和进程模式
-            logging.info("以非线程模式启动服务器...")
-            app.run(host=host, port=port, debug=debug, ssl_context=ssl_context, 
-                   threaded=False, processes=1)
-        else:
-            # 其他类型的错误，重新抛出
-            raise
-
-def run_device_api(host=None, port=None, debug=False, use_ssl=True, use_keep_alive=False):
-    """
-    运行设备API服务器
-    
-    Args:
-        host: 主机地址，默认使用配置中的API_HOST
-        port: 端口号，默认使用配置中的API_PORT
-        debug: 是否启用调试模式
-        use_ssl: 是否使用SSL
-        use_keep_alive: 是否使用长连接，默认False表示使用短连接
-    """
-    # 使用配置中的值作为默认值
-    if host is None:
-        host = config.API_HOST
-    if port is None:
-        port = config.API_PORT
-    
-    # 检查SSL
-    if use_ssl and not check_ssl_files(is_api=True):
-        logging.error("API证书文件不存在，无法以HTTPS模式启动，将回退到HTTP模式")
-        use_ssl = False
-    elif use_ssl:
-        # 仅当use_ssl为True且证书文件存在时，才获取SSL上下文
-        ssl_context = get_ssl_context(is_api=True)
-        if not ssl_context:
-            logging.error("无法创建API证书的SSL上下文，无法以HTTPS模式启动，将回退到HTTP模式")
-            use_ssl = False
-        else:
-            logging.info("边缘设备API服务器初始化完成")
-            logging.info(f"证书文件: {config.API_SSL_CERT}")
-            logging.info(f"密钥文件: {config.API_SSL_KEY}")
-    
-    # 启动API服务器
-    logging.info(f"边缘设备API服务器将在 {'0.0.0.0' if host == '0.0.0.0' else host}:{port} 上启动{'，启用调试模式' if debug else ''}")
-    from start_api_server import run_api_server
-    run_api_server(host, port, debug, use_ssl, use_keep_alive=use_keep_alive)
+from app.utils.logger import main_logger, db_logger
 
 def run_with_debug_wrapper(target_func, func_args, service_name):
-    """在调试模式下运行服务，提供手动重载功能"""
-    import logging
-    debug_mode = func_args[2] if len(func_args) > 2 else False
-    
-    if debug_mode:
-        logging.debug(f"调试模式下启动{service_name}")
-        target_func(*func_args)
-    else:
-        logging.info(f"正常模式下启动{service_name}")
-        target_func(*func_args)
+    """运行服务并处理调试模式"""
+    try:
+        main_logger.info(f"启动{service_name}服务")
+        process = multiprocessing.Process(
+            target=target_func,
+            kwargs=func_args,
+            name=service_name
+        )
+        process.daemon = False
+        process.start()
+        return process
+    except Exception as e:
+        main_logger.error(f"启动{service_name}服务失败: {e}")
+        traceback.print_exc()
+        return None
 
-if __name__ == "__main__":
-    # Windows系统下多进程支持
-    multiprocessing.freeze_support()
-    
-    parser = argparse.ArgumentParser(description='运行Web应用或API服务器')
-    parser.add_argument('--host', help='主机地址，默认使用配置中的值')
-    parser.add_argument('--port', type=int, help='端口号，默认使用配置中的值')
-    parser.add_argument('--api-only', action='store_true', help='仅运行API服务器')
-    parser.add_argument('--web-only', action='store_true', help='仅运行Web应用')
+def run_web_app(host=None, port=None, debug=False, use_ssl=True, use_keep_alive=False):
+    """运行Web应用"""
+    try:
+        app = create_web_app()
+        
+        if use_ssl:
+            ssl_context = get_ssl_context(is_api=False)
+        else:
+            ssl_context = None
+            
+        if use_keep_alive:
+            @app.after_request
+            def set_connection_close(response):
+                response.headers['Connection'] = 'close'
+                return response
+        
+        # 在调试模式下，使用线程而不是进程
+        if debug:
+            main_logger.info("Web服务以调试模式运行")
+            app.run(
+                host=host or config.web_server.host,
+                port=port or config.web_server.port,
+                debug=debug,
+                ssl_context=ssl_context,
+                use_reloader=False,  # 禁用自动重载
+                threaded=True  # 使用线程模式
+            )
+        else:
+            app.run(
+                host=host or config.web_server.host,
+                port=port or config.web_server.port,
+                debug=debug,
+                ssl_context=ssl_context,
+                use_reloader=False  # 禁用自动重载
+            )
+    except Exception as e:
+        main_logger.error(f"Web应用运行失败: {e}")
+        traceback.print_exc()
+
+def run_device_api(host=None, port=None, debug=False, use_ssl=True, use_keep_alive=False):
+    """运行设备API服务"""
+    try:
+        main_logger.info("正在创建API应用...")
+        app = create_api_app()
+        
+        if use_ssl:
+            ssl_context = get_ssl_context(is_api=True)
+            main_logger.info("已配置SSL上下文")
+        else:
+            ssl_context = None
+            main_logger.info("未使用SSL")
+            
+        if use_keep_alive:
+            @app.after_request
+            def set_connection_close(response):
+                response.headers['Connection'] = 'close'
+                return response
+        
+        # 在调试模式下，使用线程而不是进程
+        if debug:
+            main_logger.info("API服务以调试模式运行")
+            main_logger.info(f"API服务监听地址: {host or config.api_server.host}:{port or config.api_server.port}")
+            app.run(
+                host=host or config.api_server.host,
+                port=port or config.api_server.port,
+                debug=debug,
+                ssl_context=ssl_context,
+                use_reloader=False,  # 禁用自动重载
+                threaded=True  # 使用线程模式
+            )
+        else:
+            main_logger.info(f"API服务监听地址: {host or config.api_server.host}:{port or config.api_server.port}")
+            app.run(
+                host=host or config.api_server.host,
+                port=port or config.api_server.port,
+                debug=debug,
+                ssl_context=ssl_context,
+                use_reloader=False  # 禁用自动重载
+            )
+    except Exception as e:
+        main_logger.error(f"设备API服务运行失败: {e}")
+        traceback.print_exc()
+
+def main():
+    """主函数"""
+    parser = argparse.ArgumentParser(description='启动油田设备监控系统')
+    parser.add_argument('--no-ssl', action='store_true', help='禁用SSL')
     parser.add_argument('--debug', action='store_true', help='启用调试模式')
-    parser.add_argument('--no-ssl', action='store_true', help='禁用SSL（默认启用SSL）')
-    parser.add_argument('--use-keep-alive', action='store_true', 
-                        help='使用长连接（默认为短连接）')
-    parser.add_argument('--skip-db-check', action='store_true', 
-                        help='跳过数据库连接检查')
+    parser.add_argument('--no-keep-alive', action='store_true', help='禁用keep-alive')
+    parser.add_argument('--web-only', action='store_true', help='只启动Web服务')
+    parser.add_argument('--api-only', action='store_true', help='只启动API服务')
     
     args = parser.parse_args()
     
-    # 设置日志级别
-    if args.debug:
-        logging.getLogger().setLevel(logging.DEBUG)
-        logging.info("调试日志已启用")
+    use_ssl = not args.no_ssl
+    debug = args.debug
+    use_keep_alive = not args.no_keep_alive
     
-    # 打印启动信息
-    logging.info("="*80)
-    logging.info("油田设备监控系统启动")
-    logging.info("="*80)
-    
-    # 检查数据库连接状态
-    if not args.skip_db_check:
-        logging.info("正在检查数据库连接状态...")
-        try:
-            # 使用简单的直接检查方式，避免循环导入
-            db_ok = quick_db_check()
-            
-            if not db_ok:
-                logging.error("="*80)
-                logging.error("⚠️  数据库连接异常  ⚠️")
-                logging.error("系统可能无法正常工作，请检查数据库配置和PostgreSQL服务状态")
-                logging.error("如果需要跳过数据库检查，请使用 --skip-db-check 参数")
-                logging.error("或尝试运行 python app/utils/db_init.py 初始化数据库")
-                logging.error("="*80)
-                
-                if not args.debug:
-                    # 在非调试模式下，如果数据库连接失败，则退出程序
-                    sys.exit(1)
-        except ImportError:
-            logging.warning("无法导入数据库连接检查工具，将继续执行程序")
-        except Exception as e:
-            logging.error(f"数据库检查过程中发生错误: {e}")
-            logging.error("如果需要跳过数据库检查，请使用 --skip-db-check 参数")
-            
-            if not args.debug:
-                sys.exit(1)
-    else:
-        logging.info("已跳过数据库连接检查")
-    
-    # # 确保子进程跳过Flask的自动重载器
-    # web_args = (args.host, args.port, False, not args.no_ssl, args.use_keep_alive) 
-    # api_args = (args.host, args.port, False, not args.no_ssl, args.use_keep_alive)
-    web_args = (args.host, args.port, False, False, args.use_keep_alive)
-    api_args = (args.host, args.port, False, True, args.use_keep_alive)
-    
-    # 使用多进程同时启动Web应用和API服务器
     processes = []
+    threads = []
     
-    # 运行Web应用的进程
-    if not args.api_only:
-        web_process = multiprocessing.Process(
-            target=run_with_debug_wrapper,
-            args=(run_web_app, web_args, "Web应用服务器"),
-            name="WebAppProcess"
-        )
-        web_process.daemon = True  # 设置为守护进程，主进程结束时自动结束
-        processes.append(web_process)
-        logging.info("创建Web应用进程")
-    
-    # 运行API服务器的进程
-    if not args.web_only:
-        # 确保主机和端口不冲突
-        if not args.api_only and not args.web_only:
-            # 如果同时运行两个服务且没有指定不同端口，使用配置文件中的不同端口
-            api_host = args.host if args.host else config.API_HOST
-            api_port = args.port if args.port else config.API_PORT
-            api_args = (api_host, api_port, False, not args.no_ssl, args.use_keep_alive)
-        
-        api_process = multiprocessing.Process(
-            target=run_with_debug_wrapper,
-            args=(run_device_api, api_args, "API服务器"),
-            name="APIServerProcess"
-        )
-        api_process.daemon = True  # 设置为守护进程，主进程结束时自动结束
-        processes.append(api_process)
-        logging.info("创建API服务器进程")
-    
-    # 启动所有进程
-    for process in processes:
-        process.start()
-        logging.info(f"进程 {process.name} 已启动 (PID: {process.pid})")
-    
-    if args.debug:
-        logging.info("调试模式下运行，注意Flask的自动重载器已被禁用")
-    
-    # 主进程等待所有子进程
     try:
-        # 使用简单的循环等待，这样可以响应键盘中断
-        while any(p.is_alive() for p in processes):
-            time.sleep(0.5)
-    except KeyboardInterrupt:
-        logging.info("收到键盘中断信号，正在关闭服务...")
-        # 尝试正常终止所有进程
-        for process in processes:
-            if process.is_alive():
-                process.terminate()
-                logging.info(f"进程 {process.name} (PID: {process.pid}) 已终止")
-    except Exception as e:
-        logging.error(f"发生错误: {str(e)}")
-    finally:
-        # 确保所有进程都已终止
-        for process in processes:
-            if process.is_alive():
-                process.terminate()
-                # 给进程一些时间来终止
-                process.join(1)
-                if process.is_alive():
-                    logging.warning(f"进程 {process.name} (PID: {process.pid}) 无法正常终止，尝试强制结束")
-                    if hasattr(process, 'kill'):  # Python 3.7+
-                        process.kill()
-                    elif sys.platform == 'win32':
-                        # Windows上使用taskkill强制终止进程
-                        os.system(f"taskkill /F /PID {process.pid} /T")
+        # 启动Web服务
+        if not args.api_only:
+            if debug:
+                # 在调试模式下使用线程
+                web_thread = threading.Thread(
+                    target=run_web_app,
+                    kwargs={
+                        'debug': debug,
+                        'use_ssl': use_ssl,
+                        'use_keep_alive': use_keep_alive
+                    },
+                    name='WebThread'
+                )
+                web_thread.daemon = False
+                web_thread.start()
+                threads.append(web_thread)
+                main_logger.info("Web服务线程已启动")
+            else:
+                web_process = run_with_debug_wrapper(
+                    run_web_app,
+                    {
+                        'debug': debug,
+                        'use_ssl': use_ssl,
+                        'use_keep_alive': use_keep_alive
+                    },
+                    'Web'
+                )
+                if web_process:
+                    processes.append(web_process)
+                    main_logger.info("Web服务进程已启动")
         
-        logging.info("程序退出")
+        # 启动API服务
+        if not args.web_only:
+            if debug:
+                # 在调试模式下使用线程
+                api_thread = threading.Thread(
+                    target=run_device_api,
+                    kwargs={
+                        'debug': debug,
+                        'use_ssl': use_ssl,
+                        'use_keep_alive': use_keep_alive
+                    },
+                    name='APIThread'
+                )
+                api_thread.daemon = False
+                api_thread.start()
+                threads.append(api_thread)
+                main_logger.info("API服务线程已启动")
+            else:
+                api_process = run_with_debug_wrapper(
+                    run_device_api,
+                    {
+                        'debug': debug,
+                        'use_ssl': use_ssl,
+                        'use_keep_alive': use_keep_alive
+                    },
+                    'API'
+                )
+                if api_process:
+                    processes.append(api_process)
+                    main_logger.info("API服务进程已启动")
+        
+        # 等待所有进程和线程完成
+        for process in processes:
+            process.join()
+        
+        for thread in threads:
+            thread.join()
+            
+    except KeyboardInterrupt:
+        main_logger.info("接收到中断信号，正在关闭服务...")
+        for process in processes:
+            process.terminate()
+        for thread in threads:
+            thread.join(timeout=1)
+    except Exception as e:
+        main_logger.error(f"服务运行出错: {e}")
+        traceback.print_exc()
+    finally:
+        main_logger.info("服务已关闭")
+
+if __name__ == '__main__':
+    main()

@@ -18,15 +18,7 @@ sys.path.insert(0, str(project_root))
 
 # 从run.py导入必要的函数
 from run import config
-
-# 配置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
-    handlers=[
-        logging.StreamHandler()
-    ]
-)
+from app.utils.logger import web_logger as logger
 
 def run_web_app(host=None, port=None, debug=False, use_ssl=False, use_keep_alive=False):
     """
@@ -48,7 +40,7 @@ def run_web_app(host=None, port=None, debug=False, use_ssl=False, use_keep_alive
     from flask import Flask
     from app import create_app
     
-    logging.info("正在创建Web应用实例...")
+    logger.info("正在创建Web应用实例...")
     app = create_app()
     
     # 如果不使用长连接，添加全局中间件，设置短连接
@@ -57,29 +49,29 @@ def run_web_app(host=None, port=None, debug=False, use_ssl=False, use_keep_alive
         def set_connection_close(response):
             response.headers["Connection"] = "close"
             return response
-        logging.info("Web应用将使用短连接模式")
+        logger.info("Web应用将使用短连接模式")
     else:
-        logging.info("Web应用将使用长连接模式")
+        logger.info("Web应用将使用长连接模式")
     
     # 打印当前的路由 - 改为DEBUG级别，并仅在debug模式下打印
     if debug:
-        logging.debug("Web应用路由:")
+        logger.debug("Web应用路由:")
         for rule in app.url_map.iter_rules():
-            logging.debug(f"{rule.endpoint}: {rule.rule}")
+            logger.debug(f"{rule.endpoint}: {rule.rule}")
     
     # 准备SSL选项
     ssl_context = None
     if use_ssl:
         ssl_context = (config.WEB_SSL_CERT, config.WEB_SSL_KEY)
-        logging.info("Web应用将以HTTPS模式启动")
+        logger.info("Web应用将以HTTPS模式启动")
     
     # 启动服务器
-    logging.info(f"Web应用启动于 {'https' if use_ssl else 'http'}://{host}:{port}")
+    logger.info(f"Web应用启动于 {'https' if use_ssl else 'http'}://{host}:{port}")
     try:
         app.run(host=host, port=port, debug=debug, ssl_context=ssl_context, 
                 threaded=True, processes=1, use_reloader=debug)
     except Exception as e:
-        logging.error(f"启动Web应用时发生错误: {str(e)}")
+        logger.error(f"启动Web应用时发生错误: {str(e)}")
         raise
 
 if __name__ == "__main__":
@@ -96,8 +88,8 @@ if __name__ == "__main__":
     
     # 设置日志级别
     if args.debug:
-        logging.getLogger().setLevel(logging.DEBUG)
-        logging.info("调试日志已启用")
+        logger.setLevel(logging.DEBUG)
+        logger.info("调试日志已启用")
     
     # 确定是否使用SSL
     use_ssl = not args.http

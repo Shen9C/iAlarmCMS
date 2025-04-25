@@ -5,6 +5,15 @@ from flask import current_app
 
 from alembic import context
 
+# 禁用所有数据库相关的日志输出
+logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.pool').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.dialects').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.orm').setLevel(logging.WARNING)
+logging.getLogger('base').setLevel(logging.WARNING)  # 禁用base模块的日志
+logging.getLogger('sqlalchemy').setLevel(logging.WARNING)  # 禁用所有sqlalchemy日志
+logging.getLogger('alembic').setLevel(logging.WARNING)  # 禁用alembic日志
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

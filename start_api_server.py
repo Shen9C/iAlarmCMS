@@ -9,7 +9,6 @@ API服务器启动脚本
 
 import os
 import sys
-import logging
 import traceback
 from pathlib import Path
 
@@ -19,16 +18,7 @@ sys.path.insert(0, str(project_root))
 
 # 从run.py导入必要的函数
 from run import config
-
-# 配置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('logs/api_server.log')
-    ]
-)
+from app.utils.logger import api_logger as logger
 
 def run_api_server(host=None, port=None, debug=False, use_ssl=False, use_keep_alive=False):
     """
@@ -50,7 +40,7 @@ def run_api_server(host=None, port=None, debug=False, use_ssl=False, use_keep_al
     from flask import Flask, request, jsonify
     from app import create_api_app
     
-    logging.info("正在创建API服务器实例...")
+    logger.info("正在创建API服务器实例...")
     app = create_api_app()
     
     # 添加全局错误处理
@@ -58,8 +48,8 @@ def run_api_server(host=None, port=None, debug=False, use_ssl=False, use_keep_al
     def handle_error(error):
         error_message = str(error)
         error_traceback = traceback.format_exc()
-        logging.error(f"发生错误: {error_message}")
-        logging.error(f"错误堆栈: {error_traceback}")
+        logger.error(f"发生错误: {error_message}")
+        logger.error(f"错误堆栈: {error_traceback}")
         return jsonify({
             "error": "服务器内部错误",
             "message": error_message
@@ -71,50 +61,50 @@ def run_api_server(host=None, port=None, debug=False, use_ssl=False, use_keep_al
         def set_connection_close(response):
             response.headers["Connection"] = "close"
             return response
-        logging.info("API服务器将使用短连接模式")
+        logger.info("API服务器将使用短连接模式")
     else:
-        logging.info("API服务器将使用长连接模式")
+        logger.info("API服务器将使用长连接模式")
     
     # 打印当前的路由 - 改为DEBUG级别，并仅在debug模式下打印
     if debug:
-        logging.debug("API服务器路由:")
+        logger.debug("API服务器路由:")
         for rule in app.url_map.iter_rules():
-            logging.debug(f"{rule.endpoint}: {rule.rule}")
+            logger.debug(f"{rule.endpoint}: {rule.rule}")
     
     # 准备SSL选项
     ssl_context = None
     if use_ssl:
         ssl_context = (config.API_SSL_CERT, config.API_SSL_KEY)
-        logging.info("API服务器将以HTTPS模式启动")
+        logger.info("API服务器将以HTTPS模式启动")
     
     # 添加请求日志中间件
     @app.before_request
     def log_request_info():
-        logging.info(f"收到请求: {request.method} {request.url}")
-        logging.info(f"请求头: {dict(request.headers)}")
+        logger.info(f"收到请求: {request.method} {request.url}")
+        logger.info(f"请求头: {dict(request.headers)}")
         if request.get_data():
-            logging.info(f"请求数据: {request.get_data()}")
+            logger.info(f"请求数据: {request.get_data()}")
         if request.args:
-            logging.info(f"URL参数: {request.args}")
+            logger.info(f"URL参数: {request.args}")
         if request.form:
-            logging.info(f"表单数据: {request.form}")
+            logger.info(f"表单数据: {request.form}")
     
     # 添加响应日志中间件
     @app.after_request
     def log_response_info(response):
-        logging.info(f"响应状态码: {response.status_code}")
-        logging.info(f"响应头: {dict(response.headers)}")
+        logger.info(f"响应状态码: {response.status_code}")
+        logger.info(f"响应头: {dict(response.headers)}")
         if response.get_data():
-            logging.info(f"响应数据: {response.get_data()}")
+            logger.info(f"响应数据: {response.get_data()}")
         return response
     
     # 启动服务器
-    logging.info(f"API服务器启动于 {'https' if use_ssl else 'http'}://{host}:{port}")
+    logger.info(f"API服务器启动于 {'https' if use_ssl else 'http'}://{host}:{port}")
     try:
         app.run(host=host, port=port, debug=debug, ssl_context=ssl_context, 
                 threaded=True, processes=1, use_reloader=debug)
     except Exception as e:
-        logging.error(f"启动API服务器时发生错误: {str(e)}")
+        logger.error(f"启动API服务器时发生错误: {str(e)}")
         raise
 
 if __name__ == "__main__":
@@ -131,8 +121,8 @@ if __name__ == "__main__":
     
     # 设置日志级别
     if args.debug:
-        logging.getLogger().setLevel(logging.DEBUG)
-        logging.info("调试日志已启用")
+        logger.setLevel(logging.DEBUG)
+        logger.info("调试日志已启用")
     
     # 确定是否使用SSL
     use_ssl = not args.http

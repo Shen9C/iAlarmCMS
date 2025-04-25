@@ -9,6 +9,18 @@ import importlib.util
 from pathlib import Path
 import sys
 from datetime import datetime
+import traceback
+
+# 禁用所有数据库相关的日志输出
+logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.pool').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.dialects').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.orm').setLevel(logging.WARNING)
+logging.getLogger('base').setLevel(logging.WARNING)  # 禁用base模块的日志
+logging.getLogger('sqlalchemy').setLevel(logging.WARNING)  # 禁用所有sqlalchemy日志
+logging.getLogger('alembic').setLevel(logging.WARNING)  # 禁用alembic日志
+logging.getLogger('app.models').setLevel(logging.WARNING)  # 禁用models模块的日志
+logging.getLogger('app.utils.db_connection').setLevel(logging.WARNING)  # 禁用db_connection模块的日志
 
 # 设置日志
 logger = logging.getLogger(__name__)
@@ -37,6 +49,21 @@ except ImportError as e:
     logger.warning(f"无法导入数据库连接管理器，将使用默认SQLAlchemy连接: {e}")
     HAS_DB_CONNECTION_MANAGER = False
 
+def configure_database(app):
+    """配置数据库连接和日志级别"""
+    with app.app_context():
+        # 配置SQLAlchemy的日志级别
+        db.engine.echo = False
+        db.engine.logger.setLevel(logging.WARNING)
+        
+        # 如果使用自定义数据库连接管理器，初始化引擎
+        if HAS_DB_CONNECTION_MANAGER:
+            try:
+                init_db_engine()
+                logger.info(f"{app.name}: 数据库连接管理器初始化成功")
+            except Exception as db_error:
+                logger.error(f"{app.name}: 数据库连接管理器初始化失败: {db_error}")
+
 def create_api_app(config_class=None):
     """创建边缘设备API服务器应用实例
     
@@ -49,8 +76,9 @@ def create_api_app(config_class=None):
     # 导入Flask，以避免未定义的变量错误
     from flask import Flask, jsonify, Blueprint, request
     import importlib
+    from app.routes.edge_device_api_server import bp as device_api_bp
 
-    logger.info("创建API服务器应用实例 - 极简模式")
+    logger.info("创建API服务器应用实例")
     try:
         # 创建一个纯净的API应用实例
         api_app = Flask("api_server", template_folder=None, static_folder=None)
@@ -71,39 +99,32 @@ def create_api_app(config_class=None):
         
         # 禁用严格传输安全，避免HTTPS自签名证书问题
         api_app.config['PREFERRED_URL_SCHEME'] = 'https'
-        # 数据库配置
-        api_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         
         # 初始化数据库
         db.init_app(api_app)
+        migrate.init_app(api_app, db)
         
-        # 尝试导入并注册设备API蓝图
-        try:
-            from app.routes.edge_device_api_server import bp as device_api_bp
-            api_app.register_blueprint(device_api_bp, url_prefix='/api/edge_devices')
-            logger.info("API应用: 设备API蓝图注册成功")
-        except ImportError as e:
-            logger.warning(f"API应用: 无法导入设备API蓝图: {e}")
-            # 创建一个临时蓝图以保持基本功能
-            temp_bp = Blueprint('temp', __name__)
-            @temp_bp.route('/status')
-            def status():
-                return jsonify({'status': 'ok'})
-            api_app.register_blueprint(temp_bp)
+        # 注册API蓝图
+        api_app.register_blueprint(device_api_bp)
+        
+        # 配置数据库
+        configure_database(api_app)
         
         # 添加错误处理
         @api_app.errorhandler(404)
         def not_found_error(error):
-            return jsonify({'error': 'Not found'}), 404
-
+            return jsonify({"error": "Not found"}), 404
+            
         @api_app.errorhandler(500)
         def internal_error(error):
-            return jsonify({'error': 'Internal server error'}), 500
-            
+            return jsonify({"error": "Internal server error"}), 500
+        
+        logger.info("API服务器应用实例创建成功")
         return api_app
         
     except Exception as e:
-        logger.error(f"创建API应用实例失败: {e}")
+        logger.error(f"创建API服务器应用实例失败: {str(e)}")
+        logger.error(traceback.format_exc())
         raise
 
 def create_web_app(config_class=None):
@@ -177,14 +198,8 @@ def create_web_app(config_class=None):
     migrate.init_app(app, db)
     login_manager.init_app(app)
     
-    # 如果使用自定义数据库连接管理器，初始化引擎
-    if HAS_DB_CONNECTION_MANAGER:
-        with app.app_context():
-            try:
-                init_db_engine()
-                logger.info("Web应用: 数据库连接管理器初始化成功")
-            except Exception as db_error:
-                logger.error(f"Web应用: 数据库连接管理器初始化失败: {db_error}")
+    # 配置数据库
+    configure_database(app)
     
     # 确保所有模型都被导入
     from app.models import settings, tasks, users
@@ -426,4 +441,7 @@ def load_user(id):
     """Flask-Login用户加载回调"""
     from app.models.users import User
     return User.query.get(int(id))
+    
+# 在文件末尾添加导出
+__all__ = ['create_web_app', 'create_api_app', 'db', 'migrate', 'login_manager']
     
