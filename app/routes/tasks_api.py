@@ -64,11 +64,52 @@ def create_task():
     """创建新任务"""
     try:
         data = request.get_json()
+        
+        # 验证必填字段
+        required_fields = ['task_name', 'task_type', 'well_name', 'well_code', 'device_id', 'camera_ip', 'camera_preset', 'pressure_range']
+        missing_fields = [field for field in required_fields if not data.get(field)]
+        if missing_fields:
+            return jsonify({
+                'code': 400,
+                'message': f'缺少必填字段: {", ".join(missing_fields)}'
+            }), 400
+        
+        # 获取油井信息
+        well_code = data['well_code']
+        well_name = data['well_name']
+        
+        # 生成任务编号
+        task_code = Task.generate_task_code(well_code)
+        
+        # 创建任务描述
+        task_type = data['task_type']
+        device_id = data['device_id']
+        device = EdgeDevice.query.get(device_id)
+        if not device:
+            return jsonify({
+                'code': 400,
+                'message': f'设备ID {device_id} 不存在'
+            }), 400
+            
+        device_name = device.device_name
+        task_description = f"{task_type}任务：{well_name}（{well_code}）- {device_name}"
+        
+        # 创建任务
         task = Task(
-            name=data['name'],
-            device_id=data['device_id'],
-            schedule_time=data['schedule_time']
+            task_code=task_code,
+            task_name=data['task_name'],
+            task_type=task_type,
+            well_code=well_code,
+            well_name=well_name,
+            device_id=device_id,
+            camera_ip=data['camera_ip'],
+            camera_username=data.get('camera_username', ''),
+            camera_password=data.get('camera_password', ''),
+            camera_preset=data['camera_preset'],
+            pressure_range=data['pressure_range'],
+            task_description=task_description
         )
+        
         db.session.add(task)
         db.session.commit()
         
@@ -79,6 +120,7 @@ def create_task():
         })
     except Exception as e:
         db.session.rollback()
+        logger.error(f"创建任务失败: {str(e)}")
         return jsonify({
             'code': 500,
             'message': f'创建任务失败: {str(e)}'

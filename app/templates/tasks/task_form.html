@@ -18,7 +18,10 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <form method="post">
+                    <!-- 结果展示区域 -->
+                    <div id="resultMessage" class="alert" style="display: none;"></div>
+                    
+                    <form id="taskForm" method="post">
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -132,60 +135,55 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('任务表单页面初始化');
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('taskForm');
+    const resultMessage = document.getElementById('resultMessage');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        // 当油井编号选择改变时，自动填充油井名称
-        const wellCodeSelect = document.getElementById('well_code');
-        const wellNameInput = document.getElementById('well_name');
+        // 收集表单数据
+        const formData = new FormData(form);
+        const data = {};
+        for (let [key, value] of formData.entries()) {
+            data[key] = value;
+        }
         
-        wellCodeSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption && selectedOption.value) {
-                // 从选项文本中提取油井名称 "编号 (名称)"
-                const namePart = selectedOption.text.match(/\((.*?)\)/);
-                if (namePart && namePart[1]) {
-                    wellNameInput.value = namePart[1];
-                }
+        // 发送请求
+        fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // 显示结果消息
+            resultMessage.style.display = 'block';
+            if (data.code === 200) {
+                resultMessage.className = 'alert alert-success';
+                resultMessage.innerHTML = '<i class="fas fa-check-circle"></i> ' + data.message;
+                
+                // 3秒后跳转到列表页面
+                setTimeout(() => {
+                    window.location.href = "{{ url_for('tasks_view.index') }}";
+                }, 3000);
             } else {
-                wellNameInput.value = '';
+                resultMessage.className = 'alert alert-danger';
+                resultMessage.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + data.message;
             }
-        });
-        
-        // 表单提交处理
-        const form = document.querySelector('form');
-        form.addEventListener('submit', function(e) {
-            console.log('表单提交事件触发');
-            // 表单验证
-            let isValid = true;
-            
-            // 检查必填字段
-            const requiredFields = form.querySelectorAll('[required]');
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    isValid = false;
-                    field.classList.add('is-invalid');
-                    console.error(`字段 ${field.name} 是必填的`);
-                } else {
-                    field.classList.remove('is-invalid');
-                }
-            });
-            
-            if (!isValid) {
-                e.preventDefault();
-                console.error('表单验证失败');
-                alert('请填写所有必填字段');
-                return false;
-            }
-            
-            console.log('表单验证通过，准备提交');
-            // 此处可以添加表单数据的序列化和手动提交，如果需要的话
-            return true;
+        })
+        .catch(error => {
+            resultMessage.style.display = 'block';
+            resultMessage.className = 'alert alert-danger';
+            resultMessage.innerHTML = '<i class="fas fa-exclamation-circle"></i> 创建任务失败，请稍后重试';
+            console.error('Error:', error);
         });
     });
+});
 </script>
 {% endblock %} 

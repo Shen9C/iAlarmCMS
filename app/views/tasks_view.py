@@ -1,10 +1,11 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from app.models.tasks import Task
 from app.models.edge_devices import EdgeDevice
 from app.models.oil_wells import OilWell
 from app import db
 from sqlalchemy import or_
+from flask import current_app
 
 bp = Blueprint('tasks_view', __name__, url_prefix='/tasks')
 
@@ -79,49 +80,147 @@ def create():
     """创建任务页面"""
     if request.method == 'POST':
         try:
-            well_code = request.form.get('well_code', '')
+            # 检查是否是AJAX请求
+            is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+            
+            # 获取表单数据
+            if is_ajax:
+                data = request.get_json()
+                well_code = data.get('well_code', '')
+                well_name = data.get('well_name', '')
+                task_type = data.get('task_type', '')
+                device_id = data.get('device_id', '')
+                camera_ip = data.get('camera_ip', '')
+                camera_preset = data.get('camera_preset', '1')
+                pressure_range = data.get('pressure_range', '0')
+            else:
+                well_code = request.form.get('well_code', '')
+                well_name = request.form.get('well_name', '')
+                task_type = request.form.get('task_type', '')
+                device_id = request.form.get('device_id', '')
+                camera_ip = request.form.get('camera_ip', '')
+                camera_preset = request.form.get('camera_preset', '1')
+                pressure_range = request.form.get('pressure_range', '0')
+            
+            # 验证必填字段
+            required_fields = {
+                'task_name': '任务名称',
+                'task_type': '任务类型',
+                'well_name': '油井名称',
+                'well_code': '油井编号',
+                'device_id': '设备',
+                'camera_ip': '摄像头IP',
+                'camera_preset': '摄像头预置点',
+                'pressure_range': '压力表量程'
+            }
+            
+            missing_fields = []
+            for field, label in required_fields.items():
+                if not (data if is_ajax else request.form).get(field):
+                    missing_fields.append(label)
+            
+            if missing_fields:
+                if is_ajax:
+                    return jsonify({
+                        'code': 400,
+                        'message': f'请填写以下必填字段: {", ".join(missing_fields)}'
+                    }), 400
+                else:
+                    flash(f'请填写以下必填字段: {", ".join(missing_fields)}', 'error')
+                    return render_template('tasks/task_form.html', task=None)
+            
+            # 验证设备是否存在
+            device = EdgeDevice.query.filter_by(device_id=device_id).first()
+            if not device:
+                if is_ajax:
+                    return jsonify({
+                        'code': 400,
+                        'message': '选择的设备不存在，请重新选择'
+                    }), 400
+                else:
+                    flash('选择的设备不存在，请重新选择', 'error')
+                    return render_template('tasks/task_form.html', task=None)
+            
+            # 验证摄像头预置点
+            try:
+                camera_preset = int(camera_preset)
+                if camera_preset < 1 or camera_preset > 255:
+                    raise ValueError('摄像头预置点必须在1-255之间')
+            except ValueError as e:
+                if is_ajax:
+                    return jsonify({
+                        'code': 400,
+                        'message': str(e)
+                    }), 400
+                else:
+                    flash(str(e), 'error')
+                    return render_template('tasks/task_form.html', task=None)
+            
+            # 验证压力表量程
+            try:
+                pressure_range = float(pressure_range)
+                if pressure_range < 0:
+                    raise ValueError('压力表量程不能为负数')
+            except ValueError as e:
+                if is_ajax:
+                    return jsonify({
+                        'code': 400,
+                        'message': str(e)
+                    }), 400
+                else:
+                    flash(str(e), 'error')
+                    return render_template('tasks/task_form.html', task=None)
+            
             # 生成任务编号
             task_code = Task.generate_task_code(well_code)
             
-            # 获取油井名称
-            well_name = request.form.get('well_name', '')
-            if not well_name and well_code:
-                oil_well = OilWell.query.filter_by(well_code=well_code).first()
-                if oil_well:
-                    well_name = oil_well.well_name
-            
             # 创建任务描述
-            task_type = request.form.get('task_type', '')
-            device_id = request.form.get('device_id', '')
-            device = EdgeDevice.query.get(device_id)
-            device_name = device.device_name if device else ""
-            task_description = f"{task_type}任务：{well_name or ''}（{well_code or ''}）- {device_name or ''}"
+            device_name = device.device_name
+            task_description = f"{task_type}任务：{well_name}（{well_code}）- {device_name}"
             
+            # 创建任务
             task = Task(
                 task_code=task_code,
-                task_name=request.form['task_name'],
+                task_name=(data if is_ajax else request.form)['task_name'],
                 well_name=well_name,
                 well_code=well_code,
                 task_type=task_type,
-                camera_ip=request.form['camera_ip'],
-                camera_preset=int(request.form['camera_preset']),
-                camera_username=request.form.get('camera_username', ''),
-                camera_password=request.form.get('camera_password', ''),
-                pressure_range=float(request.form['pressure_range']),
+                camera_ip=camera_ip,
+                camera_preset=camera_preset,
+                camera_username=(data if is_ajax else request.form).get('camera_username', ''),
+                camera_password=(data if is_ajax else request.form).get('camera_password', ''),
+                pressure_range=pressure_range,
                 device_id=device_id,
                 task_description=task_description
             )
+            
+            # 保存到数据库
             db.session.add(task)
             db.session.commit()
-            flash('任务创建成功', 'success')
-            return redirect(url_for('tasks_view.index'))
+            
+            if is_ajax:
+                return jsonify({
+                    'code': 200,
+                    'message': '任务创建成功'
+                })
+            else:
+                flash('任务创建成功', 'success')
+                return redirect(url_for('tasks_view.index'))
+            
         except Exception as e:
             db.session.rollback()
-            flash(f'创建任务失败: {str(e)}', 'error')
+            # 记录错误日志
+            current_app.logger.error(f'创建任务失败: {str(e)}')
+            if is_ajax:
+                return jsonify({
+                    'code': 500,
+                    'message': '创建任务失败，请检查输入数据是否正确'
+                }), 500
+            else:
+                flash('创建任务失败，请检查输入数据是否正确', 'error')
     
-    # 获取设备列表供选择
+    # GET请求，显示创建页面
     devices = EdgeDevice.query.all()
-    # 获取油井列表
     oil_wells = OilWell.query.all()
     return render_template('tasks/task_form.html', task=None, devices=devices, oil_wells=oil_wells)
 

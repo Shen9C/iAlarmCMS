@@ -31,12 +31,13 @@ from functools import wraps
 from sqlalchemy import text
 
 # 配置日志
+log_file = getattr(config, 'log_file', 'logs/oilfield_gateway.log')
 logging.basicConfig(
     level=logging.DEBUG,
     format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler(config.log_file or 'logs/oilfield_gateway.log', encoding='utf-8')
+        logging.FileHandler(log_file, encoding='utf-8')
     ]
 )
 logger = logging.getLogger(__name__)
