@@ -1,0 +1,71 @@
+# Python
+__pycache__/
+*$py.class
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Logs
+*.log
+
+# Local development
+.env
+.env.local
+.env.*.local
+.python-version
+pyproject.toml
+uv.lock
+README.md
+docs/
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Test
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+pytest.ini
+tests/
+
+# Distribution
+*.tar.gz
+*.zip
+*.rar
+*.7z
+
+# System
+.DS_Store
+Thumbs.db
+
+# SDK and large files
+设备网络SDK_*.zip
+flask_alarm.egg-info/ 

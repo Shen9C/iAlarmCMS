@@ -29,6 +29,10 @@ sys.path.insert(0, str(project_root))
 from app import create_web_app, create_api_app, db
 from app.utils.yaml_config_loader import config
 from app.utils.logger import main_logger, db_logger
+from app.utils.logger_config import setup_logger
+
+# 设置日志
+logger = setup_logger()
 
 def run_with_debug_wrapper(target_func, func_args, service_name):
     """运行服务并处理调试模式"""
