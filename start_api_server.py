@@ -10,6 +10,7 @@ API服务器启动脚本
 import os
 import sys
 import logging
+import traceback
 from pathlib import Path
 
 # 将项目根目录添加到系统路径
@@ -24,7 +25,8 @@ logging.basicConfig(
     level=logging.INFO,
     format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
     handlers=[
-        logging.StreamHandler()
+        logging.StreamHandler(),
+        logging.FileHandler('logs/api_server.log')
     ]
 )
 
@@ -45,11 +47,23 @@ def run_api_server(host=None, port=None, debug=False, use_ssl=False, use_keep_al
     if port is None:
         port = config.API_PORT
     
-    from flask import Flask
+    from flask import Flask, request, jsonify
     from app import create_api_app
     
     logging.info("正在创建API服务器实例...")
     app = create_api_app()
+    
+    # 添加全局错误处理
+    @app.errorhandler(Exception)
+    def handle_error(error):
+        error_message = str(error)
+        error_traceback = traceback.format_exc()
+        logging.error(f"发生错误: {error_message}")
+        logging.error(f"错误堆栈: {error_traceback}")
+        return jsonify({
+            "error": "服务器内部错误",
+            "message": error_message
+        }), 500
     
     # 如果不使用长连接，添加全局中间件，设置短连接
     if not use_keep_alive:
@@ -72,6 +86,27 @@ def run_api_server(host=None, port=None, debug=False, use_ssl=False, use_keep_al
     if use_ssl:
         ssl_context = (config.API_SSL_CERT, config.API_SSL_KEY)
         logging.info("API服务器将以HTTPS模式启动")
+    
+    # 添加请求日志中间件
+    @app.before_request
+    def log_request_info():
+        logging.info(f"收到请求: {request.method} {request.url}")
+        logging.info(f"请求头: {dict(request.headers)}")
+        if request.get_data():
+            logging.info(f"请求数据: {request.get_data()}")
+        if request.args:
+            logging.info(f"URL参数: {request.args}")
+        if request.form:
+            logging.info(f"表单数据: {request.form}")
+    
+    # 添加响应日志中间件
+    @app.after_request
+    def log_response_info(response):
+        logging.info(f"响应状态码: {response.status_code}")
+        logging.info(f"响应头: {dict(response.headers)}")
+        if response.get_data():
+            logging.info(f"响应数据: {response.get_data()}")
+        return response
     
     # 启动服务器
     logging.info(f"API服务器启动于 {'https' if use_ssl else 'http'}://{host}:{port}")
@@ -103,4 +138,4 @@ if __name__ == "__main__":
     use_ssl = not args.http
     
     # 启动API服务器 - 参数控制长/短连接模式
-    run_api_server(args.host, args.port, args.debug, use_ssl, args.keep_alive) 
+    run_api_server(args.host, args.port, args.debug, use_ssl, args.keep_alive)

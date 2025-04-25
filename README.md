@@ -427,3 +427,6 @@ python run.py --debug --http
 3. 仅启动API服务器：`python start_api_server.py [--debug] [--http]`
 
 通过这些修改，系统现在可以在Windows环境下正常运行，既避免了套接字错误，也解决了模板渲染问题，使边缘设备管理功能正常工作。
+
+
+netsh interface portproxy add v4tov4 listenport=5566 listenaddress=0.0.0.0 connectport=5566 connectaddress=127.0.0.1

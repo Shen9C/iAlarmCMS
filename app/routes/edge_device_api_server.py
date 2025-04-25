@@ -12,6 +12,7 @@ import os
 import sys
 from pathlib import Path
 import importlib
+import traceback
 
 # 将项目根目录添加到系统路径
 project_root = Path(__file__).resolve().parent.parent.parent
@@ -30,8 +31,28 @@ from functools import wraps
 from sqlalchemy import text
 
 # 配置日志
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler(config.log_file or 'logs/oilfield_gateway.log', encoding='utf-8')
+    ]
+)
 logger = logging.getLogger(__name__)
+
+# 配置Flask日志
+werkzeug_logger = logging.getLogger('werkzeug')
+werkzeug_logger.handlers = []  # 清除已有的处理器
+for handler in logging.getLogger().handlers:
+    werkzeug_logger.addHandler(handler)
+
+# 配置SQLAlchemy日志
+sqlalchemy_logger = logging.getLogger('sqlalchemy.engine')
+sqlalchemy_logger.handlers = []  # 清除已有的处理器
+for handler in logging.getLogger().handlers:
+    sqlalchemy_logger.addHandler(handler)
+sqlalchemy_logger.setLevel(logging.INFO)  # 设置为INFO以避免过多的SQL日志
 
 # 创建一个仅包含设备API路由的Blueprint
 bp = Blueprint('device_api', __name__, url_prefix='/api/edge_devices')
@@ -45,35 +66,42 @@ def device_auth_required(f):
     """验证设备认证的装饰器"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # 从请求中获取访问密钥和密钥
-        device_id = request.json.get('device_id')
-        secret_key = request.json.get('secret_key')
-        
-        if not device_id or not secret_key:
-            logger.warning("缺少认证信息: 未提供设备ID或密钥")
-            return jsonify({"code": 401, "message": "缺少认证信息"}), 401
-        
-        # 查找设备
-        device = EdgeDevice.query.filter_by(device_id=device_id).first()
-        if not device:
-            logger.warning(f"设备认证失败: 无效的设备ID {device_id}")
-            return jsonify({"code": 401, "message": "无效的设备ID"}), 401
-        
-        # 验证密钥
-        if device.secret_key != secret_key:
-            logger.warning(f"设备认证失败: 无效的密钥 (设备ID: {device_id})")
-            return jsonify({"code": 401, "message": "无效的密钥"}), 401
-        
-        # 更新设备最后一次登录时间和状态
-        device.last_auth_time = datetime.now()
-        device.status = '在线'
-        db.session.commit()
-        logger.info(f"设备 {device.device_name} (ID: {device.id}) 认证成功，已更新最后登录时间")
+        try:
+            # 从请求中获取访问密钥和密钥
+            device_id = request.json.get('device_id')
+            secret_key = request.json.get('secret_key')
             
-        # 将设备信息添加到请求上下文
-        request.current_device = device
-        
-        return f(*args, **kwargs)
+            logger.debug(f"收到认证请求 - device_id: {device_id}")
+            
+            if not device_id or not secret_key:
+                logger.warning("缺少认证信息: 未提供设备ID或密钥")
+                return jsonify({"code": 401, "message": "缺少认证信息"}), 401
+            
+            # 查找设备
+            device = EdgeDevice.query.filter_by(device_id=device_id).first()
+            if not device:
+                logger.warning(f"设备认证失败: 无效的设备ID {device_id}")
+                return jsonify({"code": 401, "message": "无效的设备ID"}), 401
+            
+            # 验证密钥
+            if device.secret_key != secret_key:
+                logger.warning(f"设备认证失败: 无效的密钥 (设备ID: {device_id})")
+                return jsonify({"code": 401, "message": "无效的密钥"}), 401
+            
+            # 更新设备最后一次登录时间和状态
+            device.last_auth_time = datetime.now()
+            device.status = '在线'
+            db.session.commit()
+            logger.info(f"设备 {device.device_name} (ID: {device.id}) 认证成功，已更新最后登录时间")
+                
+            # 将设备信息添加到请求上下文
+            request.current_device = device
+            
+            return f(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"设备认证过程中发生错误: {str(e)}")
+            logger.error(traceback.format_exc())
+            return jsonify({"code": 500, "message": f"认证过程发生错误: {str(e)}"}), 500
     return decorated_function
 
 # 设备token认证装饰器 - 仅用于Token认证方式
@@ -81,66 +109,72 @@ def device_token_auth_required(f):
     """验证设备token认证的装饰器"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # 从请求头中获取访问令牌
-        auth_header = request.headers.get('Authorization')
-        
-        if not auth_header or not auth_header.startswith('Bearer '):
-            return jsonify({"code": 401, "message": "缺少认证信息"}), 401
-        
-        token = auth_header.split(' ')[1]
-        logger.debug(f"收到的令牌: {token}")
-        
         try:
-            # 使用统一的get_secret_key()函数获取密钥
-            secret_key = get_secret_key()
+            # 从请求头中获取访问令牌
+            auth_header = request.headers.get('Authorization')
+            
+            if not auth_header or not auth_header.startswith('Bearer '):
+                logger.warning("缺少或无效的Authorization头")
+                return jsonify({"code": 401, "message": "缺少认证信息"}), 401
+            
+            token = auth_header.split(' ')[1]
+            logger.debug(f"收到的令牌: {token}")
             
             try:
-                payload = jwt.decode(
-                    token, 
-                    secret_key, 
-                    algorithms=['HS256'],
-                    options={
-                        "verify_signature": True,
-                        "verify_exp": True,
-                    }
-                )
-                logger.debug(f"令牌解码成功: {payload}")
+                # 使用统一的get_secret_key()函数获取密钥
+                secret_key = get_secret_key()
                 
-                # 从载荷中提取设备ID
-                device_id = payload.get('device_id')
-                
-                if not device_id:
-                    logger.warning("令牌中缺少device_id字段")
-                    return jsonify({"code": 401, "message": "无效的令牌格式：缺少device_id字段"}), 401
-            except jwt.ExpiredSignatureError:
-                logger.warning("令牌已过期")
-                return jsonify({"code": 401, "message": "令牌已过期"}), 401
-            except jwt.InvalidTokenError as e:
-                logger.warning(f"无效的令牌: {str(e)}")
-                return jsonify({"code": 401, "message": f"无效的令牌: {str(e)}"}), 401
+                try:
+                    payload = jwt.decode(
+                        token, 
+                        secret_key, 
+                        algorithms=['HS256'],
+                        options={
+                            "verify_signature": True,
+                            "verify_exp": True,
+                        }
+                    )
+                    logger.debug(f"令牌解码成功: {payload}")
                     
-            # 查找设备
-            device = EdgeDevice.query.filter_by(device_id=device_id).first()
-            if not device:
-                logger.warning(f"无效的设备ID: {device_id}")
-                return jsonify({"code": 401, "message": "无效的设备ID"}), 401
-            
-            # 更新设备最后一次登录时间和状态
-            device.last_auth_time = datetime.now()
-            device.status = '在线'
-            db.session.commit()
-            
-            # 将设备信息添加到请求上下文
-            request.current_device = device
-            logger.debug(f"令牌验证成功，设备ID: {device_id}")
-            
-            return f(*args, **kwargs)
+                    # 从载荷中提取设备ID
+                    device_id = payload.get('device_id')
+                    
+                    if not device_id:
+                        logger.warning("令牌中缺少device_id字段")
+                        return jsonify({"code": 401, "message": "无效的令牌格式：缺少device_id字段"}), 401
+                except jwt.ExpiredSignatureError:
+                    logger.warning("令牌已过期")
+                    return jsonify({"code": 401, "message": "令牌已过期"}), 401
+                except jwt.InvalidTokenError as e:
+                    logger.warning(f"无效的令牌: {str(e)}")
+                    return jsonify({"code": 401, "message": f"无效的令牌: {str(e)}"}), 401
+                        
+                # 查找设备
+                device = EdgeDevice.query.filter_by(device_id=device_id).first()
+                if not device:
+                    logger.warning(f"无效的设备ID: {device_id}")
+                    return jsonify({"code": 401, "message": "无效的设备ID"}), 401
                 
+                # 更新设备最后一次登录时间和状态
+                device.last_auth_time = datetime.now()
+                device.status = '在线'
+                db.session.commit()
+                
+                # 将设备信息添加到请求上下文
+                request.current_device = device
+                logger.debug(f"令牌验证成功，设备ID: {device_id}")
+                
+                return f(*args, **kwargs)
+                    
+            except Exception as e:
+                logger.error(f"设备令牌认证失败: {str(e)}")
+                logger.error(traceback.format_exc())
+                return jsonify({"code": 500, "message": f"认证失败: {str(e)}"}), 500
+        
         except Exception as e:
-            logger.error(f"设备令牌认证失败: {str(e)}")
-            import traceback
+            logger.error(f"设备令牌认证过程中发生错误: {str(e)}")
             logger.error(traceback.format_exc())
-            return jsonify({"code": 500, "message": f"认证失败: {str(e)}"}), 500
+            return jsonify({"code": 500, "message": f"认证过程发生错误: {str(e)}"}), 500
     
     return decorated_function
 
@@ -157,6 +191,8 @@ def get_secret_key():
 @bp.route('/auth/token', methods=['POST'])
 def get_device_token():
     """获取设备认证令牌"""
+    logger.info("收到设备认证请求")
+    
     # 检查数据库连接状态
     if not check_db_connection():
         logger.error("数据库连接不可用")
@@ -167,6 +203,8 @@ def get_device_token():
 
     try:
         data = request.get_json()
+        logger.debug(f"收到的请求数据: {data}")
+        
         if not data or 'device_id' not in data or 'secret_key' not in data:
             logger.warning("请求数据无效")
             return jsonify({
@@ -183,11 +221,18 @@ def get_device_token():
             # 修改查询条件，使用device_id而不是id
             device = session.query(EdgeDevice).filter_by(device_id=device_id).first()
             
-            if not device or device.secret_key != secret_key:
-                logger.warning(f"设备认证失败: device_id={device_id}")
+            if not device:
+                logger.warning(f"设备认证失败: 未找到设备 device_id={device_id}")
                 return jsonify({
                     'code': 401,
-                    'message': '设备ID或密钥无效'
+                    'message': '设备ID无效'
+                }), 401
+                
+            if device.secret_key != secret_key:
+                logger.warning(f"设备认证失败: 密钥不匹配 device_id={device_id}")
+                return jsonify({
+                    'code': 401,
+                    'message': '密钥无效'
                 }), 401
 
             try:
@@ -217,6 +262,7 @@ def get_device_token():
                     })
                 except Exception as e:
                     logger.error(f"生成令牌时发生错误: {str(e)}")
+                    logger.error(traceback.format_exc())
                     return jsonify({
                         'code': 500,
                         'message': '生成令牌失败'
@@ -225,12 +271,14 @@ def get_device_token():
             except Exception as e:
                 session.rollback()
                 logger.error(f"更新设备状态时发生错误: {str(e)}")
+                logger.error(traceback.format_exc())
                 return jsonify({
                     'code': 500,
                     'message': '更新设备状态失败'
                 }), 500
     except Exception as e:
         logger.error(f"处理认证请求时发生错误: {str(e)}")
+        logger.error(traceback.format_exc())
         return jsonify({
             'code': 500,
             'message': '服务器内部错误'
@@ -244,6 +292,8 @@ def create_alarm_with_token():
     try:
         # 从请求中获取告警数据
         data = request.get_json()
+        logger.debug(f"收到的告警数据: {data}")
+        
         if not data:
             logger.error("请求中未提供JSON数据")
             return jsonify({"code": 400, "message": "无效的请求数据"}), 400
@@ -288,13 +338,13 @@ def create_alarm_with_token():
     except ValueError as ve:
         # 处理特定的验证错误
         logger.error(f"告警上传失败 (验证错误): {str(ve)}")
+        logger.error(traceback.format_exc())
         return jsonify({
             'code': 400,
             'message': str(ve)
         }), 400
     except Exception as e:
         logger.error(f"告警上报失败: {str(e)}")
-        import traceback
         logger.error(traceback.format_exc())
         return jsonify({
             'code': 500,
@@ -321,6 +371,8 @@ def direct_test():
     try:
         # 从请求中获取数据
         data = request.get_json()
+        logger.debug(f"收到的测试数据: {data}")
+        
         if not data:
             logger.error("请求中未提供JSON数据")
             return jsonify({"code": 400, "message": "无效的请求数据"}), 400
@@ -370,7 +422,6 @@ def direct_test():
         
     except Exception as e:
         logger.error(f"直接认证测试失败: {str(e)}")
-        import traceback
         logger.error(traceback.format_exc())
         return jsonify({
             'code': 500,
@@ -452,8 +503,14 @@ if __name__ == '__main__':
     parser.add_argument('--host', default='0.0.0.0', help='监听地址')
     parser.add_argument('--port', type=int, default=5566, help='监听端口')
     parser.add_argument('--debug', action='store_true', help='是否启用调试模式')
+    parser.add_argument('--ssl', action='store_true', help='是否启用SSL')
     
     args = parser.parse_args()
     
-    logger.info(f"边缘设备API服务器正在启动，监听 {args.host}:{args.port}")
-    standalone_app.run(host=args.host, port=args.port, debug=args.debug, ssl_context='adhoc') 
+    logger.info(f"边缘设备API服务器正在启动，监听 {args.host}:{args.port} {'(SSL)' if args.ssl else '(HTTP)'}")
+    standalone_app.run(
+        host=args.host, 
+        port=args.port, 
+        debug=args.debug, 
+        ssl_context='adhoc' if args.ssl else None
+    ) 
