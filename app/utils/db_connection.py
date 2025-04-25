@@ -27,6 +27,7 @@ CONNECTION_MAX_OVERFLOW = 20  # 最大溢出连接数
 CONNECTION_TIMEOUT = 5  # 连接超时（秒）
 POOL_RECYCLE = 3600  # 连接回收时间（秒）
 POOL_PRE_PING = True  # 是否在使用前检查连接
+CONNECTION_CHECK_CACHE_TIME = 30  # 连接检查缓存时间（秒）
 
 # 连接状态追踪
 _engine = None
@@ -182,22 +183,29 @@ def check_db_connection():
     global _connection_health_status, _last_connection_attempt
     
     # 如果上次检查后不久，直接返回上次结果（避免频繁检查）
-    if time.time() - _last_connection_attempt < 3:  # 减少缓存时间
+    if time.time() - _last_connection_attempt < CONNECTION_CHECK_CACHE_TIME:
         return _connection_health_status
     
-    try:
-        engine = get_engine()
-        with engine.connect() as conn:
-            conn.execute("SELECT 1")
-        
-        _connection_health_status = True
-        _last_connection_attempt = time.time()
-        return True
-    except Exception as e:
-        logger.warning(f"数据库连接检查失败: {e}")
-        _connection_health_status = False
-        _last_connection_attempt = time.time()
-        return False
+    retries = 0
+    while retries < MAX_RETRIES:
+        try:
+            engine = get_engine()
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            
+            _connection_health_status = True
+            _last_connection_attempt = time.time()
+            return True
+        except Exception as e:
+            retries += 1
+            logger.warning(f"数据库连接检查失败 (尝试 {retries}/{MAX_RETRIES}): {e}")
+            
+            if retries < MAX_RETRIES:
+                time.sleep(RETRY_DELAY * (2 ** (retries - 1)))
+            else:
+                _connection_health_status = False
+                _last_connection_attempt = time.time()
+                return False
 
 
 def quick_db_check():
