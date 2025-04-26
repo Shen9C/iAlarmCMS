@@ -47,4 +47,4 @@ def setup_logger():
         if not hasattr(handler, 'lock'):
             handler.lock = multiprocessing.RLock()
 
-    return logger 
+    return logger

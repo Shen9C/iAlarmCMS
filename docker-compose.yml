@@ -1,8 +1,7 @@
-version: '3.8'
-
 services:
   web:
-    build: .
+    image: oilfield-web:v1.0.0
+    container_name: oilfield_web
     ports:
       - "5000:5000"
       - "5566:5566"
@@ -13,10 +12,12 @@ services:
       - ./config:/zhyn/config
       - ./ssl:/zhyn/ssl
     environment:
+      - PYTHONPATH=/zhyn
       - FLASK_APP=run.py
       - FLASK_ENV=production
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/"]
@@ -31,21 +32,26 @@ services:
         max-file: "3"
 
   db:
-    image: postgres:13
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    image: postgres:latest
+    container_name: oilfield_web_db
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=oilfield
+      - POSTGRES_USER=shen9c
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=oilfield_web
     ports:
       - "5432:5432"
+    volumes:
+      - type: bind
+        source: E:/100_临时数据/100_docker_env/pg
+        target: /var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shen9c -d oilfield_web"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     logging:
       driver: "json-file"
       options:
         max-size: "200m"
         max-file: "3"
-
-volumes:
-  postgres_data: 

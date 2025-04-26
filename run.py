@@ -15,6 +15,7 @@ import threading
 import multiprocessing
 from pathlib import Path
 import traceback
+import socket
 
 from flask import Flask, has_request_context, request, jsonify
 from flask.logging import default_handler
@@ -28,16 +29,24 @@ sys.path.insert(0, str(project_root))
 # 导入应用和配置
 from app import create_web_app, create_api_app, db
 from app.utils.yaml_config_loader import config
-from app.utils.logger import main_logger, db_logger
 from app.utils.logger_config import setup_logger
 
 # 设置日志
 logger = setup_logger()
 
+def is_port_in_use(port):
+    """检查端口是否被占用"""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.bind(('0.0.0.0', port))
+            return False
+        except socket.error:
+            return True
+
 def run_with_debug_wrapper(target_func, func_args, service_name):
     """运行服务并处理调试模式"""
     try:
-        main_logger.info(f"启动{service_name}服务")
+        logger.info(f"启动{service_name}服务")
         process = multiprocessing.Process(
             target=target_func,
             kwargs=func_args,
@@ -47,7 +56,7 @@ def run_with_debug_wrapper(target_func, func_args, service_name):
         process.start()
         return process
     except Exception as e:
-        main_logger.error(f"启动{service_name}服务失败: {e}")
+        logger.error(f"启动{service_name}服务失败: {e}")
         traceback.print_exc()
         return None
 
@@ -56,82 +65,85 @@ def run_web_app(host=None, port=None, debug=False, use_ssl=True, use_keep_alive=
     try:
         app = create_web_app()
         
+        # 检查端口是否被占用
+        target_port = port or config.web_server.port
+        if is_port_in_use(target_port):
+            logger.error(f"Web服务端口 {target_port} 已被占用，请检查是否有其他服务正在运行")
+            return
+            
         if use_ssl:
-            ssl_context = get_ssl_context(is_api=False)
+            ssl_context = (
+                os.path.join(config.ssl.cert_dir, config.ssl.cert_file),
+                os.path.join(config.ssl.cert_dir, config.ssl.key_file)
+            )
+            logger.info("已配置SSL上下文")
         else:
             ssl_context = None
+            logger.info("未使用SSL")
             
-        if use_keep_alive:
-            @app.after_request
-            def set_connection_close(response):
-                response.headers['Connection'] = 'close'
-                return response
+        # 确保连接正确关闭
+        @app.after_request
+        def cleanup(response):
+            # 设置连接关闭
+            response.headers['Connection'] = 'close'
+            # 确保响应被正确发送
+            response.direct_passthrough = False
+            return response
         
-        # 在调试模式下，使用线程而不是进程
-        if debug:
-            main_logger.info("Web服务以调试模式运行")
-            app.run(
-                host=host or config.web_server.host,
-                port=port or config.web_server.port,
-                debug=debug,
-                ssl_context=ssl_context,
-                use_reloader=False,  # 禁用自动重载
-                threaded=True  # 使用线程模式
-            )
-        else:
-            app.run(
-                host=host or config.web_server.host,
-                port=port or config.web_server.port,
-                debug=debug,
-                ssl_context=ssl_context,
-                use_reloader=False  # 禁用自动重载
-            )
+        logger.info(f"Web服务监听地址: {host or config.web_server.host}:{target_port}")
+        app.run(
+            host=host or config.web_server.host,
+            port=target_port,
+            debug=debug,
+            ssl_context=ssl_context,
+            use_reloader=False,
+            threaded=True  # 使用线程模式
+        )
     except Exception as e:
-        main_logger.error(f"Web应用运行失败: {e}")
+        logger.error(f"Web服务运行失败: {e}")
         traceback.print_exc()
 
 def run_device_api(host=None, port=None, debug=False, use_ssl=True, use_keep_alive=False):
     """运行设备API服务"""
     try:
-        main_logger.info("正在创建API应用...")
         app = create_api_app()
         
+        # 检查端口是否被占用
+        target_port = port or config.api_server.port
+        if is_port_in_use(target_port):
+            logger.error(f"API服务端口 {target_port} 已被占用，请检查是否有其他服务正在运行")
+            return
+            
         if use_ssl:
-            ssl_context = get_ssl_context(is_api=True)
-            main_logger.info("已配置SSL上下文")
+            ssl_context = (
+                os.path.join(config.ssl.cert_dir, config.ssl.cert_file),
+                os.path.join(config.ssl.cert_dir, config.ssl.key_file)
+            )
+            logger.info("已配置SSL上下文")
         else:
             ssl_context = None
-            main_logger.info("未使用SSL")
+            logger.info("未使用SSL")
             
-        if use_keep_alive:
-            @app.after_request
-            def set_connection_close(response):
-                response.headers['Connection'] = 'close'
-                return response
+        # 确保连接正确关闭
+        @app.after_request
+        def cleanup(response):
+            # 设置连接关闭
+            response.headers['Connection'] = 'close'
+            # 确保响应被正确发送
+            response.direct_passthrough = False
+            return response
         
-        # 在调试模式下，使用线程而不是进程
-        if debug:
-            main_logger.info("API服务以调试模式运行")
-            main_logger.info(f"API服务监听地址: {host or config.api_server.host}:{port or config.api_server.port}")
-            app.run(
-                host=host or config.api_server.host,
-                port=port or config.api_server.port,
-                debug=debug,
-                ssl_context=ssl_context,
-                use_reloader=False,  # 禁用自动重载
-                threaded=True  # 使用线程模式
-            )
-        else:
-            main_logger.info(f"API服务监听地址: {host or config.api_server.host}:{port or config.api_server.port}")
-            app.run(
-                host=host or config.api_server.host,
-                port=port or config.api_server.port,
-                debug=debug,
-                ssl_context=ssl_context,
-                use_reloader=False  # 禁用自动重载
-            )
+        logger.info(f"API服务监听地址: {host or config.api_server.host}:{target_port}")
+        app.run(
+            host=host or config.api_server.host,
+            port=target_port,
+            debug=debug,
+            ssl_context=ssl_context,
+            use_reloader=False,
+            threaded=True  # 使用线程模式
+        )
     except Exception as e:
-        main_logger.error(f"设备API服务运行失败: {e}")
+        logger.error(f"API服务运行失败: {e}")
         traceback.print_exc()
 
 def main():
@@ -169,7 +181,7 @@ def main():
                 web_thread.daemon = False
                 web_thread.start()
                 threads.append(web_thread)
-                main_logger.info("Web服务线程已启动")
+                logger.info("Web服务线程已启动")
             else:
                 web_process = run_with_debug_wrapper(
                     run_web_app,
@@ -182,7 +194,7 @@ def main():
                 )
                 if web_process:
                     processes.append(web_process)
-                    main_logger.info("Web服务进程已启动")
+                    logger.info("Web服务进程已启动")
         
         # 启动API服务
         if not args.web_only:
@@ -200,7 +212,7 @@ def main():
                 api_thread.daemon = False
                 api_thread.start()
                 threads.append(api_thread)
-                main_logger.info("API服务线程已启动")
+                logger.info("API服务线程已启动")
             else:
                 api_process = run_with_debug_wrapper(
                     run_device_api,
@@ -213,7 +225,7 @@ def main():
                 )
                 if api_process:
                     processes.append(api_process)
-                    main_logger.info("API服务进程已启动")
+                    logger.info("API服务进程已启动")
         
         # 等待所有进程和线程完成
         for process in processes:
@@ -223,16 +235,16 @@ def main():
             thread.join()
             
     except KeyboardInterrupt:
-        main_logger.info("接收到中断信号，正在关闭服务...")
+        logger.info("接收到中断信号，正在关闭服务...")
         for process in processes:
             process.terminate()
         for thread in threads:
             thread.join(timeout=1)
     except Exception as e:
-        main_logger.error(f"服务运行出错: {e}")
+        logger.error(f"服务运行出错: {e}")
         traceback.print_exc()
     finally:
-        main_logger.info("服务已关闭")
+        logger.info("服务已关闭")
 
 if __name__ == '__main__':
     main()

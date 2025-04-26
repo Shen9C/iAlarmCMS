@@ -17,8 +17,8 @@ api_server:
 database:
   user: shen9c
   password: 123456
-  host: localhost
-  port: 25432
+  host: db  # 使用Docker服务名
+  port: 5432  # 使用容器内部端口
   name: oilfield_web
 
 # 会话配置

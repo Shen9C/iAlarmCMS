@@ -74,7 +74,7 @@ docker run -d \
   oilfield-web:v1.0.0
 ```
 ```
-docker run -d --network host -p 5000:5000 -p 5566:5566 -v ./logs:/zhyn/logs -v ./alarm_images:/zhyn/alarm_images -v ./backups:/zhyn/backups -v ./config:/zhyn/config -v ./ssl:/zhyn/ssl --name oilfield-web oilfield-web:v1.0.0
+docker run -d --network host -p 8000:5000 -p 15566:5566 -v ./logs:/zhyn/logs -v ./alarm_images:/zhyn/alarm_images -v ./backups:/zhyn/backups -v ./config:/zhyn/config -v ./ssl:/zhyn/ssl --name oilfield-web oilfield-web:v1.0.0
 ```
 ### 3. 带环境变量的运行
 ```bash
