@@ -17,8 +17,8 @@ api_server:
 database:
   user: guanliyuan
   password: admin123_Youtian
-  host: db  # 使用Docker服务名
-  # host: 127.0.0.1
+  # host: oilfield_web_db  # 使用Docker服务名
+  host: 127.0.0.1
   port: 5432  # 使用容器内部端口
   name: oilfield_web_db
 
