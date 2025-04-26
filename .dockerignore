@@ -69,3 +69,5 @@ Thumbs.db
 # SDK and large files
 设备网络SDK_*.zip
 flask_alarm.egg-info/ 
+
+v0.9.0/

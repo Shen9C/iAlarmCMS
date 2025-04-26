@@ -1,10 +1,10 @@
 services:
   app:
-    image: oilfield-web:v1.0.0
+    image: oilfield-web:v0.9.3
     container_name: oilfield_web_app
     ports:
-      - "5000:5000"
-      - "5566:5566"
+      - "8000:8000"
+      - "8800:8800"
     volumes:
       - ./logs:/zhyn/logs
       - ./alarm_images:/zhyn/alarm_images
@@ -35,8 +35,8 @@ services:
     image: postgres:latest
     container_name: oilfield_web_db
     environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin123@Youtian
+      - POSTGRES_USER=guanliyuan
+      - POSTGRES_PASSWORD=admin123_Youtian
       - POSTGRES_DB=oilfield_web_db
     ports:
       - "5432:5432"
@@ -44,7 +44,7 @@ services:
       - ./pg_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d oilfield_web_db"]
+      test: ["CMD-SHELL", "pg_isready -U guanliyuan -d oilfield_web_db"]
       interval: 10s
       timeout: 5s
       retries: 5

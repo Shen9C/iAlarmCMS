@@ -15,6 +15,7 @@ import logging
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
+from sqlalchemy import inspect
 
 # 将项目根目录添加到系统路径
 project_root = Path(__file__).resolve().parent.parent
@@ -396,7 +397,7 @@ def generate_test_data():
                         well_code=well_code,
                         well_name=well_name,
                         camera_ip=f"192.168.1.{random.randint(100, 200)}",
-                        alarm_image=f"/static/images/alarms/alarm_{i}.jpg",
+                        alarm_image=f"/zhyn/alarm_images/test_image_{i:03d}.jpg",
                         description=f"{alarm_type}告警: {alarm_code}",
                         alarm_time=datetime.now() - timedelta(days=random.randint(0, 30), 
                                                              hours=random.randint(0, 23), 
@@ -416,7 +417,7 @@ def generate_test_data():
                     if alarm.is_confirmed:
                         alarm.confirmed_at = datetime.now() - timedelta(days=random.randint(0, 3))
                         alarm.confirmed_by = random.choice(saved_users).username
-                        alarm.confirmation_type = random.choice(["实际故障", "误报", "测试"])
+                        alarm.confirmation_type = random.choice(["故障", "误报", "测试"])
                     
                     db.session.add(alarm)
                     saved_alarms.append(alarm)

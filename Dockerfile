@@ -1,5 +1,6 @@
-# 使用Python 3.11作为基础镜像
-FROM python:3.12-slim
+# 使用Python 3.12作为基础镜像
+# FROM python:3.12-slim
+FROM python:3.12.10
 
 # 设置工作目录
 WORKDIR /zhyn
@@ -21,10 +22,14 @@ RUN mkdir -p \
     /zhyn/ssl \
     /zhyn/tests
 
-# 复制项目文件
+# 复制依赖和编译脚本
 COPY requirements.txt .
+COPY setup.py .
+
+# 复制业务代码
 COPY app/ /zhyn/app/
 COPY scripts/ /zhyn/scripts/
+COPY config/ /zhyn/config/
 COPY migrations/ /zhyn/migrations/
 COPY run.py .
 COPY start_api_server.py .
@@ -34,15 +39,22 @@ COPY wsgi.py .
 # 安装Python依赖
 RUN pip install --no-cache-dir -r requirements.txt
 
+# 编译Cython扩展
+RUN python setup.py build_ext --inplace
+
+# 清理.c文件
+RUN find ./app ./scripts ./config -name "*.c" -delete
+
+# 删除源码，仅保留so文件（保留入口py文件）
+RUN find ./app ./scripts ./config -name "*.py" ! -name "__init__.py" -delete
+
 # 设置环境变量
 ENV PYTHONPATH=/zhyn
 ENV FLASK_APP=run.py
 ENV FLASK_ENV=production
 
 # 暴露端口
-EXPOSE 5000 5566
+EXPOSE 8000 8800
 
-# # 启动命令
-# CMD ["python", "run.py"] 
 # 启动命令
-CMD ["python", "run.py", "--no-ssl"] 
+CMD ["python", "run.py", "--no-ssl"]
