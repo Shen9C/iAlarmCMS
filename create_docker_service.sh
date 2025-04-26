@@ -39,6 +39,7 @@ docker run -d \
     -e POSTGRES_USER=guanliyuan \
     -e POSTGRES_PASSWORD=admin123_Youtian \
     -e POSTGRES_DB=oilfield_web_db \
+    -e TZ=Asia/Shanghai \
     -p 5432:5432 \
     -v $(pwd)/pg_data:/var/lib/postgresql/data \
     --memory=1g \
@@ -65,6 +66,7 @@ docker run -d \
     -e PYTHONPATH=/zhyn \
     -e FLASK_APP=run.py \
     -e FLASK_ENV=production \
+    -e TZ=Asia/Shanghai \
     --memory=2g \
     --memory-reservation=1g \
     --restart=unless-stopped \

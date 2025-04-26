@@ -15,6 +15,7 @@ import argparse
 import os
 import warnings
 from datetime import datetime
+import pytz
 from urllib.parse import urlparse
 
 # 预置默认配置
@@ -23,7 +24,7 @@ DEFAULT_CONFIG = {
     # 'url': 'https://192.168.8.16:8800',  # 默认使用HTTPS
     # 'url': 'https://192.168.3.3:8800',  # 默认使用HTTPS
     'device_id': '9c5aff66',  # 默认测试设备ID
-    'secret_key': 'SK1bcc8e74',  # 默认测试密钥
+    'secret_key': 'SK1440a2d7',  # 默认测试密钥
     'alarm_type': '设备异常',  # 默认告警类型
     'alarm_code': 'well_qt001',  # 默认告警编号（将自动生成）
     'well_code': 'JK003',  # 默认油井编号
@@ -184,8 +185,9 @@ class AlarmApiTester:
         if alarm_image:
             payload["alarm_image"] = alarm_image
             
-        # 添加当前时间戳作为告警时间（仅供测试用）
-        payload["alarm_timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # 使用ISO格式的时间戳
+        current_time = datetime.now()
+        payload["alarm_timestamp"] = current_time.isoformat()
         
         headers = {
             "Content-Type": "application/json",
@@ -195,6 +197,7 @@ class AlarmApiTester:
         print(f"请求URL: {url}")
         print(f"请求头: {json.dumps(headers, ensure_ascii=False)}")
         print(f"请求参数: {json.dumps(payload, ensure_ascii=False)}")
+        print(f"告警时间(ISO格式): {current_time.isoformat()}")
         
         try:
             # 执行告警上报请求
