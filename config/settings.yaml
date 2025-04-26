@@ -1,6 +1,6 @@
 # 基础配置
-debug_log_enabled: true
-debug: true
+debug_log_enabled: false
+debug: false
 secret_key: ${SECRET_KEY:-dev-key-123}
 
 # Web服务器配置
@@ -15,11 +15,11 @@ api_server:
 
 # 数据库配置
 database:
-  user: shen9c
-  password: 123456
+  user: admin
+  password: admin123@Youtian
   host: db  # 使用Docker服务名
   port: 5432  # 使用容器内部端口
-  name: oilfield_web
+  name: oilfield_web_db
 
 # 会话配置
 session:
@@ -28,7 +28,7 @@ session:
 
 # 日志配置
 logging:
-  path: logs
+  path: /zhyn/logs
   main_log: oilfield.log
   db_log: db_init.log
   max_bytes: 52428800  # 50MB
@@ -40,7 +40,7 @@ logging:
 application:
   items_per_page: 20
   max_content_length: 16777216  # 16MB
-  upload_folder: uploads
+  upload_folder: /zhyn/alarm_images
   allowed_extensions:
     - txt
     - pdf
@@ -60,8 +60,8 @@ security:
 
 # SSL配置
 ssl:
-  cert_file: web_cert.pem
-  key_file: web_key.pem
-  api_cert_file: api_cert.pem
-  api_key_file: api_key.pem
-  cert_dir: ssl 
+  cert_file: /zhyn/ssl/web_cert.pem
+  key_file: /zhyn/ssl/web_key.pem
+  api_cert_file: /zhyn/ssl/api_cert.pem
+  api_key_file: /zhyn/ssl/api_key.pem
+  cert_dir: /zhyn/ssl
