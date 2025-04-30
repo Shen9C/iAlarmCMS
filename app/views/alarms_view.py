@@ -478,7 +478,7 @@ def confirm_alarm_type(alarm_id):
             db.session.commit()
             logger.info('告警确认成功')
             flash('告警确认成功', 'success')
-            return redirect(url_for('alarms_view.index'))
+            return redirect(url_for('alarms_view.index', user_token=user_token))
             
         except Exception as e:
             db.session.rollback()
@@ -500,6 +500,8 @@ def process_alarm(alarm_id):
     logger.info(f'用户令牌: {user_token}')
     
     if not user_token:
+        if request.is_json:
+            return jsonify({'success': False, 'message': '缺少用户认证信息'})
         flash('缺少用户认证信息', 'error')
         return redirect(url_for('alarms_view.index'))
 
@@ -509,11 +511,19 @@ def process_alarm(alarm_id):
     
     if request.method == 'POST':
         logger.info('处理POST请求')
-        logger.info(f'表单数据: {request.form}')
         
-        notes = request.form.get('notes', '')
+        # 检查是否是AJAX请求
+        if request.is_json:
+            data = request.get_json()
+            notes = data.get('notes', '')
+        else:
+            notes = request.form.get('notes', '')
+        
+        logger.info(f'处理数据: notes={notes}')
         
         if not notes:
+            if request.is_json:
+                return jsonify({'success': False, 'message': '请输入处理备注'})
             flash('请输入处理备注', 'warning')
             return render_template('alarms/alarms_process.html', alarm=alarm, user_token=user_token)
         
@@ -526,12 +536,18 @@ def process_alarm(alarm_id):
             
             db.session.commit()
             logger.info('告警处理成功')
+            
+            if request.is_json:
+                return jsonify({'success': True, 'message': '告警处理成功'})
+            
             flash('告警处理成功', 'success')
-            return redirect(url_for('alarms_view.index'))
+            return redirect(url_for('alarms_view.index', user_token=user_token))
             
         except Exception as e:
             db.session.rollback()
             logger.error(f'告警处理失败: {str(e)}')
+            if request.is_json:
+                return jsonify({'success': False, 'message': f'告警处理失败: {str(e)}'})
             flash('告警处理失败，请重试', 'error')
     
     return render_template('alarms/alarms_process.html', alarm=alarm, user_token=user_token)

@@ -17,7 +17,7 @@
         <!-- 筛选表单 -->
                     <div class="row mb-3">
                         <div class="col-md-12">
-                            <form method="get" class="row g-2 align-items-end" action="{{ url_for('alarms_view.index') }}">
+                            <form method="get" class="row g-3 align-items-end" action="{{ url_for('alarms_view.index') }}">
                                 <input type="hidden" name="user_token" value="{{ request.args.get('user_token') }}">
                                 <!-- 告警类型选择 -->
                                 <div class="col-md-2">
@@ -65,8 +65,12 @@
                                 
                                 <!-- 按钮区域 -->
                                 <div class="col-md-2 d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary btn-sm">筛选</button>
-                                    <a href="{{ url_for('alarms_view.index') }}" class="btn btn-outline-secondary btn-sm">清除</a>
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-search me-1"></i>筛选
+                                    </button>
+                                    <a href="{{ url_for('alarms_view.index') }}" class="btn btn-outline-secondary btn-sm">
+                                        <i class="bi bi-x-circle me-1"></i>清除
+                                    </a>
                                 </div>
                             </form>
                         </div>
@@ -77,11 +81,11 @@
 
         <!-- 表格区域 -->
                     <div class="table-responsive">
-            <table class="table table-bordered table-striped">
+            <table class="table table-bordered table-striped table-hover">
                 <thead class="bg-light">
                     <tr>
-                        <th class="text-center">告警ID</th>
-                        <th class="text-center">告警码</th>
+                        <th class="text-center" style="width: 80px;">ID</th>
+                        <th class="text-center" style="width: 120px;">告警码</th>
                         <th class="text-center">告警状态</th>
                         <th class="text-center">告警确认</th>
                         <th class="text-center">告警类型</th>
@@ -97,8 +101,10 @@
                     {% for alarm in alarms %}
                     <tr>
                                 <td class="text-center">{{ alarm.id }}</td>
-                                 <td>
-                                    <a href="{{ url_for('alarms_view.alarm_detail', alarm_id=alarm.id) }}">
+                                 <td class="text-center">
+                                    <a href="{{ url_for('alarms_view.alarm_detail', alarm_id=alarm.id) }}" 
+                                       class="text-decoration-none" 
+                                       title="查看详情">
                                         {{ alarm.alarm_code }}
                                     </a>
                                 </td>
@@ -175,7 +181,6 @@
         <!-- 分页区域 -->
                     <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
             <div class="d-flex align-items-center">
-                            <!-- 每页显示数量选择器 -->
                             <form id="searchForm" class="d-flex align-items-center" method="GET" action="{{ url_for('alarms_view.index') }}">
                                 <label class="me-2 form-label-sm">每页显示：</label>
                                 <select name="per_page" class="form-select form-select-sm d-inline-block" style="width: 80px;" onchange="this.form.submit()">
@@ -197,7 +202,9 @@
                         {% endif %}
                     {% endfor %}
                 </form>
-                            <span class="ms-3 text-dark small">共 {{ pagination.total }} 条记录</span>
+                            <span class="ms-3 text-muted small">
+                                <i class="bi bi-list-ul me-1"></i>共 {{ pagination.total }} 条记录
+                            </span>
             </div>
             
                         <!-- 分页导航 -->
@@ -208,7 +215,9 @@
                     <li class="page-item">
                         {% set args = request.args.copy() %}
                         {% set _ = args.pop('page', None) %}
-                        <a class="page-link" href="{{ url_for('alarms_view.index', page=pagination.prev_num, **args) }}">上一页</a>
+                        <a class="page-link" href="{{ url_for('alarms_view.index', page=pagination.prev_num, **args) }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
                     </li>
                                 {% else %}
                                 <li class="page-item disabled"><span class="page-link">上一页</span></li>
@@ -230,7 +239,9 @@
                     <li class="page-item">
                         {% set args = request.args.copy() %}
                         {% set _ = args.pop('page', None) %}
-                        <a class="page-link" href="{{ url_for('alarms_view.index', page=pagination.next_num, **args) }}">下一页</a>
+                        <a class="page-link" href="{{ url_for('alarms_view.index', page=pagination.next_num, **args) }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
                     </li>
                                 {% else %}
                                 <li class="page-item disabled"><span class="page-link">下一页</span></li>

@@ -12,12 +12,68 @@ from pathlib import Path
 import logging
 from datetime import timedelta
 from dotenv import load_dotenv
+import sys
+from enum import Enum, auto
 
 # 加载环境变量
 load_dotenv()
 
 # 配置日志
 logger = logging.getLogger(__name__)
+
+class ConfigEnv(Enum):
+    """配置环境枚举"""
+    PROD = auto()  # 生产环境
+    TEST = auto()  # 测试环境
+    DEV = auto()   # 开发环境
+
+def get_config_env():
+    """
+    获取当前配置环境
+    
+    优先级：
+    1. 命令行参数 --debug
+    2. 环境变量 FLASK_ENV
+    3. 默认生产环境
+    
+    Returns:
+        ConfigEnv: 配置环境
+    """
+    # 检查命令行参数
+    if '--debug' in sys.argv:
+        return ConfigEnv.TEST
+    
+    # 检查环境变量
+    flask_env = os.environ.get('FLASK_ENV', '').lower()
+    if flask_env == 'test':
+        return ConfigEnv.TEST
+    elif flask_env == 'development':
+        return ConfigEnv.DEV
+    
+    # 默认生产环境
+    return ConfigEnv.PROD
+
+def get_config_path(env):
+    """
+    获取指定环境的配置文件路径
+    
+    Args:
+        env: 配置环境
+        
+    Returns:
+        tuple: (基础配置文件路径, 环境配置文件路径)
+    """
+    config_dir = Path(__file__).parent.parent.parent / "config"
+    base_config_path = config_dir / 'settings.yaml'
+    
+    if env == ConfigEnv.TEST:
+        env_config_path = config_dir / 'settings_test.yaml'
+    elif env == ConfigEnv.DEV:
+        env_config_path = config_dir / 'settings_dev.yaml'
+    else:
+        env_config_path = None
+        
+    return base_config_path, env_config_path
 
 class ConfigObject:
     """配置对象类，用于将字典转换为对象属性"""
@@ -34,58 +90,86 @@ class ConfigObject:
     def get(self, key, default=None):
         return getattr(self, key, default)
 
-def load_config(env=None):
+def load_yaml_config(config_path):
     """
-    加载配置文件
+    加载指定的YAML配置文件
     
     Args:
-        env: 环境名称，如'development', 'production'等
+        config_path: YAML配置文件路径
+        
+    Returns:
+        dict: 配置数据
+    """
+    try:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            return yaml.safe_load(f)
+    except Exception as e:
+        logger.error(f"无法加载配置文件 {config_path}: {str(e)}")
+        return {}
+
+def merge_configs(base_config, override_config):
+    """
+    合并两个配置字典
+    
+    Args:
+        base_config: 基础配置
+        override_config: 覆盖配置
+        
+    Returns:
+        dict: 合并后的配置
+    """
+    if not override_config:
+        return base_config
+        
+    result = base_config.copy()
+    for key, value in override_config.items():
+        if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+            result[key] = merge_configs(result[key], value)
+        else:
+            result[key] = value
+    return result
+
+def process_config_values(config_dict):
+    """
+    处理配置字典中的特殊值，如环境变量
+    
+    Args:
+        config_dict: 配置字典
+    """
+    for key, value in config_dict.items():
+        if isinstance(value, dict):
+            process_config_values(value)
+        elif isinstance(value, str) and value.startswith('${') and value.endswith('}'):
+            env_var = value[2:-1]
+            if ':-' in env_var:
+                env_name, default = env_var.split(':-', 1)
+                config_dict[key] = os.environ.get(env_name, default)
+            else:
+                config_dict[key] = os.environ.get(env_var, '')
+
+def create_config_object(config_dict):
+    """
+    创建配置对象
+    
+    Args:
+        config_dict: 配置字典
         
     Returns:
         ConfigObject: 配置对象
     """
-    # 确定环境
-    if env is None:
-        env = os.environ.get('FLASK_ENV', 'development')
-    
-    # 获取配置文件路径
-    project_root = Path(__file__).resolve().parent.parent.parent
-    config_dir = project_root / "config"
-    base_config_path = config_dir / 'settings.yaml'
-    env_config_path = config_dir / f'{env}.yaml'
-    
-    # 读取基础配置
-    try:
-        with open(base_config_path, 'r', encoding='utf-8') as f:
-            config_data = yaml.safe_load(f)
-    except Exception as e:
-        logger.error(f"无法加载基础配置文件: {str(e)}")
-        config_data = {}
-    
-    # 读取环境特定配置并合并
-    if env_config_path.exists():
-        try:
-            with open(env_config_path, 'r', encoding='utf-8') as f:
-                env_config = yaml.safe_load(f)
-                if env_config:
-                    deep_merge_dict(config_data, env_config)
-        except Exception as e:
-            logger.error(f"无法加载环境配置文件: {str(e)}")
-    
-    # 处理特殊类型和环境变量
-    process_special_values(config_data)
+    # 处理特殊值
+    process_config_values(config_dict)
     
     # 创建配置对象
-    config = ConfigObject(config_data)
+    config = ConfigObject(config_dict)
     
-    # 添加数据库URI - 添加到配置对象的顶层
+    # 添加数据库URI
     if hasattr(config, 'database'):
         db = config.database
-        # 直接设置SQLALCHEMY_DATABASE_URI作为顶级属性
         config.SQLALCHEMY_DATABASE_URI = f'postgresql://{db.user}:{db.password}@{db.host}:{db.port}/{db.name}'
         config.SQLALCHEMY_TRACK_MODIFICATIONS = False
         
-        # 导出数据库配置为顶级属性，方便scripts/init_pg_db.py使用
+        # 导出数据库配置为顶级属性
         config.DB_USER = db.user
         config.DB_PASSWORD = db.password
         config.DB_HOST = db.host 
@@ -93,8 +177,6 @@ def load_config(env=None):
         config.DB_NAME = db.name
     
     # 处理服务器配置
-    # 兼容性处理：优先使用专用的web_server和api_server配置，如果不存在则使用顶级host和port配置
-    # Web服务器配置
     if hasattr(config, 'web_server'):
         config.WEB_HOST = config.web_server.host
         config.WEB_PORT = config.web_server.port
@@ -102,7 +184,6 @@ def load_config(env=None):
         config.WEB_HOST = getattr(config, 'host', '0.0.0.0')
         config.WEB_PORT = getattr(config, 'port', 5000)
     
-    # API服务器配置
     if hasattr(config, 'api_server'):
         config.API_HOST = config.api_server.host
         config.API_PORT = config.api_server.port
@@ -117,89 +198,38 @@ def load_config(env=None):
         config.PERMANENT_SESSION_LIFETIME = timedelta(days=config.session.permanent_lifetime_days)
         config.TOKEN_EXPIRATION = timedelta(days=config.session.token_expiration_days)
     
-    # 处理安全配置
-    if hasattr(config, 'security'):
-        config.SESSION_COOKIE_SECURE = config.security.session_cookie_secure
-        config.REMEMBER_COOKIE_SECURE = config.security.remember_cookie_secure
-        config.SESSION_COOKIE_HTTPONLY = config.security.session_cookie_httponly
-        config.REMEMBER_COOKIE_HTTPONLY = config.security.remember_cookie_httponly
-    
-    # 处理其他应用配置
-    if hasattr(config, 'application'):
-        app = config.application
-        config.ITEMS_PER_PAGE = app.items_per_page
-        config.MAX_CONTENT_LENGTH = app.max_content_length
-        config.UPLOAD_FOLDER = os.path.join(config.BASEDIR, app.upload_folder)
-        config.ALLOWED_EXTENSIONS = set(app.allowed_extensions)
-    
-    # 处理一些Flask特定的配置
-    config.DEBUG = config.debug
-    config.SECRET_KEY = config.secret_key
-    
-    # 处理日志配置
-    if hasattr(config, 'logging'):
-        log = config.logging
-        config.LOG_PATH = log.path
-        config.MAIN_LOG = log.main_log
-        config.DB_LOG = log.db_log
-        config.LOG_MAX_BYTES = log.max_bytes
-        config.LOG_BACKUP_COUNT = log.backup_count
-        config.LOG_FORMAT = log.format
-        config.LOG_DATE_FORMAT = log.date_format
-    
-    # 处理SSL配置
-    if hasattr(config, 'ssl'):
-        ssl = config.ssl
-        # 证书目录
-        ssl_dir = os.path.join(config.BASEDIR, ssl.cert_dir)
-        
-        # Web服务器SSL配置
-        config.WEB_SSL_CERT = os.path.join(ssl_dir, ssl.cert_file)
-        config.WEB_SSL_KEY = os.path.join(ssl_dir, ssl.key_file)
-        
-        # API服务器SSL配置
-        config.API_SSL_CERT = os.path.join(ssl_dir, ssl.api_cert_file)
-        config.API_SSL_KEY = os.path.join(ssl_dir, ssl.api_key_file)
-    
     return config
 
-def deep_merge_dict(base, override):
+def load_app_config():
     """
-    深度合并两个字典
-    
-    Args:
-        base: 基础字典
-        override: 覆盖字典
+    加载应用配置，根据环境自动选择配置文件
     
     Returns:
-        dict: 合并后的字典
+        ConfigObject: 配置对象
     """
-    for key, value in override.items():
-        if key in base and isinstance(base[key], dict) and isinstance(value, dict):
-            deep_merge_dict(base[key], value)
-        else:
-            base[key] = value
-    return base
-
-def process_special_values(config_dict):
-    """
-    处理配置字典中的特殊值，如环境变量
+    # 获取当前环境
+    env = get_config_env()
+    logger.info(f"当前配置环境: {env.name}")
     
-    Args:
-        config_dict: 配置字典
-    """
-    for key, value in config_dict.items():
-        if isinstance(value, dict):
-            process_special_values(value)
-        elif isinstance(value, str) and value.startswith('${') and value.endswith('}'):
-            # 处理环境变量替换，格式: ${ENV_VAR:-default_value}
-            env_var = value[2:-1]
-            if ':-' in env_var:
-                env_name, default = env_var.split(':-', 1)
-                config_dict[key] = os.environ.get(env_name, default)
-            else:
-                config_dict[key] = os.environ.get(env_var, '')
+    # 获取配置文件路径
+    base_config_path, env_config_path = get_config_path(env)
+    
+    # 加载基础配置
+    base_config = load_yaml_config(base_config_path)
+    
+    # 如果存在环境特定配置，则加载并合并
+    if env_config_path and env_config_path.exists():
+        env_config = load_yaml_config(env_config_path)
+        if env_config:
+            logger.info(f"加载{env.name}环境配置")
+            config_data = merge_configs(base_config, env_config)
+        else:
+            config_data = base_config
+    else:
+        config_data = base_config
+    
+    # 创建配置对象
+    return create_config_object(config_data)
 
-# 导出配置类和实例
-Config = load_config
-config = load_config() 
+# 导出配置对象
+config = load_app_config() 

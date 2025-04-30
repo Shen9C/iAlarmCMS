@@ -28,8 +28,10 @@ sys.path.insert(0, str(project_root))
 
 # 导入应用和配置
 from app import create_web_app, create_api_app, db
-from app.utils.yaml_config_loader import config
+from app.utils.yaml_config_loader import config as app_config
 from app.utils.logger_config import setup_logger
+from app.utils.web_auth import get_ssl_context
+from app.utils.machine_auth import get_ssl_context as get_machine_ssl_context
 
 # 设置日志
 logger = setup_logger()
@@ -60,10 +62,10 @@ def run_with_debug_wrapper(target_func, func_args, service_name):
         traceback.print_exc()
         return None
 
-def run_web_app(host=None, port=None, debug=False, use_ssl=True, use_keep_alive=False):
+def run_web_app(config, host=None, port=None, debug=False, use_ssl=True, use_keep_alive=False):
     """运行Web应用"""
     try:
-        app = create_web_app()
+        app = create_web_app(config)
         
         # 检查端口是否被占用
         target_port = port or config.web_server.port
@@ -72,9 +74,9 @@ def run_web_app(host=None, port=None, debug=False, use_ssl=True, use_keep_alive=
             return
             
         if use_ssl:
-            ssl_context = (
-                os.path.join(config.ssl.cert_dir, config.ssl.cert_file),
-                os.path.join(config.ssl.cert_dir, config.ssl.key_file)
+            ssl_context = get_ssl_context(
+                cert_file=config.ssl.cert_file,
+                key_file=config.ssl.key_file
             )
             logger.info("已配置SSL上下文")
         else:
@@ -103,10 +105,10 @@ def run_web_app(host=None, port=None, debug=False, use_ssl=True, use_keep_alive=
         logger.error(f"Web服务运行失败: {e}")
         traceback.print_exc()
 
-def run_device_api(host=None, port=None, debug=False, use_ssl=True, use_keep_alive=False):
+def run_device_api(config, host=None, port=None, debug=False, use_ssl=True, use_keep_alive=False):
     """运行设备API服务"""
     try:
-        app = create_api_app()
+        app = create_api_app(config)
         
         # 检查端口是否被占用
         target_port = port or config.api_server.port
@@ -115,11 +117,11 @@ def run_device_api(host=None, port=None, debug=False, use_ssl=True, use_keep_ali
             return
             
         if use_ssl:
-            ssl_context = (
-                os.path.join(config.ssl.cert_dir, config.ssl.cert_file),
-                os.path.join(config.ssl.cert_dir, config.ssl.key_file)
+            ssl_context = get_machine_ssl_context(
+                cert_file=config.ssl.api_cert_file,
+                key_file=config.ssl.api_key_file
             )
-            logger.info("已配置SSL上下文")
+            logger.info("已配置设备API SSL上下文")
         else:
             ssl_context = None
             logger.info("未使用SSL")
@@ -161,6 +163,9 @@ def main():
     debug = args.debug
     use_keep_alive = not args.no_keep_alive
     
+    # 使用导入的配置对象
+    config = app_config
+    
     processes = []
     threads = []
     
@@ -172,6 +177,7 @@ def main():
                 web_thread = threading.Thread(
                     target=run_web_app,
                     kwargs={
+                        'config': config,
                         'debug': debug,
                         'use_ssl': use_ssl,
                         'use_keep_alive': use_keep_alive
@@ -186,6 +192,7 @@ def main():
                 web_process = run_with_debug_wrapper(
                     run_web_app,
                     {
+                        'config': config,
                         'debug': debug,
                         'use_ssl': use_ssl,
                         'use_keep_alive': use_keep_alive
@@ -203,6 +210,7 @@ def main():
                 api_thread = threading.Thread(
                     target=run_device_api,
                     kwargs={
+                        'config': config,
                         'debug': debug,
                         'use_ssl': use_ssl,
                         'use_keep_alive': use_keep_alive
@@ -217,6 +225,7 @@ def main():
                 api_process = run_with_debug_wrapper(
                     run_device_api,
                     {
+                        'config': config,
                         'debug': debug,
                         'use_ssl': use_ssl,
                         'use_keep_alive': use_keep_alive
@@ -244,7 +253,13 @@ def main():
         logger.error(f"服务运行出错: {e}")
         traceback.print_exc()
     finally:
-        logger.info("服务已关闭")
+        # 清理资源
+        for process in processes:
+            if process.is_alive():
+                process.terminate()
+        for thread in threads:
+            if thread.is_alive():
+                thread.join(timeout=1)
 
 if __name__ == '__main__':
     main()

@@ -8,8 +8,9 @@ Web应用启动脚本
 
 import os
 import sys
-import logging
 from pathlib import Path
+from app import create_web_app
+from app.utils.logger_config import setup_logger
 
 # 将项目根目录添加到系统路径
 project_root = Path(__file__).resolve().parent
@@ -17,7 +18,9 @@ sys.path.insert(0, str(project_root))
 
 # 从run.py导入必要的函数
 from run import config
-from app.utils.logger import web_logger as logger
+
+# 设置日志
+logger = setup_logger()
 
 def run_web_app(host=None, port=None, workers=4, use_ssl=False):
     """
@@ -34,8 +37,6 @@ def run_web_app(host=None, port=None, workers=4, use_ssl=False):
         host = config.WEB_HOST
     if port is None:
         port = config.WEB_PORT
-    
-    from app import create_web_app
     
     logger.info("正在创建Web应用实例...")
     app = create_web_app()

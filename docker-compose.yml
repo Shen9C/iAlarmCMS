@@ -1,6 +1,6 @@
 services:
   app:
-    image: oilfield-web:v0.9.3
+    image: oilfield-web:v1.0.0
     container_name: oilfield_web_app
     ports:
       - "8000:8000"

@@ -4,13 +4,13 @@
 <div class="container mt-4">
     <div class="card">
         <div class="card-header">
-            <h5>告警处理完成</h5>
+            <h5>告警处理</h5>
         </div>
         <div class="card-body">
             <div class="alarm-info mb-4">
                 <h6 class="mb-3">告警信息</h6>
                 <dl class="row mb-0">
-                    <dt class="col-sm-3">告警ID</dt>
+                    <dt class="col-sm-3">ID</dt>
                     <dd class="col-sm-9">{{ alarm.id }}</dd>
                     
                     <dt class="col-sm-3">告警编号</dt>
@@ -27,15 +27,14 @@
                 </dl>
             </div>
             
-            <form id="processForm" method="POST" action="{{ url_for('alarms_view.process_alarm', alarm_id=alarm.id) }}">
-                <input type="hidden" name="alarm_id" value="{{ alarm.id }}">
+            <form id="processForm" method="POST" action="{{ url_for('alarms_view.process_alarm', alarm_id=alarm.id, user_token=request.args.get('user_token')) }}">
                 <div class="mb-3">
                     <label for="processNotes" class="form-label fw-bold">处理备注</label>
                     <textarea class="form-control" id="processNotes" name="notes" rows="3" placeholder="请输入处理备注" required></textarea>
                 </div>
                 <div class="mt-4">
                     <button type="submit" class="btn btn-primary" id="submitBtn">确认</button>
-                    <a href="{{ url_for('alarms_view.index') }}" class="btn btn-secondary ms-2">取消</a>
+                    <a href="{{ url_for('alarms_view.index', user_token=request.args.get('user_token')) }}" class="btn btn-secondary ms-2">取消</a>
                 </div>
             </form>
         </div>

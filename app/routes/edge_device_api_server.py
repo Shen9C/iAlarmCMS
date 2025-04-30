@@ -13,19 +13,20 @@ import sys
 from pathlib import Path
 import importlib
 import traceback
-from app.utils.logger import get_logger
+from app.utils.logger_config import setup_logger
 from app.utils.yaml_config_loader import config
 from app.utils.db_connection import check_db_connection, db_session, init_db_engine
-from app.utils.decorators import get_secret_key
-from app import db  # 直接从app导入db
-from app.models.edge_devices import EdgeDevice  # 使用正确的模型导入
+from app.utils.auth_helper import get_secret_key
+from app.utils.machine_auth import verify_machine_token, create_machine_token
+from app import db
+from app.models.edge_devices import EdgeDevice
 from datetime import datetime, timedelta
 from functools import wraps
 from sqlalchemy import text
 import jwt
 import uuid
 import logging
-from functools import wraps
+from flask_sqlalchemy import SQLAlchemy
 
 # 将项目根目录添加到系统路径
 project_root = Path(__file__).resolve().parent.parent.parent
@@ -34,7 +35,7 @@ sys.path.insert(0, str(project_root))
 from app.models.alarms import Alarm
 
 # 获取日志记录器
-logger = get_logger('api')
+logger = setup_logger()
 
 # 创建一个仅包含设备API路由的Blueprint
 bp = Blueprint('device_api', __name__, url_prefix='/api/edge_devices')

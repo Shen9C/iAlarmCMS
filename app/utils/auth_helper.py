@@ -1,5 +1,8 @@
 import re
 from werkzeug.security import check_password_hash
+from functools import wraps
+from flask import flash, redirect, url_for, request, current_app
+from flask_login import current_user
 
 def validate_password(password):
     """验证密码复杂度"""
@@ -25,3 +28,21 @@ def verify_password(user, password):
     if not user or not user.password_hash:
         return False
     return check_password_hash(user.password_hash, password)
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != 'admin':
+            flash('您没有权限执行此操作')
+            return redirect(url_for('alarms_view.index', user_token=request.args.get('user_token')))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def get_secret_key():
+    """获取密钥的统一方法"""
+    try:
+        # 从当前应用获取密钥
+        return current_app.config['SECRET_KEY']
+    except (RuntimeError, KeyError):
+        # 如果不在应用上下文中或密钥不存在，返回None
+        return None

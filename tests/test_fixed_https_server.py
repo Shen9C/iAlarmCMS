@@ -9,6 +9,8 @@ import os
 import sys
 import logging
 from pathlib import Path
+from flask import Flask, jsonify
+import ssl
 
 # 配置详细日志
 logging.basicConfig(
@@ -55,10 +57,7 @@ if not os.path.exists(cert_path) or not os.path.exists(key_path):
 
 # 导入Flask应用和自定义SSL模块
 from app import create_app
-try:
-    from app.utils.custom_ssl import get_ssl_context
-except ImportError:
-    from app import get_ssl_context
+from app.utils.web_auth import get_ssl_context
 
 # 导入Flask核心组件
 import flask
@@ -119,7 +118,6 @@ def run_fixed_https_server(host='127.0.0.1', port=5000, debug=True):
         
         # 备用启动方法
         try:
-            import ssl
             context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
             context.load_cert_chain(cert_path, key_path)
             app.run(host=host, port=port, debug=debug, ssl_context=context, use_reloader=False)

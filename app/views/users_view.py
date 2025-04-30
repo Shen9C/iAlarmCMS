@@ -3,7 +3,6 @@ import re
 from flask_login import login_required, current_user
 from app.models.users import User
 from app import db
-from flask_paginate import Pagination, get_page_parameter
 
 bp = Blueprint('users', __name__)
 
@@ -15,7 +14,6 @@ def index():
         return redirect(url_for('alarms_view.index', user_token=request.args.get('user_token')))
     
     users = User.query.all()
-    # 修改模板路径为新的命名规范
     return render_template('users/users_index.html', users=users)
 
 def validate_password(password):
@@ -48,27 +46,36 @@ def create():
         return redirect(url_for('alarms_view.index', user_token=request.args.get('user_token')))
     
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        role = request.form['role']
+        username = request.form.get('username')
+        password = request.form.get('password')
+        role = request.form.get('role')
         
-        # 验证密码复杂度
+        # 验证用户名
+        if not username or len(username) < 3:
+            flash('用户名必须至少3个字符')
+            return redirect(url_for('users.create'))
+            
+        # 验证密码
         is_valid, message = validate_password(password)
         if not is_valid:
             flash(message)
-            return render_template('users/users_create.html')
-        
+            return redirect(url_for('users.create'))
+            
+        # 检查用户名是否已存在
         if User.query.filter_by(username=username).first():
             flash('用户名已存在')
-        else:
-            user = User(username=username, role=role)
-            user.set_password(password)
-            db.session.add(user)
-            db.session.commit()
-            flash('用户创建成功')
-            return redirect(url_for('users.index', user_token=request.args.get('user_token')))
+            return redirect(url_for('users.create'))
             
-    return render_template('users/users_create.html')
+        # 创建新用户
+        user = User(username=username, role=role)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+        
+        flash('用户创建成功')
+        return redirect(url_for('users.index'))
+        
+    return render_template('users/create.html')
 
 @bp.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -80,29 +87,35 @@ def edit(id):
     user = User.query.get_or_404(id)
     
     if request.method == 'POST':
-        username = request.form['username']
-        role = request.form['role']
+        username = request.form.get('username')
+        role = request.form.get('role')
         password = request.form.get('password')
         
-        # 如果提供了新密码，验证其复杂度
+        # 验证用户名
+        if not username or len(username) < 3:
+            flash('用户名必须至少3个字符')
+            return redirect(url_for('users.edit', id=id))
+            
+        # 如果提供了新密码，验证密码
         if password:
             is_valid, message = validate_password(password)
             if not is_valid:
                 flash(message)
-                return render_template('users/users_edit.html', user=user)
-        
-        # 检查用户名是否已存在（排除当前用户）
-        existing_user = User.query.filter(User.username == username, User.id != id).first()
-        if existing_user:
-            flash('用户名已存在')
-        else:
-            user.username = username
-            user.role = role
-            if password:
-                user.set_password(password)
-            db.session.commit()
-            flash('用户信息更新成功')
-            return redirect(url_for('users.index', user_token=request.args.get('user_token')))
+                return redirect(url_for('users.edit', id=id))
+            user.set_password(password)
             
-    # 修改模板路径为新的命名规范
-    return render_template('users/users_edit.html', user=user)
+        # 检查用户名是否已存在（排除当前用户）
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user and existing_user.id != id:
+            flash('用户名已存在')
+            return redirect(url_for('users.edit', id=id))
+            
+        # 更新用户信息
+        user.username = username
+        user.role = role
+        db.session.commit()
+        
+        flash('用户信息更新成功')
+        return redirect(url_for('users.index'))
+        
+    return render_template('users/edit.html', user=user)

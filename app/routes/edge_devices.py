@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session, jsonify
 from flask_login import login_required
 from app.models.edge_devices import EdgeDevice
-from app.utils.decorators import admin_required
+from app.utils.auth_helper import admin_required
+from app.utils.machine_auth import get_ssl_context
 from app import db
 import logging
 import traceback

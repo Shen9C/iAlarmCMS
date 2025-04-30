@@ -24,7 +24,7 @@ DEFAULT_CONFIG = {
     # 'url': 'https://192.168.8.16:8800',  # 默认使用HTTPS
     # 'url': 'https://192.168.3.3:8800',  # 默认使用HTTPS
     'device_id': '9c5aff66',  # 默认测试设备ID
-    'secret_key': 'SK1440a2d7',  # 默认测试密钥
+    'secret_key': 'SK6029e018',  # 默认测试密钥
     'alarm_type': '设备异常',  # 默认告警类型
     'alarm_code': 'well_qt001',  # 默认告警编号（将自动生成）
     'well_code': 'JK003',  # 默认油井编号

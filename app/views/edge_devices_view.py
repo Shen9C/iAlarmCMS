@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, current_app
-from flask_login import login_required, current_user  # 添加current_user导入
+from flask_login import login_required, current_user
 from app.models.edge_devices import EdgeDevice
 from app.models.alarms import Alarm
-from app.utils.decorators import admin_required
+from app.utils.auth_helper import admin_required, get_secret_key
+from app.utils.machine_auth import device_auth_required
 from app import db
 import logging
 import traceback

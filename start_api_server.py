@@ -8,8 +8,9 @@ API服务器启动脚本
 
 import os
 import sys
-import logging
 from pathlib import Path
+from app import create_api_app
+from app.utils.logger_config import setup_logger
 
 # 将项目根目录添加到系统路径
 project_root = Path(__file__).resolve().parent
@@ -17,7 +18,9 @@ sys.path.insert(0, str(project_root))
 
 # 从run.py导入必要的函数
 from run import config
-from app.utils.logger import api_logger as logger
+
+# 设置日志
+logger = setup_logger()
 
 def run_api_server(host=None, port=None, workers=4, use_ssl=False):
     """
@@ -34,8 +37,6 @@ def run_api_server(host=None, port=None, workers=4, use_ssl=False):
         host = config.API_HOST
     if port is None:
         port = config.API_PORT
-    
-    from app import create_api_app
     
     logger.info("正在创建API服务器实例...")
     app = create_api_app()

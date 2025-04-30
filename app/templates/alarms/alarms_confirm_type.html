@@ -27,8 +27,7 @@
                 </dl>
             </div>
             
-            <form id="confirmForm" method="POST" action="{{ url_for('alarms_view.confirm_alarm_type', alarm_id=alarm.id) }}">
-                <input type="hidden" name="alarm_id" value="{{ alarm.id }}">
+            <form id="confirmForm" method="POST" action="{{ url_for('alarms_view.confirm_alarm_type', alarm_id=alarm.id, user_token=request.args.get('user_token')) }}">
                 <div class="mb-3">
                     <label for="confirmType" class="form-label fw-bold">确认类型</label>
                     <div class="form-check">
@@ -62,7 +61,7 @@
                 </div>
                 <div class="mt-4">
                     <button type="submit" class="btn btn-primary" id="submitBtn">确认</button>
-                    <a href="{{ url_for('alarms_view.index') }}" class="btn btn-secondary ms-2">取消</a>
+                    <a href="{{ url_for('alarms_view.index', user_token=request.args.get('user_token')) }}" class="btn btn-secondary ms-2">取消</a>
                 </div>
             </form>
         </div>

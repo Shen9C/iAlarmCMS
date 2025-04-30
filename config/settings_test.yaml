@@ -29,7 +29,7 @@ session:
 
 # 日志配置
 logging:
-  path: /zhyn/logs
+  path: ./logs
   main_log: oilfield.log
   db_log: db_init.log
   max_bytes: 52428800  # 50MB
@@ -41,7 +41,7 @@ logging:
 application:
   items_per_page: 20
   max_content_length: 16777216  # 16MB
-  upload_folder: /zhyn/alarm_images
+  upload_folder: alarm_images
   allowed_extensions:
     - txt
     - pdf
@@ -61,7 +61,7 @@ security:
 
 # SSL配置
 ssl:
-  cert_file: /zhyn/ssl/web_cert.pem
-  key_file: /zhyn/ssl/web_key.pem
-  api_cert_file: /zhyn/ssl/api_cert.pem
-  api_key_file: /zhyn/ssl/api_key.pem
+  cert_file: ssl/web_cert.pem
+  key_file: ssl/web_key.pem
+  api_cert_file: ssl/api_cert.pem
+  api_key_file: ssl/api_key.pem
