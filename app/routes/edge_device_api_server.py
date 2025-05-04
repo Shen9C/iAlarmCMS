@@ -291,7 +291,7 @@ def create_alarm_with_token():
             alarm_data[field] = data[field]
         
         # 提取可选字段
-        optional_fields = ['well_code', 'well_name', 'camera_ip', 'alarm_image', 'description', 'alarm_suffix_code']
+        optional_fields = ['well_code', 'well_name', 'camera_ip', 'alarm_image', 'description', 'alarm_suffix_code', 'analysis_result']
         for field in optional_fields:
             if field in data:
                 alarm_data[field] = data[field]
@@ -373,7 +373,7 @@ def direct_test():
         }
         
         # 提取其他字段
-        optional_fields = ['well_code', 'well_name', 'camera_ip', 'alarm_image', 'description', 'alarm_suffix_code']
+        optional_fields = ['well_code', 'well_name', 'camera_ip', 'alarm_image', 'description', 'alarm_suffix_code', 'analysis_result']
         for field in optional_fields:
             if field in data:
                 alarm_data[field] = data[field]
