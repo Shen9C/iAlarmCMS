@@ -107,7 +107,7 @@ function regenerateKeys(deviceId) {
     // 添加调试信息
     console.log(`正在重新生成设备ID为${deviceId}的密钥...`);
     
-    fetch(`/api/edge_devices/${deviceId}/regenerate_keys`, {
+    fetch(`/edge_devices_mngt/api/edge_devices/${deviceId}/regenerate_keys`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

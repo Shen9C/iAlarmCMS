@@ -108,8 +108,8 @@ def create_app(config=None):
     from app.views.oil_wells_view import bp as oil_wells_bp
     from app.views.stats_view import bp as stats_bp
     from app.views.settings_view import bp as settings_bp
-    from app.api.settings_api import bp as settings_api_bp
-    from app.api.edge_devices_api import bp as edge_devices_api_bp
+    from app.routes.settings_api import bp as settings_api_bp
+    from app.routes.edge_devices import bp as edge_devices_mngt_bp
     
     app.register_blueprint(web_auth_bp)
     app.register_blueprint(alarms_bp, url_prefix='/alarms')
@@ -120,7 +120,7 @@ def create_app(config=None):
     app.register_blueprint(stats_bp, url_prefix='/stats')
     app.register_blueprint(settings_bp, url_prefix='/settings')
     app.register_blueprint(settings_api_bp)
-    app.register_blueprint(edge_devices_api_bp, url_prefix='/api/edge_devices')
+    app.register_blueprint(edge_devices_mngt_bp)
     
     # 添加根路由重定向
     @app.route('/')

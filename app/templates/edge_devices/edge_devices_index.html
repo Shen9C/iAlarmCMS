@@ -55,7 +55,7 @@ window.regenerateKeysDirectly = function(deviceId) {
     }
     
     // 直接发送重新生成密钥请求
-    const apiUrl = `/api/edge_devices/${deviceId}/regenerate_keys`;
+    const apiUrl = `/edge_devices_mngt/api/edge_devices/${deviceId}/regenerate_keys`;
     console.log('发送请求到:', apiUrl);
     
     fetch(apiUrl, {
