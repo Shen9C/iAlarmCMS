@@ -76,7 +76,7 @@ def generate_task_code(well_code=None, task_type=None):
 def generate_alarm_code(well_code=None, alarm_type=None):
     """生成告警编号，基于油井编码和故障类型映射"""
     if not well_code:
-        return f"ALM_UNKNOWN_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        return f"ALM_UNKNOWN_{datetime.now().strftime('%m%d%H%M')}"
     
     # 获取油井对应的故障码映射
     well_code_upper = well_code.upper() if well_code else ""
@@ -84,7 +84,7 @@ def generate_alarm_code(well_code=None, alarm_type=None):
     
     # 如果没有该油井的故障码映射，使用默认格式
     if not fault_codes:
-        return f"{well_code}_ALM_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        return f"{well_code}_ALM_{datetime.now().strftime('%m%d%H%M')}"
     
     # 如果提供了告警类型，尝试选择与之匹配的故障码
     if alarm_type:
@@ -381,12 +381,15 @@ def generate_test_data():
                     alarm_type = random.choice(alarm_types)
                     
                     # 获取设备对应的油井信息
-                    well = next((w for w in saved_wells if w.well_code == device_well_mapping.get(device.device_id)), None)
+                    well = next((w for w in saved_wells if device_well_mapping.get(device.device_id) == w.well_code), None)
                     well_code = well.well_code if well else None
                     well_name = well.well_name if well else "未知油井"
                     
                     # 生成告警码
                     alarm_code = generate_alarm_code(well_code, alarm_type)
+                    
+                    # analysis_result 随机 0 或 1
+                    analysis_result = random.choice([0, 1])
                     
                     # 根据Alarm模型字段创建告警
                     alarm = Alarm(
@@ -401,7 +404,8 @@ def generate_test_data():
                         description=f"{alarm_type}告警: {alarm_code}",
                         alarm_time=datetime.now() - timedelta(days=random.randint(0, 30), 
                                                              hours=random.randint(0, 23), 
-                                                             minutes=random.randint(0, 59))
+                                                             minutes=random.randint(0, 59)),
+                        analysis_result=analysis_result
                     )
                     
                     # 设置告警状态（是否处理和确认）

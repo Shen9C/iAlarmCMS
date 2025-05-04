@@ -29,6 +29,7 @@ class Alarm(db.Model):
     confirmation_notes = db.Column(db.Text, comment='确认备注')
     description = db.Column(db.String(255), comment='告警描述')
     process_notes = db.Column(db.Text, comment='处理备注')
+    analysis_result = db.Column(db.Integer, default=0, comment='数据分析结果，0为正常，1为告警')
     
     created_at = db.Column(TIMESTAMP, default=lambda: datetime.now(), comment='创建时间')
     updated_at = db.Column(TIMESTAMP, default=lambda: datetime.now(), onupdate=lambda: datetime.now(), comment='更新时间')
@@ -62,6 +63,7 @@ class Alarm(db.Model):
             'description': self.description,
             'process_notes': self.process_notes,
             'alarm_suffix_code': self.alarm_suffix_code,
+            'analysis_result': self.analysis_result,
             'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None,
             'updated_at': self.updated_at.strftime('%Y-%m-%d %H:%M:%S') if self.updated_at else None
         }

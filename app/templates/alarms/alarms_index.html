@@ -94,6 +94,7 @@
                         <th class="text-center">告警产生时间</th>
                         <th class="text-center">告警处理时间</th>
                         <th class="text-center">告警图片</th>
+                        <th class="text-center">数据结果</th>
                         <th class="text-center">操作</th>
                     </tr>
                 </thead>
@@ -147,6 +148,13 @@
                                         </a>
                                     {% else %}
                                         <span class="text-dark">NA</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if alarm.analysis_result == 1 %}
+                                        <span class="badge bg-danger">告警</span>
+                                    {% else %}
+                                        <span class="badge bg-success">正常</span>
                                     {% endif %}
                                 </td>
                                 <!-- 修改表格中的确认按钮部分 -->
