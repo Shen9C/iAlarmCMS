@@ -1,6 +1,3 @@
-web_server:
-  host: 0.0.0.0
-  port: 8000
 api_server:
   host: 0.0.0.0
   port: 8800
@@ -33,7 +30,7 @@ logging:
   main_log: oilfield.log
   max_bytes: 52428800
   path: /zhyn/logs
-secret_key: b964e7c2c731d5d49b8fcd3115e1bb9da59c90843aa522f82629f234c3c2b36f
+secret_key: 7b776530fe748a6542c924ff2971eeb3ebbb766b3af225983741b98e5b5f489c
 security:
   remember_cookie_httponly: true
   remember_cookie_secure: true
@@ -47,4 +44,6 @@ ssl:
   api_key_file: /zhyn/ssl/api_key.pem
   cert_file: /zhyn/ssl/web_cert.pem
   key_file: /zhyn/ssl/web_key.pem
-
+web_server:
+  host: 0.0.0.0
+  port: 8000

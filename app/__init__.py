@@ -13,6 +13,7 @@ import sys
 from datetime import datetime
 import traceback
 
+
 # 禁用所有数据库相关的日志输出
 logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
 logging.getLogger('sqlalchemy.pool').setLevel(logging.WARNING)
@@ -62,7 +63,7 @@ def create_app(config=None):
     
     Args:
         config: 配置对象，如果为None则使用默认配置
-        
+    
     Returns:
         Flask: Flask应用实例
     """
@@ -70,10 +71,24 @@ def create_app(config=None):
     
     # 加载配置
     if config is None:
-        config = create_config_object(load_yaml_config('config/settings.yaml'))
+        import os
+        config_path = os.environ.get('CONFIG_PATH', 'config/settings.yaml')
+        config = load_yaml_config(config_path)
+
+    # 将配置对象添加到模板上下文中
+    app.config['system_config'] = config
     
-    # 应用配置
-    app.config.from_object(config)
+    # 设置应用配置
+    app.config.update(
+        SECRET_KEY=config.get('secret_key', 'dev'),
+        SQLALCHEMY_DATABASE_URI=f"postgresql://{config['database']['user']}:{config['database']['password']}@{config['database']['host']}/{config['database']['name']}",
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        SQLALCHEMY_ENGINE_OPTIONS={
+            'pool_size': 10,
+            'pool_recycle': 3600,
+            'pool_pre_ping': True
+        }
+    )
     
     # 初始化扩展
     db.init_app(app)
@@ -93,15 +108,41 @@ def create_app(config=None):
     from app.views.oil_wells_view import bp as oil_wells_bp
     from app.views.stats_view import bp as stats_bp
     from app.views.settings_view import bp as settings_bp
+    from app.api.settings_api import bp as settings_api_bp
+    from app.api.edge_devices_api import bp as edge_devices_api_bp
     
     app.register_blueprint(web_auth_bp)
     app.register_blueprint(alarms_bp, url_prefix='/alarms')
-    app.register_blueprint(devices_bp, url_prefix='/devices')
+    app.register_blueprint(devices_bp, url_prefix='/edge_devices')
     app.register_blueprint(tasks_bp, url_prefix='/tasks')
     app.register_blueprint(users_bp, url_prefix='/users')
     app.register_blueprint(oil_wells_bp, url_prefix='/wells')
     app.register_blueprint(stats_bp, url_prefix='/stats')
     app.register_blueprint(settings_bp, url_prefix='/settings')
+    app.register_blueprint(settings_api_bp)
+    app.register_blueprint(edge_devices_api_bp, url_prefix='/api/edge_devices')
+    
+    # 添加根路由重定向
+    @app.route('/')
+    def index():
+        return redirect(url_for('alarms_view.index'))
+    
+    # 添加系统配置到模板上下文中
+    @app.context_processor
+    def inject_system_name():
+        try:
+            from app.models.settings import SystemConfig
+            return {'system_name_zh': SystemConfig.get_system_name()}
+        except Exception as e:
+            logging.warning(f"系统名称获取失败: {e}")
+            return {'system_name_zh': "智能告警综合管理系统"}
+    
+    # 添加 datetime 过滤器
+    @app.template_filter('datetime')
+    def format_datetime(value):
+        if value is None:
+            return ''
+        return value.strftime('%Y-%m-%d %H:%M:%S')
     
     return app
 

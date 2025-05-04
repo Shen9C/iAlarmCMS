@@ -225,4 +225,19 @@ def add_device():
     except Exception as e:
         db.session.rollback()
         flash(f'添加设备失败: {str(e)}', 'error')
-        return redirect(url_for('edge_devices_mngt.index')) 
+        return redirect(url_for('edge_devices_mngt.index'))
+
+# API: 重新生成设备密钥
+@bp.route('/api/edge_devices/<int:device_id>/regenerate_keys', methods=['POST'])
+@login_required
+@admin_required
+def regenerate_keys(device_id):
+    """重新生成设备密钥"""
+    try:
+        device = EdgeDevice.query.get_or_404(device_id)
+        device.secret_key = EdgeDevice.generate_secret_key()
+        db.session.commit()
+        return jsonify({'code': 200, 'message': '密钥已重新生成', 'secret_key': device.secret_key})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'code': 500, 'message': f'密钥重生成失败: {str(e)}'}), 500 

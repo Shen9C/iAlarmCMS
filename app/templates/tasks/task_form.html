@@ -26,13 +26,13 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="task_name" class="form-label">任务名称</label>
-                                    <input type="text" class="form-control" id="task_name" name="task_name" value="{{ task.task_name if task else '' }}" required>
+                                    <input type="text" class="form-control" id="task_name" name="task_name" value="{{ task.task_name if task else '' }}" required {% if task %}readonly{% endif %}>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="task_type" class="form-label">任务类型</label>
-                                    <select class="form-select" id="task_type" name="task_type" required>
+                                    <select class="form-select" id="task_type" name="task_type" required {% if task %}disabled{% endif %}>
                                         <option value="" disabled selected>请选择任务类型</option>
                                         <option value="压力表读数" {% if task and task.task_type == '压力表读数' %}selected{% endif %}>压力表读数</option>
                                         <option value="液位计读数" {% if task and task.task_type == '液位计读数' %}selected{% endif %}>液位计读数</option>
@@ -51,7 +51,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="well_code" class="form-label">油井编号</label>
-                                    <select class="form-select" id="well_code" name="well_code">
+                                    <select class="form-select" id="well_code" name="well_code" {% if task %}disabled{% endif %}>
                                         <option value="">请选择油井编号</option>
                                         {% for well in oil_wells %}
                                         <option value="{{ well.well_code }}" {% if task and task.well_code == well.well_code %}selected{% endif %}>
@@ -64,7 +64,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="well_name" class="form-label">油井名称</label>
-                                    <input type="text" class="form-control" id="well_name" name="well_name" value="{{ task.well_name if task else '' }}" required>
+                                    <input type="text" class="form-control" id="well_name" name="well_name" value="{{ task.well_name if task else '' }}" required {% if task %}readonly{% endif %}>
                                 </div>
                             </div>
                         </div>
@@ -136,6 +136,8 @@
     </div>
 </div>
 
+{# 注释掉原有的JS拦截，使用原生表单提交 #}
+{#
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('taskForm');
@@ -186,4 +188,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+#}
 {% endblock %} 

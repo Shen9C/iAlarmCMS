@@ -3,6 +3,7 @@ from werkzeug.security import check_password_hash
 from functools import wraps
 from flask import flash, redirect, url_for, request, current_app
 from flask_login import current_user
+import logging
 
 def validate_password(password):
     """验证密码复杂度"""
@@ -42,7 +43,12 @@ def get_secret_key():
     """获取密钥的统一方法"""
     try:
         # 从当前应用获取密钥
-        return current_app.config['SECRET_KEY']
+        key = current_app.config['SECRET_KEY']
+        if not key:
+            raise KeyError("SECRET_KEY is empty")
+        return key
     except (RuntimeError, KeyError):
-        # 如果不在应用上下文中或密钥不存在，返回None
-        return None
+        # 如果不在应用上下文中或密钥不存在，返回默认密钥
+        logger = logging.getLogger(__name__)
+        logger.warning("无法从应用配置获取SECRET_KEY，使用默认密钥")
+        return "dev-key-123"  # 默认开发密钥

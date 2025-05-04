@@ -16,29 +16,29 @@
     
     <div class="mb-3">
         <a href="{{ url_for('users.create') }}" class="btn btn-primary">创建新用户</a>
-    </div>
-    
-    <table class="table table-striped">
-        <thead>
-            <tr>
+        </div>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
                 <th>ID</th>
-                <th>用户名</th>
-                <th>角色</th>
-                <th>操作</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
+                        <th>用户名</th>
+                        <th>角色</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
                 <td>{{ user.id }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ user.role }}</td>
-                <td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.role }}</td>
+                        <td>
                     <a href="{{ url_for('users.edit', id=user.id) }}" class="btn btn-sm btn-warning">编辑</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 {% endblock %}

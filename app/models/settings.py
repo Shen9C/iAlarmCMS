@@ -11,7 +11,8 @@ class SystemConfig(db.Model):
     company_name = db.Column(db.String(100), comment='公司名称')
     logo_url = db.Column(db.String(255), comment='系统Logo URL')
     theme_color = db.Column(db.String(20), default="#3498db", comment='主题颜色')
-    updated_at = db.Column(TIMESTAMP, default=lambda: datetime.now(), onupdate=lambda: datetime.now(), comment='更新时间')
+    created_at = db.Column(db.DateTime, default=datetime.now, comment='创建时间')
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now, comment='更新时间')
     
     @classmethod
     def get_instance(cls):
@@ -21,6 +22,30 @@ class SystemConfig(db.Model):
             config = cls()
             db.session.add(config)
             db.session.commit()
+        return config
+
+    @classmethod
+    def get_system_name(cls):
+        """获取系统名称，如果数据库中没有配置，则返回默认值"""
+        config = cls.query.first()
+        if not config:
+            config = cls()
+            db.session.add(config)
+            db.session.commit()
+        return config.system_name_zh
+
+    @classmethod
+    def update_system_name(cls, name_zh, name_en=None):
+        """更新系统名称"""
+        config = cls.query.first()
+        if not config:
+            config = cls()
+            db.session.add(config)
+        
+        config.system_name_zh = name_zh
+        if name_en:
+            config.system_name_en = name_en
+        db.session.commit()
         return config
 
     def __repr__(self):

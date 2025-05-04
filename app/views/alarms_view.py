@@ -442,13 +442,15 @@ def confirm_alarm_type(alarm_id):
     """
     logger.info(f'访问告警确认页面: alarm_id={alarm_id}, method={request.method}')
     
-    # 获取用户token
+    # 优先用Flask-Login session认证
+    from flask_login import current_user
     user_token = request.cookies.get('user_token') or request.args.get('user_token')
-    logger.info(f'用户令牌: {user_token}')
+    logger.info(f'用户令牌: {user_token}, 当前用户: {getattr(current_user, "username", None)}, 已认证: {current_user.is_authenticated}')
     
-    if not user_token:
-        flash('缺少用户认证信息', 'error')
-        return redirect(url_for('alarms_view.index'))
+    # 只要登录了就允许访问，不再强制user_token
+    # if not user_token and not current_user.is_authenticated:
+    #     flash('缺少用户认证信息', 'error')
+    #     return redirect(url_for('alarms_view.index'))
 
     # 获取告警信息
     alarm = Alarm.query.get_or_404(alarm_id)
@@ -495,15 +497,16 @@ def process_alarm(alarm_id):
     """
     logger.info(f'访问告警处理页面: alarm_id={alarm_id}, method={request.method}')
     
-    # 获取用户token
+    from flask_login import current_user
     user_token = request.cookies.get('user_token') or request.args.get('user_token')
-    logger.info(f'用户令牌: {user_token}')
+    logger.info(f'用户令牌: {user_token}, 当前用户: {getattr(current_user, "username", None)}, 已认证: {current_user.is_authenticated}')
     
-    if not user_token:
-        if request.is_json:
-            return jsonify({'success': False, 'message': '缺少用户认证信息'})
-        flash('缺少用户认证信息', 'error')
-        return redirect(url_for('alarms_view.index'))
+    # 只要登录了就允许访问，不再强制user_token
+    # if not user_token and not current_user.is_authenticated:
+    #     if request.is_json:
+    #         return jsonify({'success': False, 'message': '缺少用户认证信息'})
+    #     flash('缺少用户认证信息', 'error')
+    #     return redirect(url_for('alarms_view.index'))
 
     # 获取告警信息
     alarm = Alarm.query.get_or_404(alarm_id)
@@ -523,9 +526,10 @@ def process_alarm(alarm_id):
         
         if not notes:
             if request.is_json:
-                return jsonify({'success': False, 'message': '请输入处理备注'})
-            flash('请输入处理备注', 'warning')
-            return render_template('alarms/alarms_process.html', alarm=alarm, user_token=user_token)
+                return jsonify({'error': '备注不能为空'}), 400
+            else:
+                flash('备注不能为空', 'error')
+                return redirect(url_for('alarms_view.process_alarm', alarm_id=alarm_id))
         
         try:
             # 更新告警处理状态

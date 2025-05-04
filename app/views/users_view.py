@@ -54,27 +54,27 @@ def create():
         if not username or len(username) < 3:
             flash('用户名必须至少3个字符')
             return redirect(url_for('users.create'))
-            
+        
         # 验证密码
         is_valid, message = validate_password(password)
         if not is_valid:
             flash(message)
             return redirect(url_for('users.create'))
-            
+        
         # 检查用户名是否已存在
         if User.query.filter_by(username=username).first():
             flash('用户名已存在')
             return redirect(url_for('users.create'))
             
         # 创建新用户
-        user = User(username=username, role=role)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
+            user = User(username=username, role=role)
+            user.set_password(password)
+            db.session.add(user)
+            db.session.commit()
         
-        flash('用户创建成功')
+            flash('用户创建成功')
         return redirect(url_for('users.index'))
-        
+            
     return render_template('users/create.html')
 
 @bp.route('/edit/<int:id>', methods=['GET', 'POST'])
@@ -103,7 +103,7 @@ def edit(id):
                 flash(message)
                 return redirect(url_for('users.edit', id=id))
             user.set_password(password)
-            
+        
         # 检查用户名是否已存在（排除当前用户）
         existing_user = User.query.filter_by(username=username).first()
         if existing_user and existing_user.id != id:
@@ -111,11 +111,11 @@ def edit(id):
             return redirect(url_for('users.edit', id=id))
             
         # 更新用户信息
-        user.username = username
-        user.role = role
-        db.session.commit()
+            user.username = username
+            user.role = role
+            db.session.commit()
         
-        flash('用户信息更新成功')
+            flash('用户信息更新成功')
         return redirect(url_for('users.index'))
-        
+            
     return render_template('users/edit.html', user=user)

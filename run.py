@@ -16,6 +16,7 @@ import multiprocessing
 from pathlib import Path
 import traceback
 import socket
+import signal
 
 from flask import Flask, has_request_context, request, jsonify
 from flask.logging import default_handler
@@ -28,13 +29,22 @@ sys.path.insert(0, str(project_root))
 
 # 导入应用和配置
 from app import create_web_app, create_api_app, db
-from app.utils.yaml_config_loader import config as app_config
+from app.utils.yaml_config_loader import load_app_config
 from app.utils.logger_config import setup_logger
-from app.utils.web_auth import get_ssl_context
+from app.utils.web_auth import get_ssl_context as get_web_ssl_context
 from app.utils.machine_auth import get_ssl_context as get_machine_ssl_context
 
 # 设置日志
 logger = setup_logger()
+
+# 全局变量用于控制服务运行状态
+running = True
+
+def signal_handler(signum, frame):
+    """处理信号"""
+    global running
+    logger.info(f"接收到信号 {signum}，正在关闭服务...")
+    running = False
 
 def is_port_in_use(port):
     """检查端口是否被占用"""
@@ -74,10 +84,7 @@ def run_web_app(config, host=None, port=None, debug=False, use_ssl=True, use_kee
             return
             
         if use_ssl:
-            ssl_context = get_ssl_context(
-                cert_file=config.ssl.cert_file,
-                key_file=config.ssl.key_file
-            )
+            ssl_context = get_web_ssl_context()
             logger.info("已配置SSL上下文")
         else:
             ssl_context = None
@@ -150,6 +157,11 @@ def run_device_api(config, host=None, port=None, debug=False, use_ssl=True, use_
 
 def main():
     """主函数"""
+    # 注册信号处理器
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
+    # 解析命令行参数
     parser = argparse.ArgumentParser(description='启动油田设备监控系统')
     parser.add_argument('--no-ssl', action='store_true', help='禁用SSL')
     parser.add_argument('--debug', action='store_true', help='启用调试模式')
@@ -163,8 +175,8 @@ def main():
     debug = args.debug
     use_keep_alive = not args.no_keep_alive
     
-    # 使用导入的配置对象
-    config = app_config
+    # 加载配置
+    config = load_app_config()
     
     processes = []
     threads = []
@@ -173,7 +185,6 @@ def main():
         # 启动Web服务
         if not args.api_only:
             if debug:
-                # 在调试模式下使用线程
                 web_thread = threading.Thread(
                     target=run_web_app,
                     kwargs={
@@ -182,9 +193,9 @@ def main():
                         'use_ssl': use_ssl,
                         'use_keep_alive': use_keep_alive
                     },
-                    name='WebThread'
+                    name='WebThread',
+                    daemon=True  # 关键：守护线程
                 )
-                web_thread.daemon = False
                 web_thread.start()
                 threads.append(web_thread)
                 logger.info("Web服务线程已启动")
@@ -206,7 +217,6 @@ def main():
         # 启动API服务
         if not args.web_only:
             if debug:
-                # 在调试模式下使用线程
                 api_thread = threading.Thread(
                     target=run_device_api,
                     kwargs={
@@ -215,9 +225,9 @@ def main():
                         'use_ssl': use_ssl,
                         'use_keep_alive': use_keep_alive
                     },
-                    name='APIThread'
+                    name='APIThread',
+                    daemon=True  # 关键：守护线程
                 )
-                api_thread.daemon = False
                 api_thread.start()
                 threads.append(api_thread)
                 logger.info("API服务线程已启动")
@@ -260,6 +270,7 @@ def main():
         for thread in threads:
             if thread.is_alive():
                 thread.join(timeout=1)
+        logger.info("服务已关闭")
 
 if __name__ == '__main__':
     main()

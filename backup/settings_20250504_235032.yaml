@@ -1,6 +1,3 @@
-web_server:
-  host: 0.0.0.0
-  port: 8000
 api_server:
   host: 0.0.0.0
   port: 8800
@@ -47,4 +44,6 @@ ssl:
   api_key_file: /zhyn/ssl/api_key.pem
   cert_file: /zhyn/ssl/web_cert.pem
   key_file: /zhyn/ssl/web_key.pem
-
+web_server:
+  host: 0.0.0.0
+  port: 8000

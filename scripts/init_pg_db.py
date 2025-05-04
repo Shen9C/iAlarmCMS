@@ -23,6 +23,9 @@ import argparse
 from OpenSSL import crypto
 import importlib
 import time
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+import yaml
 
 # 将项目根目录添加到系统路径
 project_root = Path(__file__).resolve().parent.parent
@@ -73,7 +76,7 @@ from app.models.edge_devices import EdgeDevice
 from app.models.tasks import Task
 from app.models.oil_wells import OilWell
 from app.models.settings import SystemConfig, KeyValueSetting
-from app.utils.yaml_config_loader import Config, config
+from app.utils.yaml_config_loader import config
 
 # 从配置对象中获取数据库配置
 DB_USER = config.DB_USER
@@ -92,8 +95,6 @@ ERROR_MARK = '[失败]'
 
 # 创建应用实例
 app = create_web_app()
-app.config['SQLALCHEMY_DATABASE_URI'] = get_connection_string()
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # 记录数据库配置信息
 logger.info(f"数据库配置: 主机={DB_HOST}, 端口={DB_PORT}, 数据库名={DB_NAME}, 用户={DB_USER}")
@@ -134,15 +135,41 @@ def init_database(reset=False):
                         logger.error(traceback.format_exc())
                         return False
                 
-                # 创建数据库表
-                logger.info("创建数据库表...")
+                # ----------- 新增：单独重建 system_config 表 -----------
                 try:
+                    logger.info("重建 system_config 表...")
+                    db.session.execute(text('DROP TABLE IF EXISTS system_config CASCADE'))
+                    db.session.commit()
                     db.create_all()
-                    logger.info(f"{SUCCESS_MARK} 数据库表创建成功")
+                    logger.info(f"{SUCCESS_MARK} system_config 表重建成功")
                 except Exception as e:
-                    logger.error(f"{ERROR_MARK} 创建数据库表失败: {str(e)}")
+                    logger.error(f"{ERROR_MARK} 重建 system_config 表失败: {str(e)}")
                     logger.error(traceback.format_exc())
                     return False
+                # ----------- END -----------
+                
+                # ----------- 新增：插入默认 system_config 记录 -----------
+                try:
+                    logger.info("检查并插入默认系统设置...")
+                    if not SystemConfig.query.first():
+                        config = SystemConfig(
+                            system_name_zh='油田设备监控系统',
+                            system_name_en='Oilfield Monitoring System',
+                            company_name='示例石油公司',
+                            logo_url='/static/img/logo.png',
+                            theme_color='#1976D2'
+                        )
+                        db.session.add(config)
+                        db.session.commit()
+                        logger.info(f"{SUCCESS_MARK} 默认系统设置已插入")
+                    else:
+                        logger.info("系统设置已存在，跳过插入")
+                except Exception as e:
+                    logger.error(f"{ERROR_MARK} 插入默认系统设置失败: {str(e)}")
+                    logger.error(traceback.format_exc())
+                    db.session.rollback()
+                    return False
+                # ----------- END -----------
                 
                 # 创建管理员账户
                 logger.info("检查管理员账户...")

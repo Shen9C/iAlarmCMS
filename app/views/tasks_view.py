@@ -232,6 +232,7 @@ def edit(task_id):
     
     if request.method == 'POST':
         try:
+            print(request.form)  # 打印表单内容，便于调试
             print(f"正在处理任务编辑表单提交，任务ID: {task_id}")
             well_code = request.form.get('well_code', '')
             
@@ -249,15 +250,24 @@ def edit(task_id):
             device_name = device.device_name if device else ""
             task_description = f"{task_type}任务：{well_name or ''}（{well_code or ''}）- {device_name or ''}"
             
-            task.task_name = request.form['task_name']
+            # 验证压力表量程
+            try:
+                pressure_range = float(request.form.get('pressure_range', '0'))
+                if pressure_range < 0:
+                    raise ValueError('压力表量程不能为负数')
+            except ValueError as e:
+                flash(str(e), 'error')
+                return render_template('tasks/task_form.html', task=task)
+            
+            task.task_name = request.form.get('task_name', '')
             task.well_name = well_name
             task.well_code = well_code
             task.task_type = task_type
-            task.camera_ip = request.form['camera_ip']
-            task.camera_preset = int(request.form['camera_preset'])
+            task.camera_ip = request.form.get('camera_ip', '')
+            task.camera_preset = int(request.form.get('camera_preset', '1'))
             task.camera_username = request.form.get('camera_username', '')
             task.camera_password = request.form.get('camera_password', '')
-            task.pressure_range = float(request.form['pressure_range'])
+            task.pressure_range = pressure_range
             task.device_id = device_id
             task.task_description = task_description
             
