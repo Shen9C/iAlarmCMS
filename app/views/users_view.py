@@ -3,6 +3,7 @@ import re
 from flask_login import login_required, current_user
 from app.models.users import User
 from app import db
+from sqlalchemy import or_
 
 bp = Blueprint('users', __name__)
 
@@ -13,8 +14,37 @@ def index():
         flash('您没有权限访问此页面')
         return redirect(url_for('alarms_view.index', user_token=request.args.get('user_token')))
     
-    users = User.query.all()
-    return render_template('users/users_index.html', users=users)
+    try:
+        # 获取筛选参数
+        username = request.args.get('username', '')
+        role = request.args.get('role', '')
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 15, type=int)
+        
+        # 构建查询
+        query = User.query
+        
+        # 应用筛选条件
+        if username:
+            query = query.filter(User.username.ilike(f'%{username}%'))
+            
+        if role:
+            query = query.filter(User.role == role)
+            
+        # 按ID升序排序
+        query = query.order_by(User.id.asc())
+            
+        # 获取分页数据
+        pagination = query.paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+        
+        return render_template('users/users_index.html',
+                             users=pagination.items,
+                             pagination=pagination)
+    except Exception as e:
+        flash(f'获取用户列表失败: {str(e)}', 'error')
+        return render_template('users/users_index.html', users=[], pagination=None)
 
 def validate_password(password):
     """
@@ -67,15 +97,15 @@ def create():
             return redirect(url_for('users.create'))
             
         # 创建新用户
-            user = User(username=username, role=role)
-            user.set_password(password)
-            db.session.add(user)
-            db.session.commit()
+        user = User(username=username, role=role)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
         
-            flash('用户创建成功')
+        flash('用户创建成功')
         return redirect(url_for('users.index'))
             
-    return render_template('users/create.html')
+    return render_template('users/users_create.html')
 
 @bp.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -111,11 +141,36 @@ def edit(id):
             return redirect(url_for('users.edit', id=id))
             
         # 更新用户信息
-            user.username = username
-            user.role = role
-            db.session.commit()
+        user.username = username
+        user.role = role
+        db.session.commit()
         
-            flash('用户信息更新成功')
+        flash('用户信息更新成功')
         return redirect(url_for('users.index'))
             
-    return render_template('users/edit.html', user=user)
+    return render_template('users/users_edit.html', user=user)
+
+@bp.route('/delete/<int:id>', methods=['POST'])
+@login_required
+def delete(id):
+    if current_user.role != 'admin':
+        flash('权限不足')
+        return redirect(url_for('alarms_view.index', user_token=request.args.get('user_token')))
+    
+    # 不允许删除自己
+    if id == current_user.id:
+        flash('不能删除当前登录的用户')
+        return redirect(url_for('users.index'))
+    
+    user = User.query.get_or_404(id)
+    username = user.username
+    
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        flash(f'用户 {username} 已成功删除')
+    except Exception as e:
+        db.session.rollback()
+        flash('删除用户失败，请稍后重试')
+    
+    return redirect(url_for('users.index'))
