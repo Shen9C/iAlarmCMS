@@ -1,5 +1,5 @@
 # 使用Python 3.12作为基础镜像
-FROM oilfield-web-base:v1.0.0
+FROM flask_base:v1.0.0
 
 # 设置工作目录
 WORKDIR /zhyn
@@ -41,7 +41,4 @@ ENV FLASK_ENV=production
 EXPOSE 8000 8800
 
 # 启动命令
-# CMD ["python", "run.py", "--no-ssl"]
-COPY supervisord.conf /zhyn/supervisord.conf
-
-CMD ["supervisord", "-c", "/zhyn/supervisord.conf"]
+CMD ["python", "run.py", "--no-ssl"]

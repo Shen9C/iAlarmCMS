@@ -122,6 +122,22 @@ def create_app(config=None):
             'pool_pre_ping': True
         }
     
+    # 定义过滤器
+    @app.template_filter('datetime')
+    def datetime_filter(value, format='%Y-%m-%d %H:%M:%S'):
+        if isinstance(value, datetime):
+            return value.strftime(format)
+        return value  # 或 return ''，根据你需求
+    
+    @app.context_processor
+    def inject_system_name():
+        from app.models.settings import SystemConfig  # 延迟导入，避免循环依赖
+        config = SystemConfig.get_instance()
+        return {
+            'system_name_zh': config.system_name_zh if config else '油田设备监控系统',
+            'system_name_en': config.system_name_en if config else 'Oilfield Monitoring System'
+        }
+    
     return app
 
 def create_web_app(config=None):
@@ -146,6 +162,8 @@ def create_web_app(config=None):
     from app.views.settings_view import bp as settings_bp
     # 注册图片接口蓝图
     from app.routes.alarms_api import bp as alarms_api_bp
+    from app.routes.edge_devices import bp as edge_devices_mngt_bp
+    from app.routes.settings_api import bp as settings_api_bp
     app.register_blueprint(web_auth_bp)
     app.register_blueprint(alarms_bp, url_prefix='/alarms')
     app.register_blueprint(devices_bp, url_prefix='/edge_devices')
@@ -154,7 +172,9 @@ def create_web_app(config=None):
     app.register_blueprint(oil_wells_bp, url_prefix='/wells')
     app.register_blueprint(stats_bp, url_prefix='/stats')
     app.register_blueprint(settings_bp, url_prefix='/settings')
+    app.register_blueprint(settings_api_bp)
     app.register_blueprint(alarms_api_bp)  # 只在web服务注册
+    app.register_blueprint(edge_devices_mngt_bp)
     # ...其他Web专属蓝图...
 
     @app.route('/')
@@ -166,21 +186,13 @@ def create_web_app(config=None):
 def create_api_app(config=None):
     """
     创建API应用实例
-    
-    Args:
-        config: 配置对象，如果为None则使用默认配置
-        
-    Returns:
-        Flask: API应用实例
     """
     app = create_app(config)
-    # 只注册API相关蓝图，不注册alarms_api_bp
-    from app.views.edge_devices_view import api_bp as devices_api_bp
+    # 只注册API相关蓝图
+    from app.routes.edge_device_api_server import bp as device_api_bp
     from app.routes.settings_api import bp as settings_api_bp
-    from app.routes.edge_devices import bp as edge_devices_mngt_bp
-    app.register_blueprint(devices_api_bp)
+    app.register_blueprint(device_api_bp)
     app.register_blueprint(settings_api_bp)
-    app.register_blueprint(edge_devices_mngt_bp)
     # ...其他API专属蓝图...
     app.config['JSON_AS_ASCII'] = False
     app.config['JSONIFY_MIMETYPE'] = 'application/json;charset=utf-8'

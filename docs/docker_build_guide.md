@@ -30,6 +30,7 @@ cd oilfield-web
 
 # 带缓存的构建（适用于依赖更新）
 docker build --no-cache -t oilfield-web:v1.0.0 .
+docker build --no-cache -t flask_base:v1.0.0 .
 
 # # 使用代理构建（如果需要）
 # docker build \

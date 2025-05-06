@@ -1,7 +1,7 @@
 # Python 编译文件
 **/__pycache__/
 **/*.py[cod]
-**/*.so
+
 **/*.c
 **/*.pyc
 **/*.pyo
@@ -12,6 +12,18 @@
 dist/
 build/
 **/*.egg-info/
+
+# 正式环境使用：排除所有文件夹中的 Python 文件
+**/*.py
+# 允许复制特定的 Python 文件（需要明确指定文件名）
+!__init__.py
+!run.py
+!start_api_server.py
+!start_web_app.py
+!wsgi.py
+
+# # 测试环境使用
+# **/*.so
 
 # 虚拟环境
 .venv/
@@ -71,3 +83,4 @@ temp/
 uploads/
 static/uploads/
 media/
+

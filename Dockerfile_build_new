@@ -41,4 +41,7 @@ ENV FLASK_ENV=production
 EXPOSE 8000 8800
 
 # 启动命令
-CMD ["python", "run.py", "--no-ssl"]
+# CMD ["python", "run.py", "--no-ssl"]
+COPY supervisord.conf /zhyn/supervisord.conf
+
+CMD ["supervisord", "-c", "/zhyn/supervisord.conf"]
