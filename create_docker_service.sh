@@ -70,7 +70,7 @@ docker run -d \
     --memory=2g \
     --memory-reservation=1g \
     --restart=unless-stopped \
-    oilfield-web:v0.9.3
+    oilfield-web:v1.0.0
 
 # 检查容器状态
 echo -e "${YELLOW}检查容器状态...${NC}"

@@ -33,6 +33,14 @@ logging:
   main_log: oilfield.log
   max_bytes: 52428800
   path: /zhyn/logs
+  level: DEBUG
+  handlers:
+    console:
+      level: DEBUG
+      formatter: standard
+    file:
+      level: DEBUG
+      formatter: standard
 secret_key: b964e7c2c731d5d49b8fcd3115e1bb9da59c90843aa522f82629f234c3c2b36f
 security:
   remember_cookie_httponly: true

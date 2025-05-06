@@ -10,19 +10,13 @@ from sqlalchemy import and_, or_, desc
 from app import db
 from app.models.alarms import Alarm
 from app.models.users import User
-from PIL import Image
-from io import BytesIO
 
 # 设置日志记录器
 logger = logging.getLogger(__name__)
+# 移除本地日志级别设置，使用settings.yaml中的全局配置
 
 # 创建Blueprint
 bp = Blueprint('alarms_api', __name__, url_prefix='/api/alarms')
-
-# 创建缩略图缓存
-thumbnail_cache = {}
-CACHE_MAX_SIZE = 100  # 缓存最多保存100个缩略图
-CACHE_EXPIRY = 3600   # 缓存有效期1小时（秒）
 
 # 新增路由：提供告警图片访问
 @bp.route('/images/<filename>')
@@ -30,49 +24,104 @@ def get_alarm_image(filename):
     """提供告警图片文件，添加速度优化"""
     # 安全检查：防止路径穿越
     if '..' in filename or filename.startswith('/'):
+        logger.error(f"无效的文件名: {filename}")
         return jsonify({'error': '无效的文件名'}), 400
     
     start_time = time.time()
-    logger.info(f"开始处理图片请求: {filename}, 时间: {start_time}")
+    logger.debug(f"开始处理图片请求: {filename}, 时间: {start_time}")
+    
+    # 获取当前工作目录并记录
+    cwd = os.getcwd()
+    logger.debug(f"当前工作目录: {cwd}")
+    
+    # 列出当前目录内容
+    try:
+        logger.debug(f"当前目录内容: {os.listdir(cwd)}")
+    except Exception as e:
+        logger.error(f"无法列出当前目录内容: {str(e)}")
     
     # 优先尝试固定路径，避免多次检查不同路径
-    cwd = os.getcwd()
-    primary_path = os.path.join(cwd, 'app', 'static', 'alarm_images')
+    primary_path = '/zhyn/alarm_images'  # 修改为Docker中的实际路径
     file_path = os.path.join(primary_path, filename)
+    logger.debug(f"尝试访问主路径: {file_path}")
+    
+    # 检查主路径目录是否存在
+    if os.path.exists(primary_path):
+        logger.debug(f"主路径目录存在: {primary_path}")
+        try:
+            logger.debug(f"主路径目录内容: {os.listdir(primary_path)}")
+        except Exception as e:
+            logger.error(f"无法列出主路径目录内容: {str(e)}")
+    else:
+        logger.error(f"主路径目录不存在: {primary_path}")
+    
+    # 检查文件是否存在和权限
+    if os.path.exists(file_path):
+        logger.debug(f"文件存在: {file_path}")
+        try:
+            logger.debug(f"文件权限: {oct(os.stat(file_path).st_mode)[-3:]}")
+        except Exception as e:
+            logger.error(f"无法获取文件权限: {str(e)}")
+    else:
+        logger.error(f"文件不存在: {file_path}")
     
     # 检查是否要下载图片
     download_mode = request.args.get('download', 'false').lower() == 'true'
     
     # 直接检查主要路径
     if os.path.isfile(file_path):
-        logger.info(f"找到图片文件: {file_path}, 用时: {time.time() - start_time:.4f}秒")
+        logger.debug(f"找到图片文件: {file_path}, 用时: {time.time() - start_time:.4f}秒")
         
         # 根据请求模式决定如何发送文件
         if download_mode:
-            logger.info(f"下载模式: {filename}")
+            logger.debug(f"下载模式: {filename}")
             return send_file(
                 file_path,
-                mimetype='application/octet-stream',  # 使用通用二进制流类型
-                as_attachment=True,                   # 强制作为附件下载
-                download_name=filename                # 设置下载文件名
+                mimetype='application/octet-stream',
+                as_attachment=True,
+                download_name=filename
             )
         else:
             # 查看模式添加缓存头
-            logger.info(f"查看模式: {filename}, 总用时: {time.time() - start_time:.4f}秒")
+            logger.debug(f"查看模式: {filename}, 总用时: {time.time() - start_time:.4f}秒")
             response = send_file(file_path, mimetype='image/jpeg')
-            response.headers['Cache-Control'] = 'public, max-age=86400'  # 缓存1天
+            response.headers['Cache-Control'] = 'public, max-age=86400'
             return response
     
     # 如果在首选路径找不到，尝试其他可能的位置
     backup_paths = [
+        os.path.join(cwd, 'alarm_images'),
         os.path.join(cwd, 'static', 'alarm_images'),
         os.path.join(cwd, 'app/static', 'alarm_images')
     ]
     
+    logger.debug(f"尝试备用路径: {backup_paths}")
+    
     for path in backup_paths:
         file_path = os.path.join(path, filename)
+        logger.debug(f"尝试备用路径: {file_path}")
+        
+        # 检查目录是否存在
+        if os.path.exists(path):
+            logger.debug(f"目录存在: {path}")
+            try:
+                logger.debug(f"目录内容: {os.listdir(path)}")
+            except Exception as e:
+                logger.error(f"无法列出目录内容: {str(e)}")
+        else:
+            logger.error(f"目录不存在: {path}")
+        
+        if os.path.exists(file_path):
+            logger.debug(f"文件存在: {file_path}")
+            try:
+                logger.debug(f"文件权限: {oct(os.stat(file_path).st_mode)[-3:]}")
+            except Exception as e:
+                logger.error(f"无法获取文件权限: {str(e)}")
+        else:
+            logger.error(f"文件不存在: {file_path}")
+            
         if os.path.isfile(file_path):
-            logger.info(f"备用路径找到图片: {file_path}, 用时: {time.time() - start_time:.4f}秒")
+            logger.debug(f"备用路径找到图片: {file_path}, 用时: {time.time() - start_time:.4f}秒")
             
             if download_mode:
                 return send_file(
@@ -89,87 +138,6 @@ def get_alarm_image(filename):
     # 如果所有路径都找不到文件
     logger.error(f"未找到图片文件: {filename}, 用时: {time.time() - start_time:.4f}秒")
     return jsonify({'error': '图片文件不存在'}), 404
-
-@bp.route('/thumbnails/<filename>')
-def get_alarm_thumbnail(filename):
-    """提供告警图片缩略图，添加性能优化和缓存"""
-    start_time = time.time()
-    logger.info(f"开始处理缩略图请求: {filename}, 时间: {start_time}")
-    
-    # 检查缓存中是否已存在此缩略图
-    cache_key = f"thumb_{filename}"
-    if cache_key in thumbnail_cache:
-        cache_entry = thumbnail_cache[cache_key]
-        # 检查缓存是否过期
-        if time.time() - cache_entry['timestamp'] < CACHE_EXPIRY:
-            logger.info(f"缩略图缓存命中: {filename}, 用时: {time.time() - start_time:.4f}秒")
-            # 从内存中返回缩略图
-            output = BytesIO(cache_entry['data'])
-            output.seek(0)
-            response = send_file(output, mimetype='image/jpeg')
-            response.headers['Cache-Control'] = 'public, max-age=86400'  # 缓存1天
-            return response
-    
-    # 优先尝试固定路径，减少多路径检查
-    cwd = os.getcwd()
-    primary_path = os.path.join(cwd, 'app', 'static', 'alarm_images')
-    file_path = os.path.join(primary_path, filename)
-    
-    # 如果主路径不存在，再尝试备用路径
-    if not os.path.isfile(file_path):
-        backup_paths = [
-            os.path.join(cwd, 'static', 'alarm_images'),
-            os.path.join(cwd, 'app/static', 'alarm_images')
-        ]
-        
-        for path in backup_paths:
-            test_path = os.path.join(path, filename)
-            if os.path.isfile(test_path):
-                file_path = test_path
-                logger.info(f"在备用路径找到原始图片: {file_path}, 用时: {time.time() - start_time:.4f}秒")
-                break
-    else:
-        logger.info(f"在主路径找到原始图片: {file_path}, 用时: {time.time() - start_time:.4f}秒")
-            
-    if not os.path.isfile(file_path):
-        logger.error(f"未找到原始图片文件: {filename}, 用时: {time.time() - start_time:.4f}秒")
-        return jsonify({'error': '图片文件不存在'}), 404
-    
-    # 找到图片后，生成缩略图
-    try:
-        thumb_start = time.time()
-        img = Image.open(file_path)
-        img.thumbnail((100, 100))  # 缩小到100x100
-        
-        # 保存到内存
-        output = BytesIO()
-        img.save(output, format='JPEG', quality=75, optimize=True)
-        
-        # 缓存生成的缩略图
-        output_data = output.getvalue()
-        thumbnail_cache[cache_key] = {
-            'data': output_data,
-            'timestamp': time.time()
-        }
-        
-        # 如果缓存太大，移除最旧的条目
-        if len(thumbnail_cache) > CACHE_MAX_SIZE:
-            oldest_key = min(thumbnail_cache.keys(), key=lambda k: thumbnail_cache[k]['timestamp'])
-            del thumbnail_cache[oldest_key]
-            
-        logger.info(f"缩略图生成完成: {filename}, 生成用时: {time.time() - thumb_start:.4f}秒, 总用时: {time.time() - start_time:.4f}秒")
-        
-        # 返回生成的缩略图
-        output.seek(0)
-        response = send_file(output, mimetype='image/jpeg')
-        response.headers['Cache-Control'] = 'public, max-age=86400'  # 缓存1天
-        return response
-    except Exception as e:
-        logger.error(f"生成缩略图失败: {str(e)}, 用时: {time.time() - start_time:.4f}秒")
-        # 降级到原始图片
-        response = send_file(file_path, mimetype='image/jpeg')
-        response.headers['Cache-Control'] = 'public, max-age=86400'
-        return response
 
 # 辅助函数：通过token获取用户
 def get_user_by_token(token):
@@ -533,15 +501,3 @@ def get_stats():
             'message': f'获取告警统计失败: {str(e)}'
         }), 500
 
-def optimize_images(directory, quality=85):
-    """压缩目录中的所有JPG图片"""
-    for filename in os.listdir(directory):
-        if filename.lower().endswith('.jpg'):
-            filepath = os.path.join(directory, filename)
-            try:
-                img = Image.open(filepath)
-                # 保存为WebP格式或优化的JPG
-                img.save(filepath, quality=quality, optimize=True)
-                print(f"已优化: {filepath}")
-            except Exception as e:
-                print(f"处理{filepath}时出错: {e}")

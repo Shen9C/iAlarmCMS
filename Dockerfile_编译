@@ -41,8 +41,8 @@ COPY wsgi.py .
 # 安装Python依赖
 RUN pip install --no-cache-dir -r requirements.txt
 
-# # 编译Cython扩展
-# RUN python setup.py build_ext --inplace
+# 编译Cython扩展
+RUN python setup.py build_ext --inplace
 
 # 清理.c文件
 RUN find ./app ./scripts ./config -name "*.c" -delete

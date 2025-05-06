@@ -81,6 +81,10 @@ def create_app(config=None):
     # 将配置对象添加到模板上下文中
     app.config['system_config'] = config
     
+    # 初始化日志配置
+    from app.utils.logger_config import setup_logger
+    setup_logger()
+    
     # 设置应用配置
     app.config.update(
         SECRET_KEY=config.get('secret_key', 'dev'),
