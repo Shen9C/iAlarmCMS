@@ -1,48 +1,120 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
+# Python 编译文件
+**/__pycache__/
+**/*.py[cod]
+**/*.so
+**/*.c
+**/*.pyc
+**/*.pyo
+**/*.pyd
 .Python
-env/
-build/
-develop-eggs/
+**/*.egg
+**/*.egg-info/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
+build/
+**/*.egg-info/
+
+# 虚拟环境
+.venv/
+venv/
+env/
+ENV/
+
+# IDE 相关
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# 日志文件
+logs/
+*.log
+
+# # 测试文件
+# tests/ # 测试脚本需要保留 
+test/
+testing/
+coverage/
+.coverage
+.pytest_cache/
+htmlcov/
+
+# 临时文件
+tmp/
+temp/
+.tmp/
+.temp/
+
+# 版本控制
+.git/
+.gitignore
+
+# 文档
+*.md
+*.rst
+*.csv
+*.xlsx
+*.xls
+*.doc
+*.docx
+*.pdf
+
+# 压缩文件
+*.zip
+*.tar.gz
+*.tar
+*.gz
+*.rar
+
+# 项目特定文件
+alarm_images/
+uploads/
+static/uploads/
+media/
+
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+
+# 配置文件（根据需要保留）
+# config/
+# *.ini
+# *.yaml
+# *.yml
+# *.json
+
+# 备份文件
+backup/
+backups/
+*.bak
+*.backup
+
+# 证书文件
+*.pem
+*.key
+*.crt
+*.cer
+*.der
+*.p12
+*.pfx
+
+# 其他
+.env
+.env.*
+*.pid
+*.seed
+*.pid.lock
 
 # Flask
 instance/
 .webassets-cache
 app.db
 
-# Virtual Environment
-venv/
-ENV/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
 # OS
-.DS_Store
 Thumbs.db
 
 # 日志文件
-*.log
-logs/
-log/
 *.log.*
 alarm_images/*
 app/static/alarm_images/*

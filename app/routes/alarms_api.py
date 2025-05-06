@@ -12,7 +12,7 @@ from app.models.alarms import Alarm
 from app.models.users import User
 
 # 设置日志记录器
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('app.routes.alarms_api')  # 使用完整的模块路径
 # 移除本地日志级别设置，使用settings.yaml中的全局配置
 
 # 创建Blueprint

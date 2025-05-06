@@ -13,6 +13,9 @@ import sys
 from datetime import datetime
 import traceback
 
+# 初始化日志配置
+from app.utils.logger_config import setup_logger
+setup_logger()
 
 # 禁用所有数据库相关的日志输出
 logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
@@ -80,10 +83,6 @@ def create_app(config=None):
 
     # 将配置对象添加到模板上下文中
     app.config['system_config'] = config
-    
-    # 初始化日志配置
-    from app.utils.logger_config import setup_logger
-    setup_logger()
     
     # 设置应用配置
     app.config.update(

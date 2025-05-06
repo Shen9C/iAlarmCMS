@@ -1,0 +1,23 @@
+# 使用Python 3.12作为基础镜像
+FROM python:3.12-slim
+# FROM python:3.12.10
+# FROM oilfield-web:v1.0.0
+
+# 设置工作目录
+WORKDIR /zhyn
+
+# # # 安装系统依赖
+# RUN apt-get update && apt-get install -y \
+#     curl \
+#     # gcc \
+#     && rm -rf /var/lib/apt/lists/*
+
+# # 安装系统依赖
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# 复制依赖和编译脚本
+COPY requirements_base.txt .
+# 安装Python依赖
+RUN pip install --no-cache-dir -r requirements_base.txt

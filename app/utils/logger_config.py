@@ -12,10 +12,11 @@ def setup_logger():
 
     # 从配置文件获取日志级别
     log_level = config.logging.level if hasattr(config, 'logging') and hasattr(config.logging, 'level') else 'DEBUG'
+    print(f"设置日志级别为: {log_level}")  # 添加调试输出
 
     LOGGING_CONFIG = {
         'version': 1,
-        'disable_existing_loggers': False,
+        'disable_existing_loggers': False,  # 确保不禁用现有日志记录器
         'formatters': {
             'standard': {
                 'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -31,7 +32,7 @@ def setup_logger():
                 'level': log_level,
                 'class': 'concurrent_log_handler.ConcurrentRotatingFileHandler',
                 'filename': os.path.join(log_dir, 'app.log'),
-                'maxBytes': 10*1024*1024,  # 10MB
+                'maxBytes': 10*1024*1024,
                 'backupCount': 5,
                 'formatter': 'standard',
             },
@@ -39,6 +40,13 @@ def setup_logger():
         'root': {
             'handlers': ['console', 'file'],
             'level': log_level,
+        },
+        'loggers': {
+            'app': {  # 添加app命名空间的日志配置
+                'handlers': ['console', 'file'],
+                'level': log_level,
+                'propagate': True
+            }
         }
     }
 
@@ -50,5 +58,9 @@ def setup_logger():
     for handler in logger.handlers:
         if not hasattr(handler, 'lock'):
             handler.lock = multiprocessing.RLock()
+
+    # 验证日志级别
+    print(f"根日志记录器级别: {logging.getLogger().getEffectiveLevel()}")
+    print(f"app日志记录器级别: {logging.getLogger('app').getEffectiveLevel()}")
 
     return logger
