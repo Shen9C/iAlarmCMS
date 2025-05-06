@@ -5,7 +5,8 @@ from Cython.Build import cythonize
 
 # 需要递归编译的业务目录
 CYTHON_MODULE_DIRS = [
-    'app', 'scripts', 'config'
+    # 'app', 'scripts', 'config'
+    'app', 'config' #暂时不编译scripts下的文件
 ]
 
 # 需要排除的目录和文件

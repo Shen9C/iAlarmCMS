@@ -32,6 +32,9 @@ logger = logging.getLogger(__name__)
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
+login_manager.login_view = 'web_auth.web_login'  # 设置登录视图
+login_manager.login_message = '请先登录'  # 设置登录提示消息
+login_manager.login_message_category = 'info'  # 设置消息类别
 
 # 导入数据库连接管理器
 try:
@@ -143,6 +146,17 @@ def create_app(config=None):
         if value is None:
             return ''
         return value.strftime('%Y-%m-%d %H:%M:%S')
+    
+    # 添加401错误处理器
+    @app.errorhandler(401)
+    def unauthorized(error):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({
+                'code': 401,
+                'message': '请先登录',
+                'success': False
+            }), 401
+        return redirect(url_for('web_auth.web_login'))
     
     return app
 

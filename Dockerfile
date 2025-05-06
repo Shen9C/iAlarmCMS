@@ -6,10 +6,11 @@ FROM oilfield-web:v1.0.0
 # 设置工作目录
 WORKDIR /zhyn
 
-# # 安装系统依赖
-# RUN apt-get update && apt-get install -y \
-#     curl \
-#     && rm -rf /var/lib/apt/lists/*
+# 安装系统依赖
+RUN apt-get update && apt-get install -y \
+    curl \
+    # gcc \
+    && rm -rf /var/lib/apt/lists/*
 
 # 创建必要的目录
 RUN mkdir -p \
@@ -37,17 +38,19 @@ COPY start_api_server.py .
 COPY start_web_app.py .
 COPY wsgi.py .
 
-# # 安装Python依赖
-# RUN pip install --no-cache-dir -r requirements.txt
+# 安装Python依赖
+RUN pip install --no-cache-dir -r requirements.txt
 
-# # 编译Cython扩展
-# RUN python setup.py build_ext --inplace
+# 编译Cython扩展
+RUN python setup.py build_ext --inplace
 
 # 清理.c文件
 RUN find ./app ./scripts ./config -name "*.c" -delete
 
 # 删除源码，仅保留so文件（保留入口py文件）
-RUN find ./app ./scripts ./config -name "*.py" ! -name "__init__.py" -delete
+# RUN find ./app ./scripts ./config -name "*.py" ! -name "__init__.py" -delete
+# 只有app目录下的py文件
+RUN find ./app -name "*.py" ! -name "__init__.py" -delete
 
 # 设置环境变量
 ENV PYTHONPATH=/zhyn
