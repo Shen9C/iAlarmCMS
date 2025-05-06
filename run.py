@@ -273,4 +273,7 @@ def main():
         logger.info("服务已关闭")
 
 if __name__ == '__main__':
+    print(f"[辅助打印] 当前进程/线程日志级别: {logging.getLogger().getEffectiveLevel()}")
+    logging.debug("[辅助打印] 这是DEBUG日志测试")
+    logging.info("[辅助打印] 这是INFO日志测试")
     main()

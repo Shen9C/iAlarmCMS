@@ -4,9 +4,6 @@ FROM oilfield-web-base:v1.0.0
 # 设置工作目录
 WORKDIR /zhyn
 
-# 安装基本的管理工具
-RUN pip install gunicorn supervisor
-
 # 复制依赖和编译脚本
 COPY requirements.txt .
 # 安装Python依赖

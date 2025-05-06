@@ -1,0 +1,85 @@
+你的想法非常好！**减少日志写入频率**确实可以降低磁盘I/O、延长存储寿命，尤其是在嵌入式、SSD、云盘等场景下。
+
+Flask/Python logging 默认是**每条日志都写入文件**，但你可以通过**自定义 Handler 实现“批量写入”**，比如**满10条日志再flush到文件**。
+
+---
+
+## 1. 实现思路
+
+- 自定义一个 `BufferingHandler`，比如继承 `logging.handlers.BufferingHandler`。
+- 设置 buffer size 为 10，只有 buffer 满了才 flush（写入文件）。
+- 可以和 `FileHandler` 或 `RotatingFileHandler` 结合使用。
+
+---
+
+## 2. 示例代码
+
+```python
+import logging
+from logging.handlers import BufferingHandler
+
+class BatchFileHandler(BufferingHandler):
+    def __init__(self, filename, mode='a', encoding=None, delay=False, capacity=10):
+        super().__init__(capacity)
+        self.file_handler = logging.FileHandler(filename, mode, encoding, delay)
+    
+    def flush(self):
+        if len(self.buffer) > 0:
+            for record in self.buffer:
+                self.file_handler.emit(record)
+            self.buffer = []
+            self.file_handler.flush()
+    
+    def close(self):
+        self.flush()
+        self.file_handler.close()
+        super().close()
+```
+
+**用法举例：**
+
+```python
+logger = logging.getLogger()
+batch_handler = BatchFileHandler('/zhyn/logs/app.log', capacity=10)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+batch_handler.setFormatter(formatter)
+logger.addHandler(batch_handler)
+```
+
+---
+
+## 3. 在你的项目中集成
+
+你可以在 `app/utils/logger_config.py` 的 `setup_logger()` 里，把 file handler 换成上面的 `BatchFileHandler`，比如：
+
+```python
+'handlers': {
+    'file': {
+        '()': BatchFileHandler,
+        'filename': '/zhyn/logs/app.log',
+        'capacity': 10,
+        # 其他参数...
+    },
+    # ...
+}
+```
+> 注意：如果用 `logging.config.dictConfig`，需要让 Python 能找到 `BatchFileHandler`，可以在模块顶部加 `import` 并注册到 logging。
+
+---
+
+## 4. 注意事项
+
+- **异常/进程退出时会自动flush**，不会丢日志。
+- 如果你希望“定时flush”，可以结合定时器或在 `flush()` 里加超时逻辑。
+- 这种方式**只影响业务日志**，supervisor/gunicorn 的日志还是每条写一次。
+
+---
+
+## 5. 总结
+
+- **完全可以实现“满10条日志再写入文件”**，只需自定义 handler。
+- 这样可以显著减少磁盘I/O，延长存储寿命，尤其适合高频日志场景。
+
+---
+
+如需我帮你直接集成到你的 `logger_config.py`，请告诉我你希望的日志文件名和参数，我可以帮你写好完整代码！

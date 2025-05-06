@@ -8,6 +8,7 @@ import io, csv
 import re
 from app.utils.web_auth import web_auth_required
 import logging
+import os
 
 # 创建蓝图实例
 bp = Blueprint('alarms_view', __name__)
@@ -85,6 +86,13 @@ def index():
                       f"is_confirmed={alarm.is_confirmed}, confirmation_type={alarm.confirmation_type}, "
                       f"is_processed={alarm.is_processed}")
         test_alarms.append(alarm)
+
+    for alarm in alarms:
+        filename = alarm.alarm_image.split('/')[-1] if alarm.alarm_image else None
+        if filename:
+            alarm.image_exists = os.path.isfile(os.path.join('/zhyn/alarm_images', filename))
+        else:
+            alarm.image_exists = False
 
     # 使用刷新后的对象列表渲染模板
     return render_template('alarms/alarms_index.html',

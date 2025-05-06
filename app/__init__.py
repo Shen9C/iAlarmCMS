@@ -12,10 +12,8 @@ from pathlib import Path
 import sys
 from datetime import datetime
 import traceback
-
-# 初始化日志配置
 from app.utils.logger_config import setup_logger
-setup_logger()
+
 
 # 禁用所有数据库相关的日志输出
 logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
@@ -73,6 +71,7 @@ def create_app(config=None):
     Returns:
         Flask: Flask应用实例
     """
+    setup_logger()
     app = Flask(__name__)
     
     # 加载配置
@@ -88,12 +87,7 @@ def create_app(config=None):
     app.config.update(
         SECRET_KEY=config.get('secret_key', 'dev'),
         SQLALCHEMY_DATABASE_URI=f"postgresql://{config['database']['user']}:{config['database']['password']}@{config['database']['host']}/{config['database']['name']}",
-        SQLALCHEMY_TRACK_MODIFICATIONS=False,
-        SQLALCHEMY_ENGINE_OPTIONS={
-            'pool_size': 10,
-            'pool_recycle': 3600,
-            'pool_pre_ping': True
-        }
+        SQLALCHEMY_TRACK_MODIFICATIONS=False
     )
     
     # 初始化扩展
@@ -103,63 +97,30 @@ def create_app(config=None):
     CORS(app)
     
     # 配置数据库
-    configure_database(app)
-    
-    # 注册蓝图
-    from app.views.web_auth_view import bp as web_auth_bp
-    from app.views.alarms_view import bp as alarms_bp
-    from app.views.edge_devices_view import bp as devices_bp, api_bp as devices_api_bp
-    from app.views.tasks_view import bp as tasks_bp
-    from app.views.users_view import bp as users_bp
-    from app.views.oil_wells_view import bp as oil_wells_bp
-    from app.views.stats_view import bp as stats_bp
-    from app.views.settings_view import bp as settings_bp
-    from app.routes.settings_api import bp as settings_api_bp
-    from app.routes.edge_devices import bp as edge_devices_mngt_bp
-    
-    app.register_blueprint(web_auth_bp)
-    app.register_blueprint(alarms_bp, url_prefix='/alarms')
-    app.register_blueprint(devices_bp, url_prefix='/edge_devices')
-    app.register_blueprint(tasks_bp, url_prefix='/tasks')
-    app.register_blueprint(users_bp, url_prefix='/users')
-    app.register_blueprint(oil_wells_bp, url_prefix='/wells')
-    app.register_blueprint(stats_bp, url_prefix='/stats')
-    app.register_blueprint(settings_bp, url_prefix='/settings')
-    app.register_blueprint(settings_api_bp)
-    app.register_blueprint(edge_devices_mngt_bp)
-    
-    # 添加根路由重定向
-    @app.route('/')
-    def index():
-        return redirect(url_for('alarms_view.index'))
-    
-    # 添加系统配置到模板上下文中
-    @app.context_processor
-    def inject_system_name():
+    if HAS_DB_CONNECTION_MANAGER:
         try:
-            from app.models.settings import SystemConfig
-            return {'system_name_zh': SystemConfig.get_system_name()}
-        except Exception as e:
-            logging.warning(f"系统名称获取失败: {e}")
-            return {'system_name_zh': "智能告警综合管理系统"}
-    
-    # 添加 datetime 过滤器
-    @app.template_filter('datetime')
-    def format_datetime(value):
-        if value is None:
-            return ''
-        return value.strftime('%Y-%m-%d %H:%M:%S')
-    
-    # 添加401错误处理器
-    @app.errorhandler(401)
-    def unauthorized(error):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({
-                'code': 401,
-                'message': '请先登录',
-                'success': False
-            }), 401
-        return redirect(url_for('web_auth.web_login'))
+            # 使用自定义数据库连接管理器
+            init_db_engine()
+            logger.info(f"{app.name}: 数据库连接管理器初始化成功")
+        except Exception as db_error:
+            logger.error(f"{app.name}: 数据库连接管理器初始化失败: {db_error}")
+            # 如果自定义连接管理器初始化失败，回退到默认SQLAlchemy配置
+            app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+                'pool_size': 5,
+                'max_overflow': 10,
+                'pool_timeout': 30,
+                'pool_recycle': 1800,
+                'pool_pre_ping': True
+            }
+    else:
+        # 使用默认SQLAlchemy配置
+        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+            'pool_size': 5,
+            'max_overflow': 10,
+            'pool_timeout': 30,
+            'pool_recycle': 1800,
+            'pool_pre_ping': True
+        }
     
     return app
 
@@ -173,7 +134,34 @@ def create_web_app(config=None):
     Returns:
         Flask: Web应用实例
     """
-    return create_app(config)
+    app = create_app(config)
+    # 注册Web页面相关蓝图
+    from app.views.web_auth_view import bp as web_auth_bp
+    from app.views.alarms_view import bp as alarms_bp
+    from app.views.edge_devices_view import bp as devices_bp
+    from app.views.tasks_view import bp as tasks_bp
+    from app.views.users_view import bp as users_bp
+    from app.views.oil_wells_view import bp as oil_wells_bp
+    from app.views.stats_view import bp as stats_bp
+    from app.views.settings_view import bp as settings_bp
+    # 注册图片接口蓝图
+    from app.routes.alarms_api import bp as alarms_api_bp
+    app.register_blueprint(web_auth_bp)
+    app.register_blueprint(alarms_bp, url_prefix='/alarms')
+    app.register_blueprint(devices_bp, url_prefix='/edge_devices')
+    app.register_blueprint(tasks_bp, url_prefix='/tasks')
+    app.register_blueprint(users_bp, url_prefix='/users')
+    app.register_blueprint(oil_wells_bp, url_prefix='/wells')
+    app.register_blueprint(stats_bp, url_prefix='/stats')
+    app.register_blueprint(settings_bp, url_prefix='/settings')
+    app.register_blueprint(alarms_api_bp)  # 只在web服务注册
+    # ...其他Web专属蓝图...
+
+    @app.route('/')
+    def index():
+        return redirect(url_for('alarms_view.index'))
+
+    return app
 
 def create_api_app(config=None):
     """
@@ -186,11 +174,16 @@ def create_api_app(config=None):
         Flask: API应用实例
     """
     app = create_app(config)
-    
-    # API特定的配置
+    # 只注册API相关蓝图，不注册alarms_api_bp
+    from app.views.edge_devices_view import api_bp as devices_api_bp
+    from app.routes.settings_api import bp as settings_api_bp
+    from app.routes.edge_devices import bp as edge_devices_mngt_bp
+    app.register_blueprint(devices_api_bp)
+    app.register_blueprint(settings_api_bp)
+    app.register_blueprint(edge_devices_mngt_bp)
+    # ...其他API专属蓝图...
     app.config['JSON_AS_ASCII'] = False
     app.config['JSONIFY_MIMETYPE'] = 'application/json;charset=utf-8'
-    
     return app
 
 @login_manager.user_loader

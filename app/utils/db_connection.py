@@ -31,10 +31,10 @@ logger = logging.getLogger(__name__)
 # 数据库连接配置
 MAX_RETRIES = 3  # 连接重试次数
 RETRY_DELAY = 1  # 重试延迟（秒）
-CONNECTION_POOL_SIZE = 10  # 连接池大小
-CONNECTION_MAX_OVERFLOW = 20  # 最大溢出连接数
-CONNECTION_TIMEOUT = 5  # 连接超时（秒）
-POOL_RECYCLE = 3600  # 连接回收时间（秒）
+CONNECTION_POOL_SIZE = 20  # 连接池大小，降低以避免资源浪费
+CONNECTION_MAX_OVERFLOW = 40  # 最大溢出连接数，降低以避免过多连接
+CONNECTION_TIMEOUT = 30  # 连接超时（秒），增加以避免频繁超时
+POOL_RECYCLE = 1800  # 连接回收时间（秒），降低以避免连接过期
 POOL_PRE_PING = True  # 是否在使用前检查连接
 CONNECTION_CHECK_CACHE_TIME = 30  # 连接检查缓存时间（秒）
 

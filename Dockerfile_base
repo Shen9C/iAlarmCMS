@@ -17,6 +17,9 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+# 安装基本的管理工具
+RUN pip install gunicorn supervisor
+
 # 复制依赖和编译脚本
 COPY requirements_base.txt .
 # 安装Python依赖

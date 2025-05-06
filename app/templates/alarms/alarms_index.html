@@ -138,13 +138,12 @@
                                     {{ alarm.processed_time.strftime('%Y-%m-%d %H:%M:%S') if alarm.processed_time else '-' }}
                                 </td>
                                 <td>
-                                    {% if alarm.alarm_image %}
+                                    {% if alarm.alarm_image and alarm.image_exists %}
                                         <a href="/api/alarms/images/{{ alarm.alarm_image.split('/')[-1] }}" target="_blank">
                                             <img src="/api/alarms/images/{{ alarm.alarm_image.split('/')[-1] }}" 
                                                  class="img-thumbnail" 
                                                  style="max-height: 50px;" 
-                                                 alt="告警图片"
-                                                 onerror="this.parentElement.innerHTML='NA'">
+                                                 alt="告警图片">
                                         </a>
                                     {% else %}
                                         <span class="text-dark">NA</span>
