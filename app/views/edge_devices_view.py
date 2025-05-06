@@ -10,6 +10,8 @@ import traceback
 from datetime import datetime
 import uuid
 
+logger = logging.getLogger(__name__)
+
 bp = Blueprint('edge_devices', __name__, url_prefix='/edge_devices')
 
 @bp.route('/')
@@ -17,17 +19,17 @@ bp = Blueprint('edge_devices', __name__, url_prefix='/edge_devices')
 def index():
     """边缘设备管理页面"""
     try:
-        logging.debug("正在访问边缘设备管理页面(views/edge_devices_view.py)")
+        logger.debug("正在访问边缘设备管理页面(views/edge_devices_view.py)")
         
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 15, type=int)
-        logging.debug(f"分页参数: page={page}, per_page={per_page}")
+        logger.debug(f"分页参数: page={page}, per_page={per_page}")
         
         # 获取筛选参数
         device_name = request.args.get('device_name', '')
         ip_address = request.args.get('ip_address', '')
         status = request.args.get('status', '')
-        logging.debug(f"筛选参数: device_name={device_name}, ip_address={ip_address}, status={status}")
+        logger.debug(f"筛选参数: device_name={device_name}, ip_address={ip_address}, status={status}")
         
         # 构建查询
         query = EdgeDevice.query
@@ -45,7 +47,7 @@ def index():
         
         # 记录查询结果数量
         devices_count = query.count()
-        logging.debug(f"筛选后设备总数: {devices_count}")
+        logger.debug(f"筛选后设备总数: {devices_count}")
         
         # 分页
         pagination = query.paginate(
@@ -53,10 +55,10 @@ def index():
         )
         
         # 记录传递给模板的参数
-        logging.debug(f"传递给模板的设备数量: {len(pagination.items)}")
+        logger.debug(f"传递给模板的设备数量: {len(pagination.items)}")
         
         # 尝试渲染模板
-        logging.debug("开始渲染模板...")
+        logger.debug("开始渲染模板...")
         try:
             render_params = {
                 'devices': pagination.items,
@@ -67,18 +69,18 @@ def index():
                     'status': status
                 }
             }
-            logging.debug(f"模板参数: {render_params}")
+            logger.debug(f"模板参数: {render_params}")
             result = render_template('edge_devices/edge_devices_index.html', **render_params)
-            logging.debug("模板渲染成功")
+            logger.debug("模板渲染成功")
             return result
         except Exception as template_error:
-            logging.error(f"模板渲染错误: {str(template_error)}")
-            logging.error(traceback.format_exc())
+            logger.error(f"模板渲染错误: {str(template_error)}")
+            logger.error(traceback.format_exc())
             raise  # 重新抛出异常以便外层捕获
         
     except Exception as e:
-        logging.error(f"访问边缘设备管理页面失败: {str(e)}")
-        logging.error(traceback.format_exc())
+        logger.error(f"访问边缘设备管理页面失败: {str(e)}")
+        logger.error(traceback.format_exc())
         flash(f"加载边缘设备管理页面失败: {str(e)}", "error")
         return render_template('error.html', error_message=str(e), stack_trace=traceback.format_exc()), 500
 

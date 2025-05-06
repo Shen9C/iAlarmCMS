@@ -12,7 +12,7 @@ from app.models.alarms import Alarm
 from app.models.users import User
 
 # 设置日志记录器
-logger = logging.getLogger('app.routes.alarms_api')  # 使用完整的模块路径
+logger = logging.getLogger(__name__)  # 使用完整的模块路径
 # 移除本地日志级别设置，使用settings.yaml中的全局配置
 
 # 创建Blueprint
@@ -22,11 +22,11 @@ bp = Blueprint('alarms_api', __name__, url_prefix='/api/alarms')
 @bp.route('/images/<filename>')
 def get_alarm_image(filename):
     try:
-        logging.debug("【图片接口】前端传入的 filename: %s", filename)
+        logger.debug("【图片接口】前端传入的 filename: %s", filename)
         """提供告警图片文件，添加速度优化"""
         # 安全检查：防止路径穿越
         if '..' in filename or filename.startswith('/'):
-            logging.error(f"无效的文件名: {filename}")
+            logger.error(f"无效的文件名: {filename}")
             return Response(
                 json.dumps({'error': '无效的文件名'}, ensure_ascii=False),
                 mimetype='application/json'
@@ -34,46 +34,46 @@ def get_alarm_image(filename):
         
         start_time = time.time()
         cwd = os.getcwd()
-        logging.debug("【图片接口】当前工作目录: %s", cwd)
+        logger.debug("【图片接口】当前工作目录: %s", cwd)
         
         # 列出当前目录内容
         try:
-            logging.debug("【图片接口】当前目录内容: %s", os.listdir(cwd))
+            logger.debug("【图片接口】当前目录内容: %s", os.listdir(cwd))
         except Exception as e:
-            logging.error(f"无法列出当前目录内容: {str(e)}")
+            logger.error(f"无法列出当前目录内容: {str(e)}")
         
         # 优先尝试固定路径，避免多次检查不同路径
         primary_path = '/zhyn/alarm_images'  # 修改为Docker中的实际路径
         file_path = os.path.join(primary_path, filename)
-        logging.debug("【图片接口】主路径: %s", primary_path)
-        logging.debug("【图片接口】拼接后的 file_path: %s", file_path)
+        logger.debug("【图片接口】主路径: %s", primary_path)
+        logger.debug("【图片接口】拼接后的 file_path: %s", file_path)
 
         # 3. 打印主路径下的所有文件名
         if os.path.exists(primary_path):
-            logging.debug("【图片接口】主路径下文件列表: %s", os.listdir(primary_path))
+            logger.debug("【图片接口】主路径下文件列表: %s", os.listdir(primary_path))
         else:
-            logging.error("【图片接口】主路径不存在: %s", primary_path)
+            logger.error("【图片接口】主路径不存在: %s", primary_path)
         
         # 检查文件是否存在和权限
         if os.path.exists(file_path):
-            logging.debug("【图片接口】文件存在: %s", file_path)
+            logger.debug("【图片接口】文件存在: %s", file_path)
             try:
-                logging.debug("【图片接口】文件权限: %s", oct(os.stat(file_path).st_mode)[-3:])
+                logger.debug("【图片接口】文件权限: %s", oct(os.stat(file_path).st_mode)[-3:])
             except Exception as e:
-                logging.error("【图片接口】无法获取文件权限: %s", str(e))
+                logger.error("【图片接口】无法获取文件权限: %s", str(e))
         else:
-            logging.error("【图片接口】文件不存在: %s", file_path)
+            logger.error("【图片接口】文件不存在: %s", file_path)
         
         # 检查是否要下载图片
         download_mode = request.args.get('download', 'false').lower() == 'true'
         
         # 直接检查主要路径
         if os.path.isfile(file_path):
-            logging.debug(f"找到图片文件: {file_path}, 用时: {time.time() - start_time:.4f}秒")
+            logger.debug(f"找到图片文件: {file_path}, 用时: {time.time() - start_time:.4f}秒")
             
             # 根据请求模式决定如何发送文件
             if download_mode:
-                logging.debug(f"下载模式: {filename}")
+                logger.debug(f"下载模式: {filename}")
                 return send_file(
                     file_path,
                     mimetype='application/octet-stream',
@@ -82,7 +82,7 @@ def get_alarm_image(filename):
                 )
             else:
                 # 查看模式添加缓存头
-                logging.debug(f"查看模式: {filename}, 总用时: {time.time() - start_time:.4f}秒")
+                logger.debug(f"查看模式: {filename}, 总用时: {time.time() - start_time:.4f}秒")
                 response = send_file(file_path, mimetype='image/jpeg')
                 response.headers['Cache-Control'] = 'public, max-age=86400'
                 return response
@@ -94,33 +94,33 @@ def get_alarm_image(filename):
             os.path.join(cwd, 'app/static', 'alarm_images')
         ]
         
-        logging.debug(f"尝试备用路径: {backup_paths}")
+        logger.debug(f"尝试备用路径: {backup_paths}")
         
         for path in backup_paths:
             file_path = os.path.join(path, filename)
-            logging.debug(f"尝试备用路径: {file_path}")
+            logger.debug(f"尝试备用路径: {file_path}")
             
             # 检查目录是否存在
             if os.path.exists(path):
-                logging.debug(f"目录存在: {path}")
+                logger.debug(f"目录存在: {path}")
                 try:
-                    logging.debug(f"目录内容: {os.listdir(path)}")
+                    logger.debug(f"目录内容: {os.listdir(path)}")
                 except Exception as e:
-                    logging.error(f"无法列出目录内容: {str(e)}")
+                    logger.error(f"无法列出目录内容: {str(e)}")
             else:
-                logging.error(f"目录不存在: {path}")
+                logger.error(f"目录不存在: {path}")
             
             if os.path.exists(file_path):
-                logging.debug(f"文件存在: {file_path}")
+                logger.debug(f"文件存在: {file_path}")
                 try:
-                    logging.debug(f"文件权限: {oct(os.stat(file_path).st_mode)[-3:]}")
+                    logger.debug(f"文件权限: {oct(os.stat(file_path).st_mode)[-3:]}")
                 except Exception as e:
-                    logging.error(f"无法获取文件权限: {str(e)}")
+                    logger.error(f"无法获取文件权限: {str(e)}")
             else:
-                logging.error(f"文件不存在: {file_path}")
+                logger.error(f"文件不存在: {file_path}")
             
             if os.path.isfile(file_path):
-                logging.debug(f"备用路径找到图片: {file_path}, 用时: {time.time() - start_time:.4f}秒")
+                logger.debug(f"备用路径找到图片: {file_path}, 用时: {time.time() - start_time:.4f}秒")
                 
                 if download_mode:
                     return send_file(
@@ -135,13 +135,13 @@ def get_alarm_image(filename):
                     return response
         
         # 如果所有路径都找不到文件
-        logging.error(f"未找到图片文件: {filename}, 用时: {time.time() - start_time:.4f}秒")
+        logger.error(f"未找到图片文件: {filename}, 用时: {time.time() - start_time:.4f}秒")
         return Response(
             json.dumps({'error': '图片文件不存在'}, ensure_ascii=False),
             mimetype='application/json'
         ), 404
     except Exception as e:
-        logging.exception(f"图片接口异常: {str(e)}")
+        logger.exception(f"图片接口异常: {str(e)}")
         return jsonify({'error': f'图片接口异常: {str(e)}'}), 500
 
 # 辅助函数：通过token获取用户
@@ -161,10 +161,10 @@ def token_or_login_required(f):
             if user:
                 # 保存用户到g对象，以便在视图函数中使用
                 g.user = user
-                logging.info(f"通过API token验证用户: {user.username}")
+                logger.info(f"通过API token验证用户: {user.username}")
                 return f(*args, **kwargs)
             else:
-                logging.warning(f"无效的user_token: {user_token}")
+                logger.warning(f"无效的user_token: {user_token}")
                 return jsonify({
                     'code': 401,
                     'success': False,
@@ -219,7 +219,7 @@ def get_alarms():
             }
         })
     except Exception as e:
-        logging.error(f"获取告警列表失败: {str(e)}")
+        logger.error(f"获取告警列表失败: {str(e)}")
         return jsonify({
             'code': 500,
             'message': f'获取告警列表失败: {str(e)}'
@@ -235,15 +235,15 @@ def confirm_alarm():
         confirmation_type = data.get('confirmation_type')
         
         # 记录请求信息
-        logging.info(f"接收到告警确认请求: alarm_id={alarm_id}, confirmation_type={confirmation_type}")
+        logger.info(f"接收到告警确认请求: alarm_id={alarm_id}, confirmation_type={confirmation_type}")
         
         # 获取告警前先记录是否存在 - 不使用缓存
         db.session.expire_all()  # 清除会话缓存
         alarm = Alarm.query.get_or_404(alarm_id)
-        logging.info(f"告警对象获取成功: id={alarm.id}, alarm_code={alarm.alarm_code}")
+        logger.info(f"告警对象获取成功: id={alarm.id}, alarm_code={alarm.alarm_code}")
         
         # 详细记录告警确认前的完整状态
-        logging.info(f"告警确认前状态: id={alarm.id}, alarm_code={alarm.alarm_code}, confirmation_type={alarm.confirmation_type}, "
+        logger.info(f"告警确认前状态: id={alarm.id}, alarm_code={alarm.alarm_code}, confirmation_type={alarm.confirmation_type}, "
                    f"is_confirmed={alarm.is_confirmed}, is_processed={alarm.is_processed}, "
                    f"confirmed_at={alarm.confirmed_at}")
         
@@ -255,15 +255,15 @@ def confirm_alarm():
         # 业务逻辑：确认操作只设置告警确认类型，不会改变告警的处理状态
         
         # 提交前记录字段
-        logging.info(f"提交前检查字段: confirmation_type={alarm.confirmation_type}, is_confirmed={alarm.is_confirmed}")
+        logger.info(f"提交前检查字段: confirmation_type={alarm.confirmation_type}, is_confirmed={alarm.is_confirmed}")
         
         # 确保提交
         db.session.commit()
-        logging.info("数据库事务已提交")
+        logger.info("数据库事务已提交")
         
         # 重新查询以验证写入成功
         alarm_after = Alarm.query.get(alarm_id)
-        logging.info(f"提交后重新查询: id={alarm_after.id}, alarm_code={alarm_after.alarm_code}, confirmation_type={alarm_after.confirmation_type}, "
+        logger.info(f"提交后重新查询: id={alarm_after.id}, alarm_code={alarm_after.alarm_code}, confirmation_type={alarm_after.confirmation_type}, "
                    f"is_confirmed={alarm_after.is_confirmed}, is_processed={alarm_after.is_processed}, "
                    f"confirmed_at={alarm_after.confirmed_at}")
         
@@ -280,8 +280,8 @@ def confirm_alarm():
             }
         })
     except Exception as e:
-        logging.error(f"告警确认失败: {str(e)}")
-        logging.exception("详细异常堆栈")
+        logger.error(f"告警确认失败: {str(e)}")
+        logger.exception("详细异常堆栈")
         db.session.rollback()
         return jsonify({
             'code': 500,
@@ -319,7 +319,7 @@ def batch_confirm_alarms():
         })
     except Exception as e:
         db.session.rollback()
-        logging.error(f"批量确认告警失败: {str(e)}")
+        logger.error(f"批量确认告警失败: {str(e)}")
         return jsonify({
             'success': False,
             'message': f'确认告警失败: {str(e)}'
@@ -355,7 +355,7 @@ def batch_process_alarms():
         })
     except Exception as e:
         db.session.rollback()
-        logging.error(f"批量处理告警失败: {str(e)}")
+        logger.error(f"批量处理告警失败: {str(e)}")
         return jsonify({
             'success': False,
             'message': f'处理告警失败: {str(e)}'
@@ -368,12 +368,12 @@ def process_alarm(alarm_id):
     try:
         # 确定请求的用户 - 可能是通过token验证的用户或通过会话验证的用户
         user = g.get('user') or current_user
-        logging.info(f"处理告警操作由用户执行: {user.username}")
+        logger.info(f"处理告警操作由用户执行: {user.username}")
         
         # 区分GET和POST请求
         if request.method == 'GET':
             notes = request.args.get('notes', '')
-            logging.info(f"接收到GET告警处理请求: alarm_id={alarm_id}, notes={notes}")
+            logger.info(f"接收到GET告警处理请求: alarm_id={alarm_id}, notes={notes}")
         else:  # POST请求
             try:
                 data = request.get_json()
@@ -381,17 +381,17 @@ def process_alarm(alarm_id):
             except Exception as e:
                 # 处理无法解析JSON的情况
                 notes = ''
-                logging.warning(f"POST请求未包含有效的JSON数据: {str(e)}")
+                logger.warning(f"POST请求未包含有效的JSON数据: {str(e)}")
             
-            logging.info(f"接收到POST告警处理请求: alarm_id={alarm_id}, notes={notes}")
+            logger.info(f"接收到POST告警处理请求: alarm_id={alarm_id}, notes={notes}")
         
         # 获取告警前先记录是否存在 - 不使用缓存
         db.session.expire_all()  # 清除会话缓存
         alarm = Alarm.query.get_or_404(alarm_id)
-        logging.info(f"告警对象获取成功: id={alarm.id}, alarm_code={alarm.alarm_code}")
+        logger.info(f"告警对象获取成功: id={alarm.id}, alarm_code={alarm.alarm_code}")
         
         # 详细记录告警处理前的完整状态
-        logging.info(f"告警处理前状态: id={alarm.id}, alarm_code={alarm.alarm_code}, is_processed={alarm.is_processed}, "
+        logger.info(f"告警处理前状态: id={alarm.id}, alarm_code={alarm.alarm_code}, is_processed={alarm.is_processed}, "
                    f"processed_time={alarm.processed_time}")
         
         # 更新告警状态为已处理
@@ -404,15 +404,15 @@ def process_alarm(alarm_id):
             alarm.process_notes = notes
         
         # 提交前记录字段
-        logging.info(f"提交前检查字段: is_processed={alarm.is_processed}")
+        logger.info(f"提交前检查字段: is_processed={alarm.is_processed}")
         
         # 确保提交
         db.session.commit()
-        logging.info("数据库事务已提交")
+        logger.info("数据库事务已提交")
         
         # 重新查询以验证写入成功
         alarm_after = Alarm.query.get(alarm_id)
-        logging.info(f"提交后重新查询: id={alarm_after.id}, alarm_code={alarm_after.alarm_code}, "
+        logger.info(f"提交后重新查询: id={alarm_after.id}, alarm_code={alarm_after.alarm_code}, "
                    f"is_processed={alarm_after.is_processed}, processed_time={alarm_after.processed_time}")
         
         return jsonify({
@@ -427,8 +427,8 @@ def process_alarm(alarm_id):
             }
         })
     except Exception as e:
-        logging.error(f"告警处理失败: {str(e)}")
-        logging.exception("详细异常堆栈")
+        logger.error(f"告警处理失败: {str(e)}")
+        logger.exception("详细异常堆栈")
         db.session.rollback()
         return jsonify({
             'code': 500,
@@ -500,13 +500,13 @@ def get_stats():
             }
         })
     except Exception as e:
-        logging.error(f"获取告警统计失败: {str(e)}")
+        logger.error(f"获取告警统计失败: {str(e)}")
         return jsonify({
             'code': 500,
             'message': f'获取告警统计失败: {str(e)}'
         }), 500
 
 print(f"[辅助打印] get_alarm_image日志级别: {logging.getLogger().getEffectiveLevel()}")
-logging.debug("[辅助打印] get_alarm_image DEBUG日志测试")
-logging.info("[辅助打印] get_alarm_image INFO日志测试")
+logger.debug("[辅助打印] get_alarm_image DEBUG日志测试")
+logger.info("[辅助打印] get_alarm_image INFO日志测试")
 

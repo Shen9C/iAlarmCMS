@@ -432,15 +432,28 @@ def change_password():
 @bp.route('/detail/<int:alarm_id>', methods=['GET', 'POST'])
 @login_required
 def alarm_detail(alarm_id):
-    # 从cookie或请求参数中获取user_token
-    user_token = request.cookies.get('user_token') or request.args.get('user_token')
-    
-    logger.info(f"告警详情请求: alarm_id={alarm_id}, method={request.method}, user_token={user_token}")
-    
-    # 获取告警详情
-    alarm = Alarm.query.get_or_404(alarm_id)
-    
-    return render_template('alarms/alarm_detail.html', alarm=alarm, user_token=user_token)
+    logger.debug(f"【告警详情】收到请求: alarm_id={alarm_id}, method={request.method}, user_token={request.args.get('user_token')}")
+    try:
+        # 查询告警
+        alarm = Alarm.query.get_or_404(alarm_id)
+        logger.debug(f"【告警详情】查询到告警对象: {alarm}")
+
+        # 传递给模板的参数
+        render_params = {
+            'alarm': alarm,
+            # 其他参数
+        }
+        logger.debug(f"【告警详情】传递给模板参数: {render_params}")
+
+        logger.debug("【告警详情】开始渲染模板...")
+        result = render_template('alarms/alarm_detail.html', **render_params)
+        logger.debug("【告警详情】模板渲染成功")
+        return result
+    except Exception as e:
+        logger.error(f"【告警详情】处理失败: {str(e)}")
+        logger.exception("详细异常堆栈")
+        flash(f"加载告警详情失败: {str(e)}")
+        return render_template('error.html', error_message=str(e)), 500
 
 @bp.route('/confirm_alarm_type/<int:alarm_id>', methods=['GET', 'POST'])
 @login_required
