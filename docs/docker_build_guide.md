@@ -28,6 +28,7 @@ cd oilfield-web
 # # 基本构建命令
 # docker build -t oilfield-web:latest .
 
+python3 setup.py build_ext --inplace
 # 带缓存的构建（适用于依赖更新）
 docker build --no-cache -t oilfield-web:v1.0.0 .
 docker build --no-cache -t flask_base:v1.0.0 .

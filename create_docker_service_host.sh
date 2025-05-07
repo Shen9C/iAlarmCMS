@@ -35,7 +35,7 @@ docker rm oilfield_web_app oilfield_web_db 2>/dev/null || true
 echo -e "${YELLOW}启动PostgreSQL容器...${NC}"
 docker run -d \
     --name oilfield_web_db \
-    --network=host \
+    --network-mode host \
     -e POSTGRES_USER=guanliyuan \
     -e POSTGRES_PASSWORD=admin123_Youtian \
     -e POSTGRES_DB=oilfield_web_db \
@@ -45,6 +45,7 @@ docker run -d \
     --memory-reservation=512m \
     --restart=unless-stopped \
     postgres:latest
+
     
 
 # 等待数据库容器完全启动
@@ -69,8 +70,6 @@ docker run -d \
     --memory-reservation=1g \
     --restart=unless-stopped \
     oilfield-web:v1.0.0
-
-docker run -d --name oilfield_web_app --network=host -v logs:/zhyn/logs -v alarm_images:/zhyn/alarm_images -v backups:/zhyn/backups -v config:/zhyn/config -v ssl:/zhyn/ssl -e PYTHONPATH=/zhyn -e FLASK_APP=run.py -e FLASK_ENV=production -e TZ=Asia/Shanghai --memory=2g --memory-reservation=1g --restart=unless-stopped oilfield-web:v1.0.0 
 
 # 检查容器状态
 echo -e "${YELLOW}检查容器状态...${NC}"
