@@ -49,18 +49,18 @@ docker run -d \
 # docker run -d --name oilfield_web_db --network=host -e POSTGRES_USER=guanliyuan -e POSTGRES_PASSWORD=admin123_Youtian -e POSTGRES_DB=oilfield_web_db -e TZ=Asia/Shanghai -v /opt/cms_web/oilfield-web_db:/var/lib/postgresql/data --memory=1g --memory-reservation=512m --restart=unless-stopped postgres:latest
 
 # # windows格式
-# docker run -d ^
-#     --name oilfield_web_db ^
-#     --network="host" ^
-#     -e POSTGRES_USER=guanliyuan ^
-#     -e POSTGRES_PASSWORD=admin123_Youtian ^
-#     -e POSTGRES_DB=oilfield_web_db ^
-#     -e TZ=Asia/Shanghai ^
-#     -v %cd%\pg_data:/var/lib/postgresql/data ^
-#     --memory=1g ^
-#     --memory-reservation=512m ^
-#     --restart=unless-stopped ^
-#     postgres:latest
+docker run -d ^
+    --name oilfield_web_db ^
+    --network="host" ^
+    -e POSTGRES_USER=guanliyuan ^
+    -e POSTGRES_PASSWORD=admin123_Youtian ^
+    -e POSTGRES_DB=oilfield_web_db ^
+    -e TZ=Asia/Shanghai ^
+    -v %cd%\pg_data:/var/lib/postgresql/data ^
+    --memory=1g ^
+    --memory-reservation=512m ^
+    --restart=unless-stopped ^
+    postgres:latest
 
 # 等待数据库容器完全启动
 echo -e "${YELLOW}等待数据库启动...${NC}"
@@ -85,7 +85,7 @@ docker run -d \
     --restart=unless-stopped \
     oilfield-web:v1.0.0
 
-# # windows格式
+# # # windows格式
 docker run -d ^
     --name oilfield_web_app ^
     --network="host" ^

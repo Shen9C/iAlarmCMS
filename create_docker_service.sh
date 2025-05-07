@@ -40,12 +40,12 @@ docker run -d \
     -e POSTGRES_PASSWORD=admin123_Youtian \
     -e POSTGRES_DB=oilfield_web_db \
     -e TZ=Asia/Shanghai \
-    -v /opt/cms_web/project/pg_data:/var/lib/postgresql/data \
+    -v /opt/cms_web/oilfield-web_db:/var/lib/postgresql/data \
     --memory=1g \
     --memory-reservation=512m \
     --restart=unless-stopped \
     postgres:latest
-    
+
 
 # 等待数据库容器完全启动
 echo -e "${YELLOW}等待数据库启动...${NC}"
@@ -55,12 +55,12 @@ sleep 30
 echo -e "${YELLOW}启动Flask应用容器...${NC}"
 docker run -d \
     --name oilfield_web_app \
-    --network-mode host \
-    -v /opt/cms_web/project/logs:/zhyn/logs \
-    -v /opt/cms_web/project/alarm_images:/zhyn/alarm_images \
-    -v /opt/cms_web/project/backups:/zhyn/backups \
-    -v /opt/cms_web/project/config:/zhyn/config \
-    -v /opt/cms_web/project/ssl:/zhyn/ssl \
+    --network=host \
+    -v /opt/cms_web/oilfield-web_app/logs:/zhyn/logs \
+    -v /opt/cms_web/oilfield-web_app/alarm_images:/zhyn/alarm_images \
+    -v /opt/cms_web/oilfield-web_app/backups:/zhyn/backups \
+    -v /opt/cms_web/oilfield-web_app/config:/zhyn/config \
+    -v /opt/cms_web/oilfield-web_app/ssl:/zhyn/ssl \
     -e PYTHONPATH=/zhyn \
     -e FLASK_APP=run.py \
     -e FLASK_ENV=production \
@@ -70,7 +70,6 @@ docker run -d \
     --restart=unless-stopped \
     oilfield-web:v1.0.0
 
-docker run -d --name oilfield_web_app --network=host -v logs:/zhyn/logs -v alarm_images:/zhyn/alarm_images -v backups:/zhyn/backups -v config:/zhyn/config -v ssl:/zhyn/ssl -e PYTHONPATH=/zhyn -e FLASK_APP=run.py -e FLASK_ENV=production -e TZ=Asia/Shanghai --memory=2g --memory-reservation=1g --restart=unless-stopped oilfield-web:v1.0.0 
 
 # 检查容器状态
 echo -e "${YELLOW}检查容器状态...${NC}"

@@ -552,9 +552,10 @@ var editDeviceData = null;
 
 {% block scripts %}
 <!-- 添加Bootstrap 5 JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/toastr.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/clipboard.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
 <script>
 // 确保在页面加载完成后初始化所有密码字段为隐藏状态
 document.addEventListener('DOMContentLoaded', function() {
