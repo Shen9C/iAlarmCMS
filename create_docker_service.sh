@@ -35,12 +35,11 @@ docker rm oilfield_web_app oilfield_web_db 2>/dev/null || true
 echo -e "${YELLOW}启动PostgreSQL容器...${NC}"
 docker run -d \
     --name oilfield_web_db \
-    --network oilfield_network \
+    --network-mode host \
     -e POSTGRES_USER=guanliyuan \
     -e POSTGRES_PASSWORD=admin123_Youtian \
     -e POSTGRES_DB=oilfield_web_db \
     -e TZ=Asia/Shanghai \
-    -p 5432:5432 \
     -v $(pwd)/pg_data:/var/lib/postgresql/data \
     --memory=1g \
     --memory-reservation=512m \
@@ -55,9 +54,7 @@ sleep 30
 echo -e "${YELLOW}启动Flask应用容器...${NC}"
 docker run -d \
     --name oilfield_web_app \
-    --network oilfield_network \
-    -p 8000:8000 \
-    -p 8800:8800 \
+    --network-mode host \
     -v $(pwd)/logs:/zhyn/logs \
     -v $(pwd)/alarm_images:/zhyn/alarm_images \
     -v $(pwd)/backups:/zhyn/backups \
