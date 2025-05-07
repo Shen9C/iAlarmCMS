@@ -29,7 +29,7 @@ cd oilfield-web
 # docker build -t oilfield-web:latest .
 
 # 带缓存的构建（适用于依赖更新）
-docker build --no-cache -t oilfield-web:v1.0.0 .
+docker build --no-cache -t oilfield-web:v0.9.0 .
 docker build --no-cache -t flask_base:v1.0.0 .
 
 # # 使用代理构建（如果需要）
@@ -46,7 +46,7 @@ docker images | grep oilfield-web
 
 # 检查镜像详情
 # docker inspect oilfield-web:latest
-docker inspect oilfield-web:v1.0.0
+docker inspect oilfield-web:v0.9.0
 ```
 
 ## 运行容器
